@@ -24,7 +24,6 @@ use Setono\SyliusMeilisearchPlugin\Provider\IndexSettings\IndexSettingsProviderI
 use Setono\SyliusMeilisearchPlugin\Repository\IndexableResourceRepositoryInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Settings\IndexSettings;
-use Setono\SyliusMeilisearchPlugin\Settings\SortableReplica;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Webmozart\Assert\Assert;
@@ -225,21 +224,6 @@ class DefaultIndexer extends AbstractIndexer
 
         /** @psalm-suppress MixedAssignment,MixedArrayAccess */
         $indexSettings->ranking = $index->getSettings()['ranking'];
-
-        foreach ($indexSettings->replicas as $replica) {
-            if (!$replica instanceof SortableReplica) {
-                continue;
-            }
-
-            $replicaIndex = $this->client->initIndex($replica->name);
-            Assert::isInstanceOf($replicaIndex, SearchIndex::class);
-
-            $replicaIndexSettings = clone $indexSettings;
-            $replicaIndexSettings->replicas = [];
-            array_unshift($replicaIndexSettings->ranking, $replica->ranking());
-
-            $replicaIndex->setSettings($replicaIndexSettings->toArray());
-        }
 
         return $index;
     }

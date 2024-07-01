@@ -9,13 +9,9 @@
             <argument>%kernel.environment%</argument>
         </service>
 
-        <service id="setono_sylius_meilisearch.resolver.replica_index_name"
-                 class="Setono\SyliusMeilisearchPlugin\Resolver\ReplicaIndexName\ReplicaIndexNameResolver"/>
-
         <service id="setono_sylius_meilisearch.resolver.sort_by"
                  class="Setono\SyliusMeilisearchPlugin\Resolver\SortBy\SortByResolver">
             <argument type="service" id="setono_sylius_meilisearch.resolver.index_name"/>
-            <argument type="service" id="setono_sylius_meilisearch.resolver.replica_index_name"/>
             <argument type="service" id="translator"/>
             <argument type="service" id="sylius.context.locale"/>
         </service>

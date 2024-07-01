@@ -31,9 +31,6 @@
 
         <!-- Index settings providers -->
         <service id="setono_sylius_meilisearch.provider.index_settings"
-                 class="Setono\SyliusMeilisearchPlugin\Provider\IndexSettings\IndexSettingsProvider">
-            <argument type="service" id="setono_sylius_meilisearch.resolver.index_name"/>
-            <argument type="service" id="setono_sylius_meilisearch.resolver.replica_index_name"/>
-        </service>
+                 class="Setono\SyliusMeilisearchPlugin\Provider\IndexSettings\IndexSettingsProvider"/>
     </services>
 </container>
