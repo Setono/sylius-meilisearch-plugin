@@ -24,7 +24,7 @@ final class IndexResourceHandler implements MessageHandlerInterface
     {
         try {
             $this->indexRegistry
-                ->getByName($message->index)
+                ->get($message->index)
                 ->indexer
                 ->indexResource($message->index, $message->resource)
             ;

@@ -9,11 +9,11 @@ final class NonExistingIndexException extends \InvalidArgumentException
     /**
      * @param list<string>|null $availableIndexes
      */
-    public static function fromName(string $name, array $availableIndexes = null): self
+    public static function fromName(string $name, array $availableIndexes = []): self
     {
         $message = sprintf('No index exists with the name "%s".', $name);
 
-        if (null !== $availableIndexes && [] !== $availableIndexes) {
+        if ([] !== $availableIndexes) {
             $message .= sprintf(' Available indexes are: [%s]', implode(', ', $availableIndexes));
         }
 

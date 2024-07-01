@@ -64,7 +64,7 @@ final class SearchAction
         }
 
         try {
-            $indexableResource = $this->indexRegistry->getByResourceClass(ProductInterface::class);
+            $indexableResource = $this->indexRegistry->getByResource(ProductInterface::class);
         } catch (\InvalidArgumentException $e) {
             throw new NotFoundHttpException($e->getMessage(), $e);
         }

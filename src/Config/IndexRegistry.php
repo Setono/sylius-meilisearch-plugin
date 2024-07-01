@@ -7,11 +7,9 @@ namespace Setono\SyliusMeilisearchPlugin\Config;
 use Setono\SyliusMeilisearchPlugin\Exception\NonExistingIndexException;
 
 /**
- * todo introduce interface
- *
  * @implements \IteratorAggregate<string, Index>
  */
-final class IndexRegistry implements \IteratorAggregate
+final class IndexRegistry implements \IteratorAggregate, IndexRegistryInterface
 {
     /**
      * An array of indexes, indexed by the name of the index
@@ -28,6 +26,7 @@ final class IndexRegistry implements \IteratorAggregate
         foreach ($this->indexes as $existingIndex) {
             foreach ($index->resources as $resource) {
                 if ($existingIndex->hasResource($resource)) {
+                    // todo why is this a problem?
                     throw new \InvalidArgumentException(sprintf(
                         'The resource "%s" is already defined on the index "%s"',
                         $resource->name,
@@ -43,7 +42,7 @@ final class IndexRegistry implements \IteratorAggregate
     /**
      * @throws NonExistingIndexException if no index exists with the given name
      */
-    public function getByName(string $name): Index
+    public function get(string $name): Index
     {
         if (!isset($this->indexes[$name])) {
             throw NonExistingIndexException::fromName($name, array_keys($this->indexes));
@@ -59,16 +58,13 @@ final class IndexRegistry implements \IteratorAggregate
      *
      * @throws \InvalidArgumentException if the given resource is not configured on any index
      */
-    public function getByResourceClass($class): Index
+    public function getByResource(object|string $class): Index
     {
         if (is_object($class)) {
-            $class = get_class($class);
+            $class = $class::class;
         }
 
         foreach ($this->indexes as $index) {
-            // todo the old if here was
-            // if (is_a($resource->resourceClass, $class, true) || is_a($class, $resource->resourceClass, true)) {
-            // what was the reason for that?
             if ($index->hasResourceWithClass($class)) {
                 return $index;
             }

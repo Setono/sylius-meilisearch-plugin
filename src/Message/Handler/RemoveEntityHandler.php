@@ -22,7 +22,7 @@ final class RemoveEntityHandler implements MessageHandlerInterface
     {
         try {
             $this->indexRegistry
-                ->getByResourceClass($message->entityClass)
+                ->getByResource($message->entityClass)
                 ->indexer
                 ->removeEntityWithId($message->entityId, $message->entityClass)
             ;

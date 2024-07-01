@@ -34,7 +34,7 @@ final class SourcesResolver implements SourcesResolverInterface
     {
         $sources = [];
         foreach ($this->searchIndexes as $searchIndex) {
-            $index = $this->indexRegistry->getByName($searchIndex);
+            $index = $this->indexRegistry->get($searchIndex);
             $sources[] = new Source($searchIndex, $this->indexNameResolver->resolve($index));
         }
 

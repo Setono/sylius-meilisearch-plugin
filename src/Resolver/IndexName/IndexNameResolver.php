@@ -60,7 +60,7 @@ final class IndexNameResolver implements IndexNameResolverInterface
     private function resolveIndexScope($value): IndexScope
     {
         if (!$value instanceof Index) {
-            $value = $this->indexRegistry->getByResourceClass($value);
+            $value = $this->indexRegistry->getByResource($value);
         }
 
         return $this->indexScopeProvider->getFromContext($value);

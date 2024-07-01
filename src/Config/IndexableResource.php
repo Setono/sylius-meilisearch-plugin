@@ -48,10 +48,10 @@ final class IndexableResource
      *
      * @param object|class-string $class
      */
-    public function is($class): bool
+    public function is(object|string $class): bool
     {
         if (is_object($class)) {
-            $class = get_class($class);
+            $class = $class::class;
         }
 
         return is_a($this->class, $class, true);

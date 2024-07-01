@@ -90,7 +90,7 @@ class DefaultIndexer extends AbstractIndexer
     public function index(Index|string $index): void
     {
         if (is_string($index)) {
-            $index = $this->indexRegistry->getByName($index);
+            $index = $this->indexRegistry->get($index);
         }
 
         foreach ($index->resources as $resource) {
@@ -101,7 +101,7 @@ class DefaultIndexer extends AbstractIndexer
     public function indexResource(Index|string $index, string $resource): void
     {
         if (is_string($index)) {
-            $index = $this->indexRegistry->getByName($index);
+            $index = $this->indexRegistry->get($index);
         }
 
         $indexableResource = $index->getResource($resource);
@@ -117,7 +117,7 @@ class DefaultIndexer extends AbstractIndexer
             return;
         }
 
-        $index = $this->indexRegistry->getByResourceClass($type);
+        $index = $this->indexRegistry->getByResource($type);
 
         foreach ($this->indexScopeProvider->getAll($index) as $indexScope) {
             $algoliaIndex = $this->prepareIndex(
@@ -144,7 +144,7 @@ class DefaultIndexer extends AbstractIndexer
             return;
         }
 
-        $index = $this->indexRegistry->getByResourceClass($type);
+        $index = $this->indexRegistry->getByResource($type);
 
         foreach ($this->indexScopeProvider->getAll($index) as $indexScope) {
             $algoliaIndex = $this->prepareIndex(

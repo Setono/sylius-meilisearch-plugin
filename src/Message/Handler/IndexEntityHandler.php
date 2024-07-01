@@ -22,7 +22,7 @@ final class IndexEntityHandler implements MessageHandlerInterface
     {
         try {
             $this->indexRegistry
-                ->getByResourceClass($message->entityClass)
+                ->getByResource($message->entityClass)
                 ->indexer
                 ->indexEntityWithId($message->entityId, $message->entityClass)
             ;
