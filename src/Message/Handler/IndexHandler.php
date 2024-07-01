@@ -20,7 +20,7 @@ final class IndexHandler
         try {
             $this->indexRegistry->get($message->index)->indexer->index($message->index);
         } catch (NonExistingIndexException $e) {
-            throw new UnrecoverableMessageHandlingException($e->getMessage(), 0, $e);
+            throw new UnrecoverableMessageHandlingException(message: $e->getMessage(), previous: $e);
         }
     }
 }
