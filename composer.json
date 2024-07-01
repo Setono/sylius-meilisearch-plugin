@@ -55,7 +55,7 @@
         "nyholm/psr7": "^1.8",
         "phpspec/prophecy-phpunit": "^2.0",
         "phpunit/phpunit": "^9.6.17",
-        "psalm/plugin-phpunit": "^0.18.4",
+        "psalm/plugin-phpunit": "^0.19.0",
         "setono/code-quality-pack": "^2.7",
         "sylius/sylius": "~1.12.13",
         "symfony/debug-bundle": "^5.4 || ^6.4 || ^7.0",
