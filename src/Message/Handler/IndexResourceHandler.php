@@ -9,9 +9,8 @@ use Setono\SyliusMeilisearchPlugin\Exception\NonExistingIndexException;
 use Setono\SyliusMeilisearchPlugin\Exception\NonExistingResourceException;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexResource;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-final class IndexResourceHandler implements MessageHandlerInterface
+final class IndexResourceHandler
 {
     private IndexRegistry $indexRegistry;
 

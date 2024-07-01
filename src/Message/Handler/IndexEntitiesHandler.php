@@ -7,9 +7,8 @@ namespace Setono\SyliusMeilisearchPlugin\Message\Handler;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistry;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-final class IndexEntitiesHandler implements MessageHandlerInterface
+final class IndexEntitiesHandler
 {
     private IndexRegistry $indexRegistry;
 
