@@ -15,39 +15,30 @@ use Sylius\Component\Locale\Context\LocaleContextInterface;
 
 final class ProductIndexScopeProvider implements IndexScopeProviderInterface
 {
-    private ChannelContextInterface $channelContext;
-
-    private LocaleContextInterface $localeContext;
-
-    private CurrencyContextInterface $currencyContext;
-
-    private ChannelRepositoryInterface $channelRepository;
-
     public function __construct(
-        ChannelContextInterface $channelContext,
-        LocaleContextInterface $localeContext,
-        CurrencyContextInterface $currencyContext,
-        ChannelRepositoryInterface $channelRepository,
+        private readonly ChannelContextInterface $channelContext,
+        private readonly LocaleContextInterface $localeContext,
+        private readonly CurrencyContextInterface $currencyContext,
+        private readonly ChannelRepositoryInterface $channelRepository,
     ) {
-        $this->channelContext = $channelContext;
-        $this->localeContext = $localeContext;
-        $this->currencyContext = $currencyContext;
-        $this->channelRepository = $channelRepository;
     }
 
     public function getAll(Index $index): iterable
     {
         /** @var ChannelInterface[] $channels */
-        $channels = $this->channelRepository->findAll();
+        $channels = $this->channelRepository->findBy([
+            'enabled' => true,
+        ]);
 
         foreach ($channels as $channel) {
             foreach ($channel->getLocales() as $locale) {
                 foreach ($channel->getCurrencies() as $currency) {
-                    yield (new IndexScope($index))
-                        ->withChannelCode($channel->getCode())
-                        ->withLocaleCode($locale->getCode())
-                        ->withCurrencyCode($currency->getCode())
-                    ;
+                    yield new IndexScope(
+                        index: $index,
+                        channelCode: $channel->getCode(),
+                        localeCode: $locale->getCode(),
+                        currencyCode: $currency->getCode(),
+                    );
                 }
             }
         }
@@ -69,11 +60,12 @@ final class ProductIndexScopeProvider implements IndexScopeProviderInterface
         string $localeCode = null,
         string $currencyCode = null,
     ): IndexScope {
-        return (new IndexScope($index))
-            ->withChannelCode($channelCode)
-            ->withLocaleCode($localeCode)
-            ->withCurrencyCode($currencyCode)
-        ;
+        return new IndexScope(
+            index: $index,
+            channelCode: $channelCode,
+            localeCode: $localeCode,
+            currencyCode: $currencyCode,
+        );
     }
 
     public function supports(Index $index): bool

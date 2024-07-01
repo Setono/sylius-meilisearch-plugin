@@ -13,16 +13,10 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 
 final class TaxonIndexScopeProvider implements IndexScopeProviderInterface
 {
-    private RepositoryInterface $localeRepository;
-
-    private LocaleContextInterface $localeContext;
-
     public function __construct(
-        RepositoryInterface $localeRepository,
-        LocaleContextInterface $localeContext,
+        private readonly RepositoryInterface $localeRepository,
+        private readonly LocaleContextInterface $localeContext,
     ) {
-        $this->localeRepository = $localeRepository;
-        $this->localeContext = $localeContext;
     }
 
     public function getAll(Index $index): iterable
@@ -31,7 +25,7 @@ final class TaxonIndexScopeProvider implements IndexScopeProviderInterface
         $locales = $this->localeRepository->findAll();
 
         foreach ($locales as $locale) {
-            yield (new IndexScope($index))->withLocaleCode($locale->getCode());
+            yield new IndexScope(index: $index, localeCode: $locale->getCode());
         }
     }
 
@@ -50,9 +44,7 @@ final class TaxonIndexScopeProvider implements IndexScopeProviderInterface
         string $localeCode = null,
         string $currencyCode = null,
     ): IndexScope {
-        return (new IndexScope($index))
-            ->withLocaleCode($localeCode)
-        ;
+        return new IndexScope(index: $index, localeCode: $localeCode);
     }
 
     public function supports(Index $index): bool
