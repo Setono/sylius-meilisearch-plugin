@@ -1,0 +1,4 @@
+setono_sylius_meilisearch:
+    ui:
+        sort_by:
+            relevance: Relevance

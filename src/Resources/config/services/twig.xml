@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <!-- Variable related services -->
+        <service id="setono_sylius_meilisearch.twig.variable"
+                 class="Setono\SyliusMeilisearchPlugin\Twig\Variable">
+            <argument type="service" id="setono_sylius_meilisearch.twig.variable.autocomplete"/>
+            <argument>%setono_sylius_meilisearch.credentials.master_key%</argument>
+        </service>
+
+        <service id="setono_sylius_meilisearch.twig.variable.autocomplete"
+                 class="Setono\SyliusMeilisearchPlugin\Twig\Variable\Autocomplete">
+            <argument type="service" id="setono_sylius_meilisearch.javascript.autocomplete.sources_resolver"/>
+        </service>
+    </services>
+</container>

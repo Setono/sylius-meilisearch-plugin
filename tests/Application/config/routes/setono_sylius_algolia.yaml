@@ -1,0 +1,2 @@
+setono_sylius_meilisearch:
+    resource: "@SetonoSyliusMeilisearchPlugin/Resources/config/routes.yaml"

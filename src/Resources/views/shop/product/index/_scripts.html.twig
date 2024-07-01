@@ -1,0 +1,61 @@
+{% set scripts = [
+    {'src': 'https://cdn.jsdelivr.net/npm/algoliasearch@4.14.2/dist/algoliasearch-lite.umd.js', 'integrity': 'sha256-dImjLPUsG/6p3+i7gVKBiDM8EemJAhQ0VvkRK2pVsQY='},
+    {'src': 'https://cdn.jsdelivr.net/npm/instantsearch.js@4.49.1/dist/instantsearch.production.min.js', 'integrity': 'sha256-3s8yn/IU/hV+UjoqczP+9xDS1VXIpMf3QYRUi9XoG0Y='}
+] %}
+
+{% for script in scripts %}
+    <link rel="preload" href="{{ preload(script.src, { as: 'script', integrity: script.integrity, crossorigin: 'anonymous' }) }}" as="script">
+    <script src="{{ script.src }}" integrity="{{ script.integrity }}" crossorigin="anonymous"></script>
+{% endfor %}
+
+<script>
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    function init() {
+        const algoliaIndex = document.getElementById('algolia-index').dataset.value;
+        const algoliaTaxon = document.getElementById('algolia-taxon').dataset.value;
+        const algoliaSortBy = document.getElementById('sort-by').dataset.value;
+        const algoliaHitTemplate = document.getElementById('algolia-hit-template').innerHTML;
+
+        const searchClient = algoliasearch('{{ algolia.appId }}', '{{ algolia.searchOnlyApiKey }}');
+
+        const search = instantsearch({
+            indexName: algoliaIndex,
+            searchClient,
+            routing: true,
+        });
+
+        search.addWidgets([
+            instantsearch.widgets.hits({
+                container: '#hits',
+                templates: {
+                    item: algoliaHitTemplate,
+                }
+            }),
+            instantsearch.widgets.sortBy({
+                container: '#sort-by',
+                items: JSON.parse(algoliaSortBy),
+            }),
+            instantsearch.widgets.rangeSlider({
+                container: '#price-slider',
+                attribute: 'price',
+            }),
+            instantsearch.widgets.toggleRefinement({
+                'container': '#on-sale',
+                'attribute': 'onSale'
+            }),
+            instantsearch.widgets.pagination({
+                'container': '#pagination'
+            }),
+            instantsearch.widgets.configure({
+                filters: `taxonCodes:${algoliaTaxon}`
+            })
+        ]);
+
+        search.start();
+    }
+</script>

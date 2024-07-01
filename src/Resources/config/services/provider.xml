@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <!-- Event context providers -->
+        <service id="setono_sylius_meilisearch.provider.event_context.provider"
+                 class="Setono\SyliusMeilisearchPlugin\Provider\EventContext\EventContextProvider">
+            <argument type="service" id="setono_client_id.provider.default_client_id"/>
+            <argument type="service" id="sylius.context.channel"/>
+            <argument type="service" id="sylius.context.locale"/>
+            <argument type="service" id="sylius.context.currency"/>
+        </service>
+
+        <!-- Index scope providers -->
+        <service id="setono_sylius_meilisearch.provider.index_scope.composite"
+                 class="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\CompositeIndexScopeProvider"/>
+
+        <service id="setono_sylius_meilisearch.provider.index_scope.default"
+                 class="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\DefaultIndexScopeProvider">
+            <tag name="setono_sylius_meilisearch.index_scope_provider" priority="-64"/>
+        </service>
+
+        <service id="setono_sylius_meilisearch.provider.index_scope.product"
+                 class="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\ProductIndexScopeProvider">
+            <argument type="service" id="sylius.context.channel"/>
+            <argument type="service" id="sylius.context.locale"/>
+            <argument type="service" id="sylius.context.currency"/>
+            <argument type="service" id="sylius.repository.channel"/>
+
+            <tag name="setono_sylius_meilisearch.index_scope_provider"/>
+        </service>
+
+        <service id="setono_sylius_meilisearch.provider.index_scope.taxon"
+                 class="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\TaxonIndexScopeProvider">
+            <argument type="service" id="sylius.repository.locale"/>
+            <argument type="service" id="sylius.context.locale"/>
+
+            <tag name="setono_sylius_meilisearch.index_scope_provider"/>
+        </service>
+
+        <!-- Index settings providers -->
+        <service id="setono_sylius_meilisearch.provider.index_settings"
+                 class="Setono\SyliusMeilisearchPlugin\Provider\IndexSettings\IndexSettingsProvider">
+            <argument type="service" id="setono_sylius_meilisearch.resolver.index_name"/>
+            <argument type="service" id="setono_sylius_meilisearch.resolver.replica_index_name"/>
+        </service>
+    </services>
+</container>

@@ -1,0 +1,15 @@
+imports:
+    - { resource: "@SetonoSyliusMeilisearchPlugin/Resources/config/app/config.yaml" }
+
+setono_sylius_meilisearch:
+    indexes:
+        products:
+            document: 'Setono\SyliusMeilisearchPlugin\Tests\Application\Document\Product'
+            resources: [ 'sylius.product' ]
+        taxons:
+            document: 'Setono\SyliusMeilisearchPlugin\Document\Taxon'
+            resources: [ 'sylius.taxon' ]
+    search:
+        indexes:
+            - 'products'
+            - 'taxons'

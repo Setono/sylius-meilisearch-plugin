@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd" colors="true"
+         bootstrap="tests/Application/config/bootstrap.php">
+    <coverage includeUncoveredFiles="true" processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">src/</directory>
+        </include>
+    </coverage>
+    <testsuites>
+        <testsuite name="SetonoSyliusMeilisearchPlugin Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <env name="APP_ENV" value="test"/>
+        <env name="SHELL_VERBOSITY" value="-1"/>
+
+        <!-- Input these values to test the Meilisearch implementation on a live application -->
+        <env name="MEILISEARCH_LIVE" value="0"/> <!-- Set to 1 to enable live testing -->
+        <env name="MEILISEARCH_MASTER_KEY" value="aSampleMasterKey"/>
+    </php>
+</phpunit>

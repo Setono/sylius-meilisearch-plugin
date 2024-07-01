@@ -1,0 +1,116 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Setono\SyliusMeilisearchPlugin\Document;
+
+use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
+use Setono\SyliusMeilisearchPlugin\Settings\IndexSettings;
+
+/**
+ * Should not be final, so it's easier for plugin users to extend it and add more properties
+ */
+class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInterface
+{
+    public ?string $name = null;
+
+    /**
+     * UNIX timestamp for creation date
+     */
+    public ?int $createdAt = null;
+
+    public ?string $url = null;
+
+    public ?string $primaryImageUrl = null;
+
+    /**
+     * All images (including the primary image url)
+     *
+     * @var list<string>
+     */
+    public array $imageUrls = [];
+
+    /**
+     * Holds a list of taxon codes. This makes it easy to filter by a taxon.
+     *
+     * @var list<string>
+     */
+    public array $taxonCodes = [];
+
+    public ?string $currency = null;
+
+    public ?float $price = null;
+
+    public ?float $originalPrice = null;
+
+    /**
+     * This attribute will allow you to create a filter like 'Only show products on sale'
+     */
+    public function onSale(): bool
+    {
+        return null !== $this->originalPrice && null !== $this->price && $this->price < $this->originalPrice;
+    }
+
+    /**
+     * This attribute will allow you to create a replica index sorted by biggest discount just like this:
+     *
+     * public static function getSortableAttributes(): array
+     * {
+     *     return [
+     *         'discount' => 'desc',
+     *     ];
+     * }
+     */
+    public function discount(): float
+    {
+        if (null === $this->originalPrice || null === $this->price) {
+            return 0;
+        }
+
+        return max(0, $this->originalPrice - $this->price);
+    }
+
+    public function setUrl(string $url): void
+    {
+        $this->url = $url;
+    }
+
+    public function setImageUrls(array $imageUrls): void
+    {
+        $this->imageUrls = $imageUrls;
+        $this->primaryImageUrl = null;
+
+        if (count($imageUrls) > 0) {
+            $this->primaryImageUrl = $imageUrls[0];
+        }
+    }
+
+    public function addImageUrl(string $imageUrl): void
+    {
+        $this->imageUrls[] = $imageUrl;
+        $this->primaryImageUrl = $this->imageUrls[0];
+    }
+
+    public static function getDefaultSettings(IndexScope $indexScope): IndexSettings
+    {
+        $settings = parent::getDefaultSettings($indexScope);
+
+        $settings->searchableAttributes = [
+            'code', // usually the code is the SKU. This gives users the opportunity to search directly for a SKU if they know it
+            'name',
+        ];
+
+        $settings->attributesForFaceting = [
+            'filterOnly(taxonCodes)', // this allows us to show products in a given taxon. This is used in product lists
+            'filterOnly(onSale)', // this will allow users to filter for products that are on sale
+            'price', // this will allow you to create a price slider
+        ];
+
+        $settings->customRanking = ['desc(createdAt)']; // if nothing else applies, your newest products will be at the top of the product list
+        $settings->disablePrefixOnAttributes = ['code'];
+        $settings->ignorePlurals = true;
+        $settings->allowTyposOnNumericTokens = false;
+
+        return $settings;
+    }
+}
