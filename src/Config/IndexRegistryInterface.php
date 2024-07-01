@@ -6,6 +6,9 @@ namespace Setono\SyliusMeilisearchPlugin\Config;
 
 use Setono\SyliusMeilisearchPlugin\Exception\NonExistingIndexException;
 
+/**
+ * @extends \Traversable<Index>
+ */
 interface IndexRegistryInterface extends \Traversable
 {
     /**

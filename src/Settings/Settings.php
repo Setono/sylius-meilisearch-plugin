@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Settings;
 
-use Webmozart\Assert\Assert;
-
 /**
  * This class holds all the shared settings between the scope 'settings' and 'search'
  *
@@ -164,13 +162,8 @@ class Settings
     {
         $obj = new static();
 
-        /**
-         * @var string $key
-         * @var mixed $value
-         */
+        /** @var mixed $value */
         foreach ($settings as $key => $value) {
-            Assert::string($key);
-
             if (null === $value || !property_exists(self::class, $key)) {
                 continue;
             }

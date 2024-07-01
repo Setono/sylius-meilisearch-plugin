@@ -25,7 +25,8 @@ final class SetonoSyliusMeilisearchExtension extends Extension
          * @var array{
          *      indexes: array<string, mixed>,
          *      credentials: array{ master_key: string },
-         *      search: array{ enabled: bool, indexes: list<string> }
+         *      search: array{ enabled: bool, indexes: list<string> },
+         *      routes: array{ search: string }
          * } $config
          */
         $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);

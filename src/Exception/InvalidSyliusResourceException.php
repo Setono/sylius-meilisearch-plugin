@@ -7,13 +7,13 @@ namespace Setono\SyliusMeilisearchPlugin\Exception;
 final class InvalidSyliusResourceException extends \InvalidArgumentException
 {
     /**
-     * @param list<string>|null $availableSyliusResources
+     * @param list<string> $availableSyliusResources
      */
-    public static function fromName(string $name, array $availableSyliusResources = null): self
+    public static function fromName(string $name, array $availableSyliusResources = []): self
     {
         $message = sprintf('No Sylius resource exists with the name "%s".', $name);
 
-        if (null !== $availableSyliusResources && [] !== $availableSyliusResources) {
+        if ([] !== $availableSyliusResources) {
             $message .= sprintf(' Available Sylius resources are: [%s]', implode(', ', $availableSyliusResources));
         }
 

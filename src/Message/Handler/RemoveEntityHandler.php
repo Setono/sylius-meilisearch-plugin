@@ -18,9 +18,9 @@ final class RemoveEntityHandler
     {
         try {
             $this->indexRegistry
-                ->getByResource($message->entityClass)
+                ->getByResource($message->class)
                 ->indexer
-                ->removeEntityWithId($message->entityId, $message->entityClass)
+                ->removeEntityWithId($message->id, $message->class)
             ;
         } catch (\InvalidArgumentException $e) {
             throw new UnrecoverableMessageHandlingException($e->getMessage(), 0, $e);

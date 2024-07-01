@@ -9,6 +9,9 @@ use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
+/**
+ * @extends RepositoryInterface<IndexableInterface>
+ */
 interface IndexableResourceRepositoryInterface extends RepositoryInterface
 {
     public function createIndexableCollectionQueryBuilder(): QueryBuilder;

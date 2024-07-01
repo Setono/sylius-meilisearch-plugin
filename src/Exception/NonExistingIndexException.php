@@ -7,7 +7,7 @@ namespace Setono\SyliusMeilisearchPlugin\Exception;
 final class NonExistingIndexException extends \InvalidArgumentException
 {
     /**
-     * @param list<string>|null $availableIndexes
+     * @param list<string> $availableIndexes
      */
     public static function fromName(string $name, array $availableIndexes = []): self
     {
