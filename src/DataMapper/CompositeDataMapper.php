@@ -6,7 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin\DataMapper;
 
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
-use Sylius\Component\Resource\Model\ResourceInterface;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 
 final class CompositeDataMapper implements DataMapperInterface
 {
@@ -18,7 +18,7 @@ final class CompositeDataMapper implements DataMapperInterface
         $this->dataMappers[] = $dataMapper;
     }
 
-    public function map(ResourceInterface $source, Document $target, IndexScope $indexScope, array $context = []): void
+    public function map(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): void
     {
         foreach ($this->dataMappers as $dataMapper) {
             if ($dataMapper->supports($source, $target, $indexScope, $context)) {
@@ -27,7 +27,7 @@ final class CompositeDataMapper implements DataMapperInterface
         }
     }
 
-    public function supports(ResourceInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
+    public function supports(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
     {
         foreach ($this->dataMappers as $dataMapper) {
             if ($dataMapper->supports($source, $target, $indexScope, $context)) {

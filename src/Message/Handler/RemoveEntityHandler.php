@@ -4,26 +4,13 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Message\Handler;
 
-use Setono\SyliusMeilisearchPlugin\Config\IndexRegistry;
-use Setono\SyliusMeilisearchPlugin\Message\Command\RemoveEntity;
-use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
+use Setono\SyliusMeilisearchPlugin\Config\Index;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 
-final class RemoveEntityHandler
+final class RemoveEntityHandler extends AbstractEntityHandler
 {
-    public function __construct(private readonly IndexRegistry $indexRegistry)
+    protected function execute(IndexableInterface $entity, Index $index): void
     {
-    }
-
-    public function __invoke(RemoveEntity $message): void
-    {
-        try {
-            $this->indexRegistry
-                ->getByResource($message->class)
-                ->indexer
-                ->removeEntityWithId($message->id, $message->class)
-            ;
-        } catch (\InvalidArgumentException $e) {
-            throw new UnrecoverableMessageHandlingException($e->getMessage(), 0, $e);
-        }
+        $index->indexer->removeEntity($entity);
     }
 }

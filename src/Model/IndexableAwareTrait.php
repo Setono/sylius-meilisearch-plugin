@@ -4,18 +4,9 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Model;
 
-use Sylius\Component\Resource\Model\ResourceInterface;
-
-/**
- * @mixin ResourceInterface
- */
 trait IndexableAwareTrait
 {
-    /**
-     * This will be the object id in Algolia. This MUST be unique across the index therefore if you mix
-     * products and taxons in an index for example, use a prefix on the object id
-     */
-    public function getObjectId(): string
+    public function getDocumentIdentifier(): string
     {
         return (string) $this->getId();
     }

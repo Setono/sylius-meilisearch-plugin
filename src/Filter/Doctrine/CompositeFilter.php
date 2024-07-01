@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Filter\Doctrine;
 
 use Doctrine\ORM\QueryBuilder;
-use Setono\SyliusMeilisearchPlugin\Config\IndexableResource;
 
 final class CompositeFilter implements FilterInterface
 {
@@ -17,10 +16,10 @@ final class CompositeFilter implements FilterInterface
         $this->filters[] = $filter;
     }
 
-    public function apply(QueryBuilder $qb, IndexableResource $indexableResource): void
+    public function apply(QueryBuilder $qb, string $entity): void
     {
         foreach ($this->filters as $filter) {
-            $filter->apply($qb, $indexableResource);
+            $filter->apply($qb, $entity);
         }
     }
 }

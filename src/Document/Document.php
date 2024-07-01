@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Document;
 
 use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Settings\IndexSettings;
 
 /**
@@ -13,23 +14,27 @@ use Setono\SyliusMeilisearchPlugin\Settings\IndexSettings;
 abstract class Document
 {
     /**
-     * This will be the object id in Meilisearch. This MUST be unique across the index therefore if you mix
+     * This will be the id in Meilisearch. This MUST be unique across the index, therefore if you mix
      * products and taxons for example, use a prefix on the object id
      */
-    public ?string $objectId = null;
+    public ?string $id = null;
 
     /**
-     * This is the code in the database.
-     * Used together with the $resourceName, you can identify a given entity in your own database
+     * This is the id in the database.
+     * Used together with the $entityClass, you can identify a given entity in your own database
      */
-    public ?string $code = null;
+    public ?string $entityId = null;
 
     /**
-     * This is the name of the resource, for the product entity in Sylius, this would be 'sylius.product' for example
+     * This is the entity class FQCN
+     *
+     * @var class-string<IndexableInterface>|null
      */
-    public ?string $resourceName = null;
+    public ?string $entityClass = null;
 
     /**
+     * todo do we need this?
+     *
      * This is the FQCN for the document being sent to Meilisearch. This makes it a lot easier to deserialize the JSON
      * when it comes back from Meilisearch since we know which class to deserialize to
      *
@@ -38,7 +43,7 @@ abstract class Document
     public string $documentClass;
 
     /**
-     * This allows us to always be able to instantiate an extending class without worrying about constructor arguments
+     * Making the constructor final allows us to always be able toinstantiate an extending class without worrying about constructor arguments
      */
     final public function __construct()
     {

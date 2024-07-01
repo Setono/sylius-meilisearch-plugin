@@ -12,7 +12,7 @@ use Setono\SyliusMeilisearchPlugin\Exception\NonExistingIndexException;
 interface IndexRegistryInterface extends \Traversable
 {
     /**
-     * @throws \InvalidArgumentException if one of the resources on the $index has already been configured on another index
+     * @throws \InvalidArgumentException if an index with the same name already exists
      */
     public function add(Index $index): void;
 
@@ -24,9 +24,9 @@ interface IndexRegistryInterface extends \Traversable
     /**
      * This method returns the index where the $class is configured
      *
-     * @param object|class-string $class
+     * @param object|class-string $entity
      *
-     * @throws \InvalidArgumentException if the given resource is not configured on any index
+     * @return list<Index>
      */
-    public function getByResource(object|string $class): Index;
+    public function getByEntity(object|string $entity): array;
 }

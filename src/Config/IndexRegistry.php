@@ -18,22 +18,10 @@ final class IndexRegistry implements \IteratorAggregate, IndexRegistryInterface
      */
     private array $indexes = [];
 
-    /**
-     * @throws \InvalidArgumentException if one of the resources on the $index has already been configured on another index
-     */
     public function add(Index $index): void
     {
-        foreach ($this->indexes as $existingIndex) {
-            foreach ($index->resources as $resource) {
-                if ($existingIndex->hasResource($resource)) {
-                    // todo why is this a problem?
-                    throw new \InvalidArgumentException(sprintf(
-                        'The resource "%s" is already defined on the index "%s"',
-                        $resource->name,
-                        $existingIndex->name,
-                    ));
-                }
-            }
+        if (isset($this->indexes[$index->name])) {
+            throw new \InvalidArgumentException(sprintf('An index with the name %s already exists', $index->name));
         }
 
         $this->indexes[$index->name] = $index;
@@ -51,26 +39,19 @@ final class IndexRegistry implements \IteratorAggregate, IndexRegistryInterface
         return $this->indexes[$name];
     }
 
-    /**
-     * This method returns the index where the $class is configured
-     *
-     * @param object|class-string $class
-     *
-     * @throws \InvalidArgumentException if the given resource is not configured on any index
-     */
-    public function getByResource(object|string $class): Index
+    public function getByEntity(object|string $entity): array
     {
-        if (is_object($class)) {
-            $class = $class::class;
-        }
+        $entity = is_object($entity) ? $entity::class : $entity;
+
+        $indexes = [];
 
         foreach ($this->indexes as $index) {
-            if ($index->hasResourceWithClass($class)) {
-                return $index;
+            if ($index->hasEntity($entity)) {
+                $indexes[] = $index;
             }
         }
 
-        throw new \InvalidArgumentException(sprintf('No index exists having a resource that is an instance of %s', $class));
+        return $indexes;
     }
 
     /**

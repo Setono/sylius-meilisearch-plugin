@@ -54,12 +54,8 @@ final class ProductIndexScopeProvider implements IndexScopeProviderInterface
         );
     }
 
-    public function getFromChannelAndLocaleAndCurrency(
-        Index $index,
-        string $channelCode = null,
-        string $localeCode = null,
-        string $currencyCode = null,
-    ): IndexScope {
+    public function getFromChannelAndLocaleAndCurrency(Index $index, string $channelCode = null, string $localeCode = null, string $currencyCode = null): IndexScope
+    {
         return new IndexScope(
             index: $index,
             channelCode: $channelCode,
@@ -70,6 +66,6 @@ final class ProductIndexScopeProvider implements IndexScopeProviderInterface
 
     public function supports(Index $index): bool
     {
-        return $index->hasResourceWithClass(ProductInterface::class);
+        return count($index->entities) === 1 && $index->hasEntity(ProductInterface::class);
     }
 }
