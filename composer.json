@@ -14,7 +14,7 @@
         "ext-json": "*",
         "doctrine/event-manager": "^1.2",
         "doctrine/orm": "^2.14",
-        "doctrine/persistence": "^2.5",
+        "doctrine/persistence": "^3.3",
         "liip/imagine-bundle": "^2.10",
         "meilisearch/meilisearch-php": "^1.8",
         "psr/cache": "^1.0 || ^2.0 || ^3.0",
