@@ -54,7 +54,7 @@
         "matthiasnoback/symfony-dependency-injection-test": "^4.3 || ^5.1",
         "nyholm/psr7": "^1.8",
         "phpspec/prophecy-phpunit": "^2.0",
-        "phpunit/phpunit": "^9.6.17",
+        "phpunit/phpunit": "^10.5.24",
         "psalm/plugin-phpunit": "^0.18.4",
         "setono/code-quality-pack": "^2.7",
         "sylius/sylius": "~1.12.13",
