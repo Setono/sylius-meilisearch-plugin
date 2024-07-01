@@ -35,14 +35,7 @@ final class ConfigurationTest extends TestCase
         ], [
             'indexes' => [],
             'credentials' => [
-                'app_id' => 'last_app_id',
-                'search_only_api_key' => 'last_search_only_api_key',
-                'admin_api_key' => 'last_admin_api_key',
-            ],
-            'cache' => [
-                'adapter' => 'cache.adapter.filesystem',
-                'enabled' => true,
-                'ttl' => 604800,
+                'master_key' => 'aSampleMasterKey',
             ],
             'routes' => [
                 'product_index' => 'taxons/{slug}',
