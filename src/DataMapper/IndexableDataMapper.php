@@ -20,11 +20,11 @@ final class IndexableDataMapper implements DataMapperInterface
         ResourceInterface $source,
         Document $target,
         IndexScope $indexScope,
-        array $context = []
+        array $context = [],
     ): void {
         Assert::true(
             $this->supports($source, $target, $indexScope, $context),
-            'The given $source and $target is not supported'
+            'The given $source and $target is not supported',
         );
 
         $target->objectId = $source->getObjectId();
@@ -38,7 +38,7 @@ final class IndexableDataMapper implements DataMapperInterface
         ResourceInterface $source,
         Document $target,
         IndexScope $indexScope,
-        array $context = []
+        array $context = [],
     ): bool {
         return $source instanceof IndexableInterface;
     }

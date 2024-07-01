@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Indexer;
 
 use Setono\SyliusMeilisearchPlugin\Config\Index;
-use Setono\SyliusMeilisearchPlugin\Config\IndexableResource;
 use Setono\SyliusMeilisearchPlugin\Exception\NonExistingIndexException;
 use Setono\SyliusMeilisearchPlugin\Exception\NonExistingResourceException;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
-use Sylius\Component\Resource\Model\ResourceInterface;
 
 interface IndexerInterface
 {

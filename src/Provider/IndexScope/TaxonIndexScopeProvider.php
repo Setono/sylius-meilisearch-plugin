@@ -19,7 +19,7 @@ final class TaxonIndexScopeProvider implements IndexScopeProviderInterface
 
     public function __construct(
         RepositoryInterface $localeRepository,
-        LocaleContextInterface $localeContext
+        LocaleContextInterface $localeContext,
     ) {
         $this->localeRepository = $localeRepository;
         $this->localeContext = $localeContext;
@@ -48,7 +48,7 @@ final class TaxonIndexScopeProvider implements IndexScopeProviderInterface
         Index $index,
         string $channelCode = null,
         string $localeCode = null,
-        string $currencyCode = null
+        string $currencyCode = null,
     ): IndexScope {
         return (new IndexScope($index))
             ->withLocaleCode($localeCode)

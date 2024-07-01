@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Tests\Application\Entity;
@@ -10,6 +11,7 @@ use Sylius\Component\Core\Model\Product as BaseProduct;
 
 /**
  * @ORM\Entity
+ *
  * @ORM\Table(name="sylius_product")
  */
 class Product extends BaseProduct implements IndexableInterface

@@ -72,7 +72,7 @@ class DefaultIndexer extends AbstractIndexer
         IndexRegistry $indexRegistry,
         DoctrineFilterInterface $doctrineFilter,
         ObjectFilterInterface $objectFilter,
-        array $normalizationGroups = ['setono:sylius-meilisearch:document']
+        array $normalizationGroups = ['setono:sylius-meilisearch:document'],
     ) {
         $this->managerRegistry = $managerRegistry;
         $this->indexScopeProvider = $indexScopeProvider;
@@ -122,7 +122,7 @@ class DefaultIndexer extends AbstractIndexer
         foreach ($this->indexScopeProvider->getAll($index) as $indexScope) {
             $algoliaIndex = $this->prepareIndex(
                 $this->indexNameResolver->resolveFromIndexScope($indexScope),
-                $this->indexSettingsProvider->getSettings($indexScope)
+                $this->indexSettingsProvider->getSettings($indexScope),
             );
 
             foreach ($this->getObjects($ids, $type, $indexScope) as $obj) {
@@ -149,7 +149,7 @@ class DefaultIndexer extends AbstractIndexer
         foreach ($this->indexScopeProvider->getAll($index) as $indexScope) {
             $algoliaIndex = $this->prepareIndex(
                 $this->indexNameResolver->resolveFromIndexScope($indexScope),
-                $this->indexSettingsProvider->getSettings($indexScope)
+                $this->indexSettingsProvider->getSettings($indexScope),
             );
 
             foreach ($this->getObjects($ids, $type, $indexScope) as $obj) {
@@ -170,7 +170,7 @@ class DefaultIndexer extends AbstractIndexer
         Assert::isInstanceOf($repository, IndexableResourceRepositoryInterface::class, sprintf(
             'The repository for resource "%s" must implement the interface %s',
             $resource->name,
-            IndexableResourceRepositoryInterface::class
+            IndexableResourceRepositoryInterface::class,
         ));
 
         $firstResult = 0;
@@ -221,7 +221,7 @@ class DefaultIndexer extends AbstractIndexer
         Assert::isInstanceOf($repository, IndexableResourceRepositoryInterface::class, sprintf(
             'The repository for resource "%s" must implement the interface %s',
             $type,
-            IndexableResourceRepositoryInterface::class
+            IndexableResourceRepositoryInterface::class,
         ));
 
         return $repository->findFromIndexScopeAndIds($indexScope, $ids);

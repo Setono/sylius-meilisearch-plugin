@@ -31,13 +31,13 @@ final class IndexNameResolverTest extends TestCase
             Product::class,
             $this->prophesize(IndexerInterface::class)->reveal(),
             [],
-            'prefix'
+            'prefix',
         );
 
         $resolver = new IndexNameResolver(
             new IndexRegistry(),
             $this->prophesize(IndexScopeProviderInterface::class)->reveal(),
-            'prod'
+            'prod',
         );
 
         $indexScope = (new IndexScope($index))

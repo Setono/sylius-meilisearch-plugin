@@ -46,7 +46,7 @@ final class Index
         string $document,
         IndexerInterface $indexer,
         array $resources,
-        string $prefix = null
+        string $prefix = null,
     ) {
         Assert::stringNotEmpty($name);
 
@@ -54,7 +54,7 @@ final class Index
             throw new \InvalidArgumentException(sprintf(
                 'The document class %s MUST be an instance of %s',
                 $document,
-                Document::class
+                Document::class,
             ));
         }
 

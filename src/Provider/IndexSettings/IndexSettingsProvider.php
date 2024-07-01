@@ -18,7 +18,7 @@ final class IndexSettingsProvider implements IndexSettingsProviderInterface
 
     public function __construct(
         IndexNameResolverInterface $indexNameResolver,
-        ReplicaIndexNameResolverInterface $replicaIndexNameResolver
+        ReplicaIndexNameResolverInterface $replicaIndexNameResolver,
     ) {
         $this->replicaIndexNameResolver = $replicaIndexNameResolver;
         $this->indexNameResolver = $indexNameResolver;
@@ -39,7 +39,7 @@ final class IndexSettingsProvider implements IndexSettingsProviderInterface
             $settings->replicas[] = new SortableReplica(
                 $this->replicaIndexNameResolver->resolveFromIndexNameAndSortableAttribute($indexName, $attribute, $order),
                 $attribute,
-                $order
+                $order,
             );
         }
 

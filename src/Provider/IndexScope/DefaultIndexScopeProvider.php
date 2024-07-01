@@ -23,7 +23,7 @@ final class DefaultIndexScopeProvider implements IndexScopeProviderInterface
         Index $index,
         string $channelCode = null,
         string $localeCode = null,
-        string $currencyCode = null
+        string $currencyCode = null,
     ): IndexScope {
         return $this->getFromContext($index);
     }

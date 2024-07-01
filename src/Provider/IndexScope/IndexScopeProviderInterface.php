@@ -31,7 +31,7 @@ interface IndexScopeProviderInterface
         Index $index,
         string $channelCode = null,
         string $localeCode = null,
-        string $currencyCode = null
+        string $currencyCode = null,
     ): IndexScope;
 
     public function supports(Index $index): bool;

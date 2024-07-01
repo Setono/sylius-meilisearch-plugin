@@ -38,17 +38,17 @@ final class InjectConfigurationSubscriber implements EventSubscriberInterface
     {
         $this->tags[] = sprintf(
             '<div id="algolia-index" data-value="%s" style="display: none"></div>',
-            $event->index
+            $event->index,
         );
 
         $this->tags[] = sprintf(
             '<div id="algolia-taxon" data-value="%s" style="display: none"></div>',
-            (string) $event->taxon->getCode()
+            (string) $event->taxon->getCode(),
         );
 
         $this->tags[] = sprintf(
             '<script id="algolia-hit-template" type="text/template">%s</script>',
-            $this->twig->render('@SetonoSyliusMeilisearchPlugin/shop/product/_item.html.twig')
+            $this->twig->render('@SetonoSyliusMeilisearchPlugin/shop/product/_item.html.twig'),
         );
     }
 
@@ -62,10 +62,10 @@ final class InjectConfigurationSubscriber implements EventSubscriberInterface
         $response = $event->getResponse();
 
         // this 'if' has been copied from \Symfony\Bundle\WebProfilerBundle\EventListener\WebDebugToolbarListener::onKernelResponse()
-        if ($response->isRedirection()
-            || 'html' !== $request->getRequestFormat()
-            || false !== stripos($response->headers->get('Content-Disposition', ''), 'attachment;')
-            || ($response->headers->has('Content-Type') && strpos($response->headers->get('Content-Type', ''), 'html') === false)
+        if ($response->isRedirection() ||
+            'html' !== $request->getRequestFormat() ||
+            false !== stripos($response->headers->get('Content-Disposition', ''), 'attachment;') ||
+            ($response->headers->has('Content-Type') && strpos($response->headers->get('Content-Type', ''), 'html') === false)
         ) {
             return;
         }

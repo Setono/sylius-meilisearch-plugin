@@ -27,11 +27,11 @@ final class UrlDataMapper implements DataMapperInterface
         ResourceInterface $source,
         Document $target,
         IndexScope $indexScope,
-        array $context = []
+        array $context = [],
     ): void {
         Assert::true(
             $this->supports($source, $target, $indexScope, $context),
-            'The given $source and $target is not supported'
+            'The given $source and $target is not supported',
         );
 
         $target->setUrl($this->urlGenerator->generate($source, ['localeCode' => $indexScope->localeCode]));
@@ -45,7 +45,7 @@ final class UrlDataMapper implements DataMapperInterface
         ResourceInterface $source,
         Document $target,
         IndexScope $indexScope,
-        array $context = []
+        array $context = [],
     ): bool {
         return $target instanceof UrlAwareInterface && null !== $indexScope->localeCode;
     }

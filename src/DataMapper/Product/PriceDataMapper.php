@@ -90,9 +90,9 @@ final class PriceDataMapper implements DataMapperInterface
      */
     public function supports(ResourceInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
     {
-        return $source instanceof ProductInterface
-            && $target instanceof ProductDocument
-            && $indexScope->channelCode !== null
+        return $source instanceof ProductInterface &&
+            $target instanceof ProductDocument &&
+            $indexScope->channelCode !== null
         ;
     }
 }

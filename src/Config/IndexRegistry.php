@@ -31,7 +31,7 @@ final class IndexRegistry implements \IteratorAggregate
                     throw new \InvalidArgumentException(sprintf(
                         'The resource "%s" is already defined on the index "%s"',
                         $resource->name,
-                        $existingIndex->name
+                        $existingIndex->name,
                     ));
                 }
             }

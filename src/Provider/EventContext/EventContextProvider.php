@@ -24,7 +24,7 @@ final class EventContextProvider implements EventContextProviderInterface
         ClientIdProviderInterface $clientIdProvider,
         ChannelContextInterface $channelContext,
         LocaleContextInterface $localeContext,
-        CurrencyContextInterface $currencyContext
+        CurrencyContextInterface $currencyContext,
     ) {
         $this->clientIdProvider = $clientIdProvider;
         $this->channelContext = $channelContext;
@@ -38,7 +38,7 @@ final class EventContextProvider implements EventContextProviderInterface
             $this->clientIdProvider->getClientId(),
             $this->channelContext->getChannel(),
             $this->localeContext->getLocaleCode(),
-            $this->currencyContext->getCurrencyCode()
+            $this->currencyContext->getCurrencyCode(),
         );
     }
 }

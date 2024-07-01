@@ -14,7 +14,7 @@ final class ReplicaIndexNameResolver implements ReplicaIndexNameResolverInterfac
     public function resolveFromIndexNameAndSortableAttribute(
         string $indexName,
         string $attribute,
-        string $order
+        string $order,
     ): string {
         return sprintf('%s__%s_%s', $indexName, $attribute, $order);
     }

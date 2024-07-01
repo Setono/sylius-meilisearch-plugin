@@ -24,7 +24,7 @@ final class SortByResolver implements SortByResolverInterface
         IndexNameResolverInterface $indexNameResolver,
         ReplicaIndexNameResolverInterface $replicaIndexNameResolver,
         TranslatorInterface $translator,
-        LocaleContextInterface $localeContext
+        LocaleContextInterface $localeContext,
     ) {
         $this->indexNameResolver = $indexNameResolver;
         $this->replicaIndexNameResolver = $replicaIndexNameResolver;
@@ -41,7 +41,7 @@ final class SortByResolver implements SortByResolverInterface
         $sortBys = [
             new SortBy(
                 $this->translator->trans('setono_sylius_meilisearch.ui.sort_by.relevance', [], null, $locale),
-                $indexName
+                $indexName,
             ),
         ];
 
@@ -51,8 +51,8 @@ final class SortByResolver implements SortByResolverInterface
                 $this->replicaIndexNameResolver->resolveFromIndexNameAndSortableAttribute(
                     $indexName,
                     $attribute,
-                    $order
-                )
+                    $order,
+                ),
             );
         }
 

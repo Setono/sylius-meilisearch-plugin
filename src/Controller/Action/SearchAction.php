@@ -39,7 +39,7 @@ final class SearchAction
         LocaleContextInterface $localeContext,
         EventDispatcherInterface $eventDispatcher,
         IndexRegistry $indexableResourceRegistry,
-        SortByResolverInterface $sortByResolver
+        SortByResolverInterface $sortByResolver,
     ) {
         $this->twig = $twig;
         $this->indexNameResolver = $indexNameResolver;
@@ -59,7 +59,7 @@ final class SearchAction
             throw new NotFoundHttpException(sprintf(
                 'The taxon with slug "%s" does not exist, is not enabled or is not translated in locale "%s"',
                 $slug,
-                $locale
+                $locale,
             ));
         }
 

@@ -35,7 +35,7 @@ final class ResourceNameDataMapper implements DataMapperInterface
         ResourceInterface $source,
         Document $target,
         IndexScope $indexScope,
-        array $context = []
+        array $context = [],
     ): bool {
         return true;
     }

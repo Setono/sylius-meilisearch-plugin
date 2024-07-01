@@ -27,7 +27,7 @@ final class ProductIndexScopeProvider implements IndexScopeProviderInterface
         ChannelContextInterface $channelContext,
         LocaleContextInterface $localeContext,
         CurrencyContextInterface $currencyContext,
-        ChannelRepositoryInterface $channelRepository
+        ChannelRepositoryInterface $channelRepository,
     ) {
         $this->channelContext = $channelContext;
         $this->localeContext = $localeContext;
@@ -59,7 +59,7 @@ final class ProductIndexScopeProvider implements IndexScopeProviderInterface
             $index,
             $this->channelContext->getChannel()->getCode(),
             $this->localeContext->getLocaleCode(),
-            $this->currencyContext->getCurrencyCode()
+            $this->currencyContext->getCurrencyCode(),
         );
     }
 
@@ -67,7 +67,7 @@ final class ProductIndexScopeProvider implements IndexScopeProviderInterface
         Index $index,
         string $channelCode = null,
         string $localeCode = null,
-        string $currencyCode = null
+        string $currencyCode = null,
     ): IndexScope {
         return (new IndexScope($index))
             ->withChannelCode($channelCode)

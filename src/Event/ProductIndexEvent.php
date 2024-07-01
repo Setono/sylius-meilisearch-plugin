@@ -13,7 +13,9 @@ final class ProductIndexEvent
         public Response $response,
         /** This is the name of the Meilisearch search index */
         public readonly string $index,
-        public readonly TaxonInterface $taxon, public readonly string $slug, public readonly string $locale)
-    {
+        public readonly TaxonInterface $taxon,
+        public readonly string $slug,
+        public readonly string $locale,
+    ) {
     }
 }

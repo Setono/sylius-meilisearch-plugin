@@ -28,7 +28,7 @@ final class ImageUrlsDataMapper implements DataMapperInterface
     public function __construct(
         CacheManager $cacheManager,
         array $resourceToFilterSetMapping = [], // todo add this to the plugin configuration
-        string $defaultFilterSet = 'sylius_large'
+        string $defaultFilterSet = 'sylius_large',
     ) {
         $this->cacheManager = $cacheManager;
         $this->resourceToFilterSetMapping = $resourceToFilterSetMapping;
@@ -39,11 +39,11 @@ final class ImageUrlsDataMapper implements DataMapperInterface
         ResourceInterface $source,
         Document $target,
         IndexScope $indexScope,
-        array $context = []
+        array $context = [],
     ): void {
         Assert::true(
             $this->supports($source, $target, $indexScope, $context),
-            'The given $source and $target is not supported'
+            'The given $source and $target is not supported',
         );
 
         $imageUrls = [];
@@ -54,7 +54,7 @@ final class ImageUrlsDataMapper implements DataMapperInterface
                 $this->resourceToFilterSetMapping[get_class($source)] ?? $this->defaultFilterSet,
                 [],
                 null,
-                UrlGeneratorInterface::ABSOLUTE_PATH
+                UrlGeneratorInterface::ABSOLUTE_PATH,
             );
         }
 
@@ -69,7 +69,7 @@ final class ImageUrlsDataMapper implements DataMapperInterface
         ResourceInterface $source,
         Document $target,
         IndexScope $indexScope,
-        array $context = []
+        array $context = [],
     ): bool {
         return $source instanceof ImagesAwareInterface && $target instanceof ImageUrlsAwareInterface;
     }

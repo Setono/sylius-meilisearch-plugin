@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Tests\Application\Entity;
@@ -10,6 +11,7 @@ use Sylius\Component\Core\Model\Taxon as BaseTaxon;
 
 /**
  * @ORM\Entity
+ *
  * @ORM\Table(name="sylius_taxon")
  */
 class Taxon extends BaseTaxon implements IndexableInterface

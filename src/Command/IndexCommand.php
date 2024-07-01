@@ -14,14 +14,13 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsCommand(
     name: 'setono:sylius-meilisearch:index',
-    description: 'Will index all configured indexes'
+    description: 'Will index all configured indexes',
 )]
 final class IndexCommand extends Command
 {
-
     public function __construct(
         private readonly MessageBusInterface $commandBus,
-        private readonly IndexRegistry $indexRegistry
+        private readonly IndexRegistry $indexRegistry,
     ) {
         parent::__construct();
     }

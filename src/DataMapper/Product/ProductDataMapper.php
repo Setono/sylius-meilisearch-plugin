@@ -23,7 +23,7 @@ final class ProductDataMapper implements DataMapperInterface
     {
         Assert::true(
             $this->supports($source, $target, $indexScope, $context),
-            'The given $source and $target is not supported'
+            'The given $source and $target is not supported',
         );
 
         $sourceTranslation = $source->getTranslation($indexScope->localeCode);
@@ -45,10 +45,10 @@ final class ProductDataMapper implements DataMapperInterface
         ResourceInterface $source,
         Document $target,
         IndexScope $indexScope,
-        array $context = []
+        array $context = [],
     ): bool {
-        return $source instanceof ProductInterface
-            && $target instanceof Product
-            && null !== $indexScope->localeCode;
+        return $source instanceof ProductInterface &&
+            $target instanceof Product &&
+            null !== $indexScope->localeCode;
     }
 }

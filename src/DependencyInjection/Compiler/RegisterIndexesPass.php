@@ -19,9 +19,9 @@ final class RegisterIndexesPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasDefinition('setono_sylius_meilisearch.config.index_registry')
-            || !$container->hasParameter('setono_sylius_meilisearch.indexes')
-            || !$container->hasParameter('sylius.resources')
+        if (!$container->hasDefinition('setono_sylius_meilisearch.config.index_registry') ||
+            !$container->hasParameter('setono_sylius_meilisearch.indexes') ||
+            !$container->hasParameter('sylius.resources')
         ) {
             return;
         }

@@ -45,7 +45,7 @@ final class CompositeIndexScopeProvider implements IndexScopeProviderInterface
         Index $index,
         string $channelCode = null,
         string $localeCode = null,
-        string $currencyCode = null
+        string $currencyCode = null,
     ): IndexScope {
         foreach ($this->providers as $provider) {
             if ($provider->supports($index)) {

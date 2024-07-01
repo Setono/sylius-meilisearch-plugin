@@ -25,7 +25,7 @@ final class IndexNameResolver implements IndexNameResolverInterface
     public function __construct(
         IndexRegistry $indexRegistry,
         IndexScopeProviderInterface $indexScopeProvider,
-        string $environment
+        string $environment,
     ) {
         $this->indexRegistry = $indexRegistry;
         $this->indexScopeProvider = $indexScopeProvider;

@@ -23,7 +23,7 @@ final class TaxonDataMapper implements DataMapperInterface
     {
         Assert::true(
             $this->supports($source, $target, $indexScope, $context),
-            'The given $source and $target is not supported'
+            'The given $source and $target is not supported',
         );
 
         $target->name = $source->getTranslation($indexScope->localeCode)->getName();
@@ -38,10 +38,10 @@ final class TaxonDataMapper implements DataMapperInterface
         ResourceInterface $source,
         Document $target,
         IndexScope $indexScope,
-        array $context = []
+        array $context = [],
     ): bool {
-        return $source instanceof TaxonInterface
-            && $target instanceof Taxon
-            && null !== $indexScope->localeCode;
+        return $source instanceof TaxonInterface &&
+            $target instanceof Taxon &&
+            null !== $indexScope->localeCode;
     }
 }

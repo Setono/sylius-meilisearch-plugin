@@ -35,7 +35,7 @@ final class IndexableResource
             throw new \InvalidArgumentException(sprintf(
                 'The document class %s MUST be an instance of %s',
                 $class,
-                IndexableInterface::class
+                IndexableInterface::class,
             ));
         }
 
