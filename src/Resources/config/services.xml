@@ -14,7 +14,6 @@
         <import resource="services/message.xml"/>
         <import resource="services/provider.xml"/>
         <import resource="services/resolver.xml"/>
-        <import resource="services/twig.xml"/>
         <import resource="services/url_generator.xml"/>
     </imports>
 </container>
