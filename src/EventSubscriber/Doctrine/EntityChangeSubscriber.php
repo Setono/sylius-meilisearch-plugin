@@ -29,12 +29,12 @@ final class EntityChangeSubscriber implements EventSubscriber
 
     public function update(LifecycleEventArgs $eventArgs): void
     {
-        $this->dispatch($eventArgs, static fn (IndexableInterface $entity) => new IndexEntity($entity));
+        $this->dispatch($eventArgs, static fn (IndexableInterface $entity) => IndexEntity::new($entity));
     }
 
     public function remove(LifecycleEventArgs $eventArgs): void
     {
-        $this->dispatch($eventArgs, static fn (IndexableInterface $entity) => new RemoveEntity($entity));
+        $this->dispatch($eventArgs, static fn (IndexableInterface $entity) => RemoveEntity::new($entity));
     }
 
     /**

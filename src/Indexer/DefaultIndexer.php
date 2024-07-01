@@ -17,7 +17,6 @@ use Setono\SyliusMeilisearchPlugin\Filter\Doctrine\FilterInterface as DoctrineFi
 use Setono\SyliusMeilisearchPlugin\Filter\Object\FilterInterface as ObjectFilterInterface;
 use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
-use Setono\SyliusMeilisearchPlugin\Message\Command\IndexResource;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexSettings\IndexSettingsProviderInterface;
@@ -62,20 +61,7 @@ class DefaultIndexer extends AbstractIndexer
         }
 
         foreach ($index->resources as $resource) {
-            $this->commandBus->dispatch(new IndexResource($index, $resource));
-        }
-    }
-
-    public function indexResource(Index|string $index, string $resource): void
-    {
-        if (is_string($index)) {
-            $index = $this->indexRegistry->get($index);
-        }
-
-        $indexableResource = $index->getResource($resource);
-
-        foreach ($this->getIdBatches($indexableResource) as $ids) {
-            $this->commandBus->dispatch(new IndexEntities($indexableResource, $ids));
+            $this->indexResource($index, $resource);
         }
     }
 
@@ -123,6 +109,19 @@ class DefaultIndexer extends AbstractIndexer
             foreach ($this->getObjects($ids, $type, $indexScope) as $obj) {
                 $algoliaIndex->deleteObject($obj->getObjectId());
             }
+        }
+    }
+
+    protected function indexResource(Index|string $index, IndexableResource|string $resource): void
+    {
+        if (is_string($index)) {
+            $index = $this->indexRegistry->get($index);
+        }
+
+        $indexableResource = $index->getResource($resource);
+
+        foreach ($this->getIdBatches($indexableResource) as $ids) {
+            $this->commandBus->dispatch(new IndexEntities($indexableResource, $ids));
         }
     }
 

@@ -6,7 +6,6 @@ namespace Setono\SyliusMeilisearchPlugin\Indexer;
 
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Exception\NonExistingIndexException;
-use Setono\SyliusMeilisearchPlugin\Exception\NonExistingResourceException;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 
 interface IndexerInterface
@@ -17,14 +16,6 @@ interface IndexerInterface
      * @throws NonExistingIndexException if the $index is a string and the index doesn't exist
      */
     public function index(Index|string $index): void;
-
-    /**
-     * This method will index all entities for a given indexable resource on the given index
-     *
-     * @throws NonExistingIndexException if the $index is a string and the index doesn't exist
-     * @throws NonExistingResourceException if the $resource doesn't exist on the given $index
-     */
-    public function indexResource(Index|string $index, string $resource): void;
 
     /**
      * Will index a single entity

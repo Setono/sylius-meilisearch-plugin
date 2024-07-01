@@ -15,8 +15,7 @@ final class SortByResolver implements SortByResolverInterface
         private readonly IndexNameResolverInterface $indexNameResolver,
         private readonly TranslatorInterface $translator,
         private readonly LocaleContextInterface $localeContext,
-    )
-    {
+    ) {
     }
 
     public function resolveFromIndexableResource(Index $index, string $locale = null): array

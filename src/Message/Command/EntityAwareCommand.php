@@ -8,15 +8,16 @@ use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 
 abstract class EntityAwareCommand implements CommandInterface
 {
-    /** @var class-string<IndexableInterface> */
-    public string $entityClass;
+    final public function __construct(
+        /** @var class-string<IndexableInterface> $class */
+        public readonly string $class,
+        /** @var mixed $id */
+        public readonly mixed $id,
+    ) {
+    }
 
-    /** @var mixed */
-    public $entityId;
-
-    public function __construct(IndexableInterface $resource)
+    public static function new(IndexableInterface $object): static
     {
-        $this->entityClass = $resource::class;
-        $this->entityId = $resource->getId();
+        return new static($object::class, $object->getId());
     }
 }

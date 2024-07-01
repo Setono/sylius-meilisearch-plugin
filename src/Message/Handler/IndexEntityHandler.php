@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Message\Handler;
 
-use Setono\SyliusMeilisearchPlugin\Config\IndexRegistry;
+use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntity;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 
 final class IndexEntityHandler
 {
-    public function __construct(private readonly IndexRegistry $indexRegistry)
+    public function __construct(private readonly IndexRegistryInterface $indexRegistry)
     {
     }
 
@@ -18,9 +18,9 @@ final class IndexEntityHandler
     {
         try {
             $this->indexRegistry
-                ->getByResource($message->entityClass)
+                ->getByResource($message->class)
                 ->indexer
-                ->indexEntityWithId($message->entityId, $message->entityClass)
+                ->indexEntityWithId($message->id, $message->class)
             ;
         } catch (\InvalidArgumentException $e) {
             // todo create better exception

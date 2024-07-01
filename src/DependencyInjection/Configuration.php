@@ -36,6 +36,7 @@ final class Configuration implements ConfigurationInterface
                                 ->cannotBeEmpty()
                                 ->defaultValue('setono_sylius_meilisearch.indexer.default')
                             ->end()
+                            // todo change this to entities instead
                             ->arrayNode('resources')
                                 ->info('The Sylius resources that make up this index. Examples could be "sylius.product", "sylius.taxon", etc.')
                                 ->scalarPrototype()->end()
