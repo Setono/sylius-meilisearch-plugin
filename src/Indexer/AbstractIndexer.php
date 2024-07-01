@@ -28,10 +28,10 @@ abstract class AbstractIndexer implements IndexerInterface
         $type = null;
         foreach ($entities as $entity) {
             if ($type === null) {
-                $type = get_class($entity);
+                $type = $entity::class;
             }
 
-            if ($type !== get_class($entity)) {
+            if ($type !== $entity::class) {
                 throw new \InvalidArgumentException('All the entities must be of the same type');
             }
 
@@ -44,7 +44,7 @@ abstract class AbstractIndexer implements IndexerInterface
 
     public function removeEntity(IndexableInterface $entity): void
     {
-        $this->removeEntityWithId($entity->getId(), get_class($entity));
+        $this->removeEntityWithId($entity->getId(), $entity::class);
     }
 
     public function removeEntityWithId(mixed $id, string $type): void

@@ -5,32 +5,24 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Config;
 
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
-use Webmozart\Assert\Assert;
 
 /**
  * This class represents a Sylius resource that is indexable
  */
-final class IndexableResource
+final class IndexableResource implements \Stringable
 {
-    /**
-     * This is the name of the Sylius resource, e.g. 'sylius.product'
-     */
-    public string $name;
-
-    /**
-     * This is the FQCN for the resource
-     *
-     * @var class-string<IndexableInterface>
-     */
-    public string $class;
-
-    /**
-     * @param class-string<IndexableInterface> $class
-     */
-    public function __construct(string $name, string $class)
-    {
-        Assert::stringNotEmpty($name);
-
+    public function __construct(
+        /**
+         * This is the name of the Sylius resource, e.g. 'sylius.product'
+         */
+        public readonly string $name,
+        /**
+         * This is the FQCN for the resource
+         *
+         * @var class-string<IndexableInterface> $class
+         */
+        public readonly string $class,
+    ) {
         if (!is_a($class, IndexableInterface::class, true)) {
             throw new \InvalidArgumentException(sprintf(
                 'The document class %s MUST be an instance of %s',
@@ -38,9 +30,6 @@ final class IndexableResource
                 IndexableInterface::class,
             ));
         }
-
-        $this->name = $name;
-        $this->class = $class;
     }
 
     /**

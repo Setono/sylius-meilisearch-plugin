@@ -12,16 +12,11 @@ use Setono\SyliusMeilisearchPlugin\Settings\SortableReplica;
 
 final class IndexSettingsProvider implements IndexSettingsProviderInterface
 {
-    private ReplicaIndexNameResolverInterface $replicaIndexNameResolver;
-
-    private IndexNameResolverInterface $indexNameResolver;
-
     public function __construct(
-        IndexNameResolverInterface $indexNameResolver,
-        ReplicaIndexNameResolverInterface $replicaIndexNameResolver,
-    ) {
-        $this->replicaIndexNameResolver = $replicaIndexNameResolver;
-        $this->indexNameResolver = $indexNameResolver;
+        private readonly IndexNameResolverInterface $indexNameResolver,
+        private readonly ReplicaIndexNameResolverInterface $replicaIndexNameResolver,
+    )
+    {
     }
 
     // todo implement an easier way to set settings decoupled from the document. This could be by dispatching an IndexSettingsEvent

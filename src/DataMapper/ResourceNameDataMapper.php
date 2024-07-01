@@ -11,11 +11,8 @@ use Sylius\Component\Resource\Model\ResourceInterface;
 
 final class ResourceNameDataMapper implements DataMapperInterface
 {
-    private IndexRegistry $indexRegistry;
-
-    public function __construct(IndexRegistry $indexRegistry)
+    public function __construct(private readonly IndexRegistry $indexRegistry)
     {
-        $this->indexRegistry = $indexRegistry;
     }
 
     public function map(ResourceInterface $source, Document $target, IndexScope $indexScope, array $context = []): void

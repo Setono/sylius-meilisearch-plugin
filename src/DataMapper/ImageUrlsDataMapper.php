@@ -15,24 +15,15 @@ use Webmozart\Assert\Assert;
 
 final class ImageUrlsDataMapper implements DataMapperInterface
 {
-    private CacheManager $cacheManager;
-
-    /** @var array<class-string<ResourceInterface>, string> */
-    private array $resourceToFilterSetMapping;
-
-    private string $defaultFilterSet;
-
     /**
      * @param array<class-string<ResourceInterface>, string> $resourceToFilterSetMapping
      */
     public function __construct(
-        CacheManager $cacheManager,
-        array $resourceToFilterSetMapping = [], // todo add this to the plugin configuration
-        string $defaultFilterSet = 'sylius_large',
+        private readonly CacheManager $cacheManager,
+        private readonly array $resourceToFilterSetMapping = [],
+        // todo add this to the plugin configuration
+        private readonly string $defaultFilterSet = 'sylius_large',
     ) {
-        $this->cacheManager = $cacheManager;
-        $this->resourceToFilterSetMapping = $resourceToFilterSetMapping;
-        $this->defaultFilterSet = $defaultFilterSet;
     }
 
     public function map(
@@ -51,7 +42,7 @@ final class ImageUrlsDataMapper implements DataMapperInterface
         foreach ($source->getImages() as $image) {
             $imageUrls[] = $this->cacheManager->getBrowserPath(
                 (string) $image->getPath(),
-                $this->resourceToFilterSetMapping[get_class($source)] ?? $this->defaultFilterSet,
+                $this->resourceToFilterSetMapping[$source::class] ?? $this->defaultFilterSet,
                 [],
                 null,
                 UrlGeneratorInterface::ABSOLUTE_PATH,

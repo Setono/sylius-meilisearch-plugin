@@ -16,20 +16,11 @@ use Sylius\Component\Resource\Model\ResourceInterface;
  */
 final class IndexNameResolver implements IndexNameResolverInterface
 {
-    private IndexRegistry $indexRegistry;
-
-    private IndexScopeProviderInterface $indexScopeProvider;
-
-    private string $environment;
-
     public function __construct(
-        IndexRegistry $indexRegistry,
-        IndexScopeProviderInterface $indexScopeProvider,
-        string $environment,
+        private readonly IndexRegistry $indexRegistry,
+        private readonly IndexScopeProviderInterface $indexScopeProvider,
+        private readonly string $environment,
     ) {
-        $this->indexRegistry = $indexRegistry;
-        $this->indexScopeProvider = $indexScopeProvider;
-        $this->environment = $environment;
     }
 
     public function resolve($resource): string

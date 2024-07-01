@@ -24,11 +24,8 @@ final class PriceDataMapper implements DataMapperInterface
 {
     use FormatAmountTrait;
 
-    private ChannelRepositoryInterface $channelRepository;
-
-    public function __construct(ChannelRepositoryInterface $channelRepository)
+    public function __construct(private readonly ChannelRepositoryInterface $channelRepository)
     {
-        $this->channelRepository = $channelRepository;
     }
 
     /**

@@ -4,19 +4,10 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Settings;
 
-final class SortableReplica
+final class SortableReplica implements \Stringable
 {
-    public string $name;
-
-    public string $attribute;
-
-    public string $order;
-
-    public function __construct(string $name, string $attribute, string $order)
+    public function __construct(public string $name, public string $attribute, public string $order)
     {
-        $this->name = $name;
-        $this->attribute = $attribute;
-        $this->order = $order;
     }
 
     public function ranking(): string

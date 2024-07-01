@@ -13,11 +13,8 @@ use Webmozart\Assert\Assert;
 
 final class UrlDataMapper implements DataMapperInterface
 {
-    private ResourceUrlGeneratorInterface $urlGenerator;
-
-    public function __construct(ResourceUrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly ResourceUrlGeneratorInterface $urlGenerator)
     {
-        $this->urlGenerator = $urlGenerator;
     }
 
     /**

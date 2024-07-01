@@ -15,11 +15,8 @@ use Webmozart\Assert\Assert;
 
 final class TaxonCodesDataMapper implements DataMapperInterface
 {
-    private bool $includeDescendants;
-
-    public function __construct(bool $includeDescendants)
+    public function __construct(private readonly bool $includeDescendants)
     {
-        $this->includeDescendants = $includeDescendants;
     }
 
     /**

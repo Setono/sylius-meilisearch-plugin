@@ -19,11 +19,8 @@ final class InjectConfigurationSubscriber implements EventSubscriberInterface
      */
     private array $tags = [];
 
-    private Environment $twig;
-
-    public function __construct(Environment $twig)
+    public function __construct(private readonly Environment $twig)
     {
-        $this->twig = $twig;
     }
 
     public static function getSubscribedEvents(): array
@@ -64,8 +61,8 @@ final class InjectConfigurationSubscriber implements EventSubscriberInterface
         // this 'if' has been copied from \Symfony\Bundle\WebProfilerBundle\EventListener\WebDebugToolbarListener::onKernelResponse()
         if ($response->isRedirection() ||
             'html' !== $request->getRequestFormat() ||
-            false !== stripos($response->headers->get('Content-Disposition', ''), 'attachment;') ||
-            ($response->headers->has('Content-Type') && strpos($response->headers->get('Content-Type', ''), 'html') === false)
+            false !== stripos((string) $response->headers->get('Content-Disposition', ''), 'attachment;') ||
+            ($response->headers->has('Content-Type') && !str_contains((string) $response->headers->get('Content-Type', ''), 'html'))
         ) {
             return;
         }

@@ -12,11 +12,8 @@ use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 
 final class IndexResourceHandler
 {
-    private IndexRegistry $indexRegistry;
-
-    public function __construct(IndexRegistry $indexRegistry)
+    public function __construct(private readonly IndexRegistry $indexRegistry)
     {
-        $this->indexRegistry = $indexRegistry;
     }
 
     public function __invoke(IndexResource $message): void

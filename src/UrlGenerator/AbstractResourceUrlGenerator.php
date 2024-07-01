@@ -8,10 +8,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 abstract class AbstractResourceUrlGenerator implements ResourceUrlGeneratorInterface
 {
-    protected UrlGeneratorInterface $urlGenerator;
-
-    public function __construct(UrlGeneratorInterface $urlGenerator)
+    public function __construct(protected UrlGeneratorInterface $urlGenerator)
     {
-        $this->urlGenerator = $urlGenerator;
     }
 }

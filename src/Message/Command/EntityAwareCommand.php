@@ -16,7 +16,7 @@ abstract class EntityAwareCommand implements CommandInterface
 
     public function __construct(IndexableInterface $resource)
     {
-        $this->entityClass = get_class($resource);
+        $this->entityClass = $resource::class;
         $this->entityId = $resource->getId();
     }
 }

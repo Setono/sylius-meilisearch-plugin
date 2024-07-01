@@ -12,29 +12,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class SortByResolver implements SortByResolverInterface
 {
-    private IndexNameResolverInterface $indexNameResolver;
-
-    private ReplicaIndexNameResolverInterface $replicaIndexNameResolver;
-
-    private TranslatorInterface $translator;
-
-    private LocaleContextInterface $localeContext;
-
-    public function __construct(
-        IndexNameResolverInterface $indexNameResolver,
-        ReplicaIndexNameResolverInterface $replicaIndexNameResolver,
-        TranslatorInterface $translator,
-        LocaleContextInterface $localeContext,
-    ) {
-        $this->indexNameResolver = $indexNameResolver;
-        $this->replicaIndexNameResolver = $replicaIndexNameResolver;
-        $this->translator = $translator;
-        $this->localeContext = $localeContext;
+    public function __construct(private readonly IndexNameResolverInterface $indexNameResolver, private readonly ReplicaIndexNameResolverInterface $replicaIndexNameResolver, private readonly TranslatorInterface $translator, private readonly LocaleContextInterface $localeContext)
+    {
     }
 
     public function resolveFromIndexableResource(Index $index, string $locale = null): array
     {
-        $locale = $locale ?? $this->localeContext->getLocaleCode();
+        $locale ??= $this->localeContext->getLocaleCode();
 
         $indexName = $this->indexNameResolver->resolve($index);
 

@@ -6,14 +6,8 @@ namespace Setono\SyliusMeilisearchPlugin\Resolver\SortBy;
 
 final class SortBy implements \JsonSerializable
 {
-    public string $label;
-
-    public string $index;
-
-    public function __construct(string $label, string $index)
+    public function __construct(public string $label, public string $index)
     {
-        $this->label = $label;
-        $this->index = $index;
     }
 
     /**

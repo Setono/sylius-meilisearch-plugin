@@ -18,36 +18,15 @@ use Twig\Environment;
 
 final class SearchAction
 {
-    private Environment $twig;
-
-    private IndexNameResolverInterface $indexNameResolver;
-
-    private TaxonRepositoryInterface $taxonRepository;
-
-    private LocaleContextInterface $localeContext;
-
-    private EventDispatcherInterface $eventDispatcher;
-
-    private IndexRegistry $indexRegistry;
-
-    private SortByResolverInterface $sortByResolver;
-
     public function __construct(
-        Environment $twig,
-        IndexNameResolverInterface $indexNameResolver,
-        TaxonRepositoryInterface $taxonRepository,
-        LocaleContextInterface $localeContext,
-        EventDispatcherInterface $eventDispatcher,
-        IndexRegistry $indexableResourceRegistry,
-        SortByResolverInterface $sortByResolver,
+        private readonly Environment $twig,
+        private readonly IndexNameResolverInterface $indexNameResolver,
+        private readonly TaxonRepositoryInterface $taxonRepository,
+        private readonly LocaleContextInterface $localeContext,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly IndexRegistry $indexRegistry,
+        private readonly SortByResolverInterface $sortByResolver,
     ) {
-        $this->twig = $twig;
-        $this->indexNameResolver = $indexNameResolver;
-        $this->taxonRepository = $taxonRepository;
-        $this->localeContext = $localeContext;
-        $this->eventDispatcher = $eventDispatcher;
-        $this->indexRegistry = $indexableResourceRegistry;
-        $this->sortByResolver = $sortByResolver;
     }
 
     public function __invoke(string $slug): Response

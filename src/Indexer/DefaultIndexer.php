@@ -36,55 +36,24 @@ class DefaultIndexer extends AbstractIndexer
 {
     use ORMTrait;
 
-    protected IndexScopeProviderInterface $indexScopeProvider;
-
-    protected IndexNameResolverInterface $indexNameResolver;
-
-    protected IndexSettingsProviderInterface $indexSettingsProvider;
-
-    protected DataMapperInterface $dataMapper;
-
-    protected MessageBusInterface $commandBus;
-
-    protected NormalizerInterface $normalizer;
-
-    protected IndexRegistry $indexRegistry;
-
-    protected DoctrineFilterInterface $doctrineFilter;
-
-    protected ObjectFilterInterface $objectFilter;
-
-    /** @var list<string> */
-    protected array $normalizationGroups;
-
     /**
      * @param list<string> $normalizationGroups
      */
     public function __construct(
         ManagerRegistry $managerRegistry,
-        IndexScopeProviderInterface $indexScopeProvider,
-        IndexNameResolverInterface $indexNameResolver,
-        IndexSettingsProviderInterface $indexSettingsProvider,
-        DataMapperInterface $dataMapper,
-        MessageBusInterface $commandBus,
-        NormalizerInterface $normalizer,
-        Client $client,
-        IndexRegistry $indexRegistry,
-        DoctrineFilterInterface $doctrineFilter,
-        ObjectFilterInterface $objectFilter,
-        array $normalizationGroups = ['setono:sylius-meilisearch:document'],
+        protected readonly IndexScopeProviderInterface $indexScopeProvider,
+        protected readonly IndexNameResolverInterface $indexNameResolver,
+        protected readonly IndexSettingsProviderInterface $indexSettingsProvider,
+        protected readonly DataMapperInterface $dataMapper,
+        protected readonly MessageBusInterface $commandBus,
+        protected readonly NormalizerInterface $normalizer,
+        protected readonly Client $client,
+        protected readonly IndexRegistry $indexRegistry,
+        protected readonly DoctrineFilterInterface $doctrineFilter,
+        protected readonly ObjectFilterInterface $objectFilter,
+        protected readonly array $normalizationGroups = ['setono:sylius-meilisearch:document'],
     ) {
         $this->managerRegistry = $managerRegistry;
-        $this->indexScopeProvider = $indexScopeProvider;
-        $this->indexNameResolver = $indexNameResolver;
-        $this->indexSettingsProvider = $indexSettingsProvider;
-        $this->dataMapper = $dataMapper;
-        $this->commandBus = $commandBus;
-        $this->normalizer = $normalizer;
-        $this->indexRegistry = $indexRegistry;
-        $this->doctrineFilter = $doctrineFilter;
-        $this->objectFilter = $objectFilter;
-        $this->normalizationGroups = $normalizationGroups;
     }
 
     public function index(Index|string $index): void
@@ -239,7 +208,7 @@ class DefaultIndexer extends AbstractIndexer
 
     protected function prepareIndex(string $indexName, IndexSettings $indexSettings): SearchIndex
     {
-        $index = $this->algoliaClient->initIndex($indexName);
+        $index = $this->client->initIndex($indexName);
         Assert::isInstanceOf($index, SearchIndex::class);
 
         // if the index already exists we don't want to override any settings. TODO why don't we want that? Should we make a command that resets settings to application defaults? We also need to take into account the forwardToReplicas option below
@@ -262,7 +231,7 @@ class DefaultIndexer extends AbstractIndexer
                 continue;
             }
 
-            $replicaIndex = $this->algoliaClient->initIndex($replica->name);
+            $replicaIndex = $this->client->initIndex($replica->name);
             Assert::isInstanceOf($replicaIndex, SearchIndex::class);
 
             $replicaIndexSettings = clone $indexSettings;

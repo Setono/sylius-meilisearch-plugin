@@ -24,7 +24,7 @@ final class CompositeResourceUrlGenerator implements ResourceUrlGeneratorInterfa
             }
         }
 
-        throw new \RuntimeException(sprintf('No url generators supports the given resource %s', get_class($resource)));
+        throw new \RuntimeException(sprintf('No url generators supports the given resource %s', $resource::class));
     }
 
     public function supports(ResourceInterface $resource, array $context = []): bool

@@ -7,49 +7,31 @@ namespace Setono\SyliusMeilisearchPlugin\Config;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Exception\NonExistingResourceException;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
-use Webmozart\Assert\Assert;
 
-final class Index
+final class Index implements \Stringable
 {
-    /**
-     * This is the name you gave the index in the configuration.
-     * This name is also used when resolving the final index name in Meilisearch, so do not change this unless you know what you're doing
-     */
-    public string $name;
-
-    /**
-     * This is the FQCN for the document that is mapped to an index in Algolia.
-     * If you are indexing products this could be Setono\SyliusMeilisearchPlugin\Document\Product
-     *
-     * @var class-string<Document>
-     */
-    public string $document;
-
-    public IndexerInterface $indexer;
-
-    /**
-     * An array of resources, indexed by the resource name
-     *
-     * @var array<string, IndexableResource>
-     */
-    public array $resources;
-
-    /** @var non-empty-string|null */
-    public ?string $prefix;
-
-    /**
-     * @param class-string<Document> $document
-     * @param array<string, IndexableResource> $resources
-     */
     public function __construct(
-        string $name,
-        string $document,
-        IndexerInterface $indexer,
-        array $resources,
-        string $prefix = null,
+        /**
+         * This is the name you gave the index in the configuration.
+         * This name is also used when resolving the final index name in Meilisearch, so do not change this unless you know what you're doing
+         */
+        public readonly string $name,
+        /**
+         * This is the FQCN for the document that is mapped to an index in Algolia.
+         * If you are indexing products this could be Setono\SyliusMeilisearchPlugin\Document\Product
+         *
+         * @var class-string<Document> $document
+         */
+        public readonly string $document,
+        public readonly IndexerInterface $indexer,
+        /**
+         * An array of resources, indexed by the resource name
+         *
+         * @var array<string, IndexableResource> $resources
+         */
+        public readonly array $resources,
+        public readonly ?string $prefix = null,
     ) {
-        Assert::stringNotEmpty($name);
-
         if (!is_a($document, Document::class, true)) {
             throw new \InvalidArgumentException(sprintf(
                 'The document class %s MUST be an instance of %s',
@@ -57,18 +39,9 @@ final class Index
                 Document::class,
             ));
         }
-
-        $this->name = $name;
-        $this->document = $document;
-        $this->indexer = $indexer;
-        $this->resources = $resources;
-        $this->prefix = '' === $prefix ? null : $prefix;
     }
 
-    /**
-     * @param string|IndexableResource $resource
-     */
-    public function hasResource($resource): bool
+    public function hasResource(string|IndexableResource $resource): bool
     {
         if ($resource instanceof IndexableResource) {
             $resource = $resource->name;
