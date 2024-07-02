@@ -24,7 +24,7 @@ final class SetonoSyliusMeilisearchExtension extends Extension
          *
          * @var array{
          *      indexes: array<string, mixed>,
-         *      credentials: array{ master_key: string },
+         *      server: array{ host: string, master_key: string },
          *      search: array{ enabled: bool, indexes: list<string> },
          *      routes: array{ search: string }
          * } $config
@@ -35,8 +35,9 @@ final class SetonoSyliusMeilisearchExtension extends Extension
         // indexes
         $container->setParameter('setono_sylius_meilisearch.indexes', $config['indexes']);
 
-        // credentials
-        $container->setParameter('setono_sylius_meilisearch.credentials.master_key', $config['credentials']['master_key']);
+        // server
+        $container->setParameter('setono_sylius_meilisearch.server.host', $config['server']['host']);
+        $container->setParameter('setono_sylius_meilisearch.server.master_key', $config['server']['master_key']);
 
         // search
         if (true === $config['search']['enabled'] && [] === $config['search']['indexes']) {
