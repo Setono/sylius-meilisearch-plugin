@@ -32,7 +32,7 @@ final class Configuration implements ConfigurationInterface
                                 ->isRequired()
                             ->end()
                             ->scalarNode('indexer')
-                                ->info('This is the service id of the indexer that will be used to index resources on this index')
+                                ->info('This is the service id of the indexer that will be used to index entities on this index')
                                 ->cannotBeEmpty()
                                 ->defaultValue('setono_sylius_meilisearch.indexer.default')
                             ->end()
