@@ -9,12 +9,12 @@ use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\FormatAmountTrait;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Sylius\Component\Channel\Model\ChannelInterface as BaseChannelInterface;
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
-use Sylius\Component\Resource\Model\ResourceInterface;
 use Webmozart\Assert\Assert;
 
 /**
@@ -29,11 +29,10 @@ final class PriceDataMapper implements DataMapperInterface
     }
 
     /**
-     * @param ProductInterface|ResourceInterface $source
      * @param ProductDocument|Document $target
      * @param array<string, mixed> $context
      */
-    public function map(ResourceInterface $source, Document $target, IndexScope $indexScope, array $context = []): void
+    public function map(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): void
     {
         Assert::true($this->supports($source, $target, $indexScope, $context), 'The given $source and $target is not supported');
 
@@ -85,7 +84,7 @@ final class PriceDataMapper implements DataMapperInterface
      * @psalm-assert-if-true ProductDocument $target
      * @psalm-assert-if-true !null $indexScope->channelCode
      */
-    public function supports(ResourceInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
+    public function supports(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
     {
         return $source instanceof ProductInterface &&
             $target instanceof ProductDocument &&

@@ -42,18 +42,13 @@ final class SearchAction
             ));
         }
 
-        try {
-            $indexableResource = $this->indexRegistry->getByResource(ProductInterface::class);
-        } catch (\InvalidArgumentException $e) {
-            throw new NotFoundHttpException($e->getMessage(), $e);
-        }
-
-        $index = $this->indexNameResolver->resolve($indexableResource);
+        // todo we should get the index from the plugin configuration
+        $index = $this->indexNameResolver->resolve(ProductInterface::class);
 
         $response = new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/shop/product/index.html.twig', [
             'index' => $index,
             'taxon' => $taxon,
-            'sortBy' => $this->sortByResolver->resolveFromIndexableResource($indexableResource),
+            //'sortBy' => $this->sortByResolver->resolveFromIndexableResource($indexableResource),
         ]));
 
         $event = new ProductIndexEvent($response, $index, $taxon, $slug, $locale);

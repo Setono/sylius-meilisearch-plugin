@@ -8,18 +8,17 @@ use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\Product;
 use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Sylius\Component\Core\Model\ProductInterface;
-use Sylius\Component\Resource\Model\ResourceInterface;
 use Webmozart\Assert\Assert;
 
 final class ProductDataMapper implements DataMapperInterface
 {
     /**
-     * @param ProductInterface|ResourceInterface $source
      * @param Product|Document $target
      * @param array<string, mixed> $context
      */
-    public function map(ResourceInterface $source, Document $target, IndexScope $indexScope, array $context = []): void
+    public function map(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): void
     {
         Assert::true(
             $this->supports($source, $target, $indexScope, $context),
@@ -42,7 +41,7 @@ final class ProductDataMapper implements DataMapperInterface
      * @psalm-assert-if-true !null $indexScope->localeCode
      */
     public function supports(
-        ResourceInterface $source,
+        IndexableInterface $source,
         Document $target,
         IndexScope $indexScope,
         array $context = [],

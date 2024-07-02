@@ -7,13 +7,13 @@ namespace Setono\SyliusMeilisearchPlugin\DataMapper;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\UrlAwareInterface;
 use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
-use Setono\SyliusMeilisearchPlugin\UrlGenerator\ResourceUrlGeneratorInterface;
-use Sylius\Component\Resource\Model\ResourceInterface;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Setono\SyliusMeilisearchPlugin\UrlGenerator\EntityUrlGeneratorInterface;
 use Webmozart\Assert\Assert;
 
 final class UrlDataMapper implements DataMapperInterface
 {
-    public function __construct(private readonly ResourceUrlGeneratorInterface $urlGenerator)
+    public function __construct(private readonly EntityUrlGeneratorInterface $urlGenerator)
     {
     }
 
@@ -21,7 +21,7 @@ final class UrlDataMapper implements DataMapperInterface
      * @param array<string, mixed> $context
      */
     public function map(
-        ResourceInterface $source,
+        IndexableInterface $source,
         Document $target,
         IndexScope $indexScope,
         array $context = [],
@@ -39,7 +39,7 @@ final class UrlDataMapper implements DataMapperInterface
      * @psalm-assert-if-true !null $indexScope->localeCode
      */
     public function supports(
-        ResourceInterface $source,
+        IndexableInterface $source,
         Document $target,
         IndexScope $indexScope,
         array $context = [],

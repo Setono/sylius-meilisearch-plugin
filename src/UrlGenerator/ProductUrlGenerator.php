@@ -4,32 +4,28 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\UrlGenerator;
 
+use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Sylius\Component\Core\Model\ProductInterface;
-use Sylius\Component\Resource\Model\ResourceInterface;
 use Webmozart\Assert\Assert;
 
-final class ProductUrlGenerator extends AbstractResourceUrlGenerator
+final class ProductUrlGenerator extends AbstractEntityUrlGenerator
 {
-    /**
-     * @param ProductInterface|ResourceInterface $resource
-     * @param array<string, mixed> $context
-     */
-    public function generate(ResourceInterface $resource, array $context = []): string
+    public function generate(IndexableInterface $entity, array $context = []): string
     {
-        Assert::true($this->supports($resource, $context));
+        Assert::true($this->supports($entity, $context));
 
         return $this->urlGenerator->generate('sylius_shop_product_show', [
-            'slug' => $resource->getTranslation($context['localeCode'])->getSlug(),
+            'slug' => $entity->getTranslation($context['localeCode'])->getSlug(),
             '_locale' => $context['localeCode'],
         ]);
     }
 
     /**
-     * @psalm-assert-if-true ProductInterface $resource
+     * @psalm-assert-if-true ProductInterface $entity
      * @psalm-assert-if-true string $context['localeCode']
      */
-    public function supports(ResourceInterface $resource, array $context = []): bool
+    public function supports(IndexableInterface $entity, array $context = []): bool
     {
-        return $resource instanceof ProductInterface && isset($context['localeCode']) && is_string($context['localeCode']);
+        return $entity instanceof ProductInterface && isset($context['localeCode']) && is_string($context['localeCode']);
     }
 }

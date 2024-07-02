@@ -6,7 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin\DataMapper;
 
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
-use Sylius\Component\Resource\Model\ResourceInterface;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 
 interface DataMapperInterface
 {
@@ -15,12 +15,12 @@ interface DataMapperInterface
      *
      * @param array<string, mixed> $context
      */
-    public function map(ResourceInterface $source, Document $target, IndexScope $indexScope, array $context = []): void;
+    public function map(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): void;
 
     /**
      * Returns true if this data mapper supports the given $source and $target
      *
      * @param array<string, mixed> $context
      */
-    public function supports(ResourceInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool;
+    public function supports(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool;
 }

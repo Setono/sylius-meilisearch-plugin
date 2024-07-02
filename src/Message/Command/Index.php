@@ -11,12 +11,9 @@ final class Index implements CommandInterface
     /**
      * This is the index to be indexed
      */
-    public string $index;
+    public readonly string $index;
 
-    /**
-     * @param string|IndexConfig $index
-     */
-    public function __construct($index)
+    public function __construct(IndexConfig|string $index)
     {
         if ($index instanceof IndexConfig) {
             $index = $index->name;

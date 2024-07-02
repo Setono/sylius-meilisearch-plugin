@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Filter\Doctrine;
 
 use Doctrine\ORM\QueryBuilder;
-use Setono\SyliusMeilisearchPlugin\Config\IndexableResource;
 use Sylius\Component\Resource\Model\ToggleableInterface;
 
 final class EnabledFilter extends AbstractFilter
 {
-    public function apply(QueryBuilder $qb, IndexableResource $indexableResource): void
+    public function apply(QueryBuilder $qb, string $entity): void
     {
-        if (!$indexableResource->is(ToggleableInterface::class)) {
+        if (!is_a($entity, ToggleableInterface::class, true)) {
             return;
         }
 

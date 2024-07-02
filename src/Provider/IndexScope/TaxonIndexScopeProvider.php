@@ -38,17 +38,13 @@ final class TaxonIndexScopeProvider implements IndexScopeProviderInterface
         );
     }
 
-    public function getFromChannelAndLocaleAndCurrency(
-        Index $index,
-        string $channelCode = null,
-        string $localeCode = null,
-        string $currencyCode = null,
-    ): IndexScope {
+    public function getFromChannelAndLocaleAndCurrency(Index $index, string $channelCode = null, string $localeCode = null, string $currencyCode = null): IndexScope
+    {
         return new IndexScope(index: $index, localeCode: $localeCode);
     }
 
     public function supports(Index $index): bool
     {
-        return $index->hasResourceWithClass(TaxonInterface::class);
+        return count($index->entities) === 1 && $index->hasEntity(TaxonInterface::class);
     }
 }

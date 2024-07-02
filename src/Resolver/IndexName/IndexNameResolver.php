@@ -40,18 +40,13 @@ final class IndexNameResolver implements IndexNameResolverInterface
         ])));
     }
 
-    public function supports(Index $index): bool
-    {
-        return true;
-    }
-
     /**
      * @param class-string|ResourceInterface|Index $value
      */
     private function resolveIndexScope($value): IndexScope
     {
         if (!$value instanceof Index) {
-            $value = $this->indexRegistry->getByResource($value);
+            $value = $this->indexRegistry->getByEntity($value);
         }
 
         return $this->indexScopeProvider->getFromContext($value);

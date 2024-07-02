@@ -6,7 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin\UrlGenerator;
 
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
-abstract class AbstractResourceUrlGenerator implements ResourceUrlGeneratorInterface
+abstract class AbstractEntityUrlGenerator implements EntityUrlGeneratorInterface
 {
     public function __construct(protected UrlGeneratorInterface $urlGenerator)
     {

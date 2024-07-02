@@ -6,7 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin\Filter\Object;
 
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
-use Sylius\Component\Resource\Model\ResourceInterface;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 
 final class CompositeFilter implements FilterInterface
 {
@@ -18,7 +18,7 @@ final class CompositeFilter implements FilterInterface
         $this->filters[] = $filter;
     }
 
-    public function filter(ResourceInterface $entity, Document $document, IndexScope $indexScope): bool
+    public function filter(IndexableInterface $entity, Document $document, IndexScope $indexScope): bool
     {
         foreach ($this->filters as $filter) {
             if (!$filter->filter($entity, $document, $indexScope)) {
