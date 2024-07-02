@@ -11,6 +11,6 @@ final class IndexEntityHandler extends AbstractEntityHandler
 {
     protected function execute(IndexableInterface $entity, Index $index): void
     {
-        $index->indexer->indexEntity($entity);
+        $index->indexer()->indexEntity($entity);
     }
 }

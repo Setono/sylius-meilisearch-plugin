@@ -9,10 +9,10 @@ use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistry;
 use Setono\SyliusMeilisearchPlugin\Document\Product;
-use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolver;
+use Symfony\Component\DependencyInjection\Container;
 
 /**
  * @covers \Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolver
@@ -29,8 +29,8 @@ final class IndexNameResolverTest extends TestCase
         $index = new Index(
             'products',
             Product::class,
-            $this->prophesize(IndexerInterface::class)->reveal(),
             [],
+            new Container(),
             'prefix',
         );
 

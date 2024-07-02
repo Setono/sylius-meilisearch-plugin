@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\DependencyInjection;
 
 use Setono\SyliusMeilisearchPlugin\Document\Product;
+use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -34,7 +35,7 @@ final class Configuration implements ConfigurationInterface
                             ->scalarNode('indexer')
                                 ->info('This is the service id of the indexer that will be used to index entities on this index')
                                 ->cannotBeEmpty()
-                                ->defaultValue('setono_sylius_meilisearch.indexer.default')
+                                ->defaultValue(DefaultIndexer::class)
                             ->end()
                             ->arrayNode('entities')
                                 ->info('The Doctrine entities that make up this index. Examples could be "App\Entity\Product\Product", "App\Entity\Taxonomy\Taxon", etc.')

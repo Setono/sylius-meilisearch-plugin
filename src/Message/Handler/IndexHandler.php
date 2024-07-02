@@ -18,7 +18,7 @@ final class IndexHandler
     public function __invoke(Index $message): void
     {
         try {
-            $this->indexRegistry->get($message->index)->indexer->index();
+            $this->indexRegistry->get($message->index)->indexer()->index();
         } catch (NonExistingIndexException $e) {
             throw new UnrecoverableMessageHandlingException(message: $e->getMessage(), previous: $e);
         }

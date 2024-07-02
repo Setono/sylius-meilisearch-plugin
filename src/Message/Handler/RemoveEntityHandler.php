@@ -11,6 +11,6 @@ final class RemoveEntityHandler extends AbstractEntityHandler
 {
     protected function execute(IndexableInterface $entity, Index $index): void
     {
-        $index->indexer->removeEntity($entity);
+        $index->indexer()->removeEntity($entity);
     }
 }

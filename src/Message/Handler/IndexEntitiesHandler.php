@@ -35,7 +35,7 @@ final class IndexEntitiesHandler
         Assert::allIsInstanceOf($entities, $message->class);
 
         foreach ($this->indexRegistry->getByEntity($message->class) as $index) {
-            $index->indexer->indexEntities($entities);
+            $index->indexer()->indexEntities($entities);
         }
     }
 }

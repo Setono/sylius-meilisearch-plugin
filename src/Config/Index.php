@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Config;
 
+use Psr\Container\ContainerInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
@@ -24,14 +25,13 @@ final class Index implements \Stringable
          * @var class-string<Document> $document
          */
         public readonly string $document,
-        public readonly IndexerInterface $indexer,
-
         /**
          * A list of entities that should be indexed in this index
          *
          * @var list<class-string<IndexableInterface>> $entities
          */
         public readonly array $entities,
+        private readonly ContainerInterface $locator,
         public readonly ?string $prefix = null,
     ) {
         if (!is_a($document, Document::class, true)) {
@@ -41,6 +41,21 @@ final class Index implements \Stringable
                 Document::class,
             ));
         }
+
+        foreach ($entities as $entity) {
+            if (!is_a($entity, IndexableInterface::class, true)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'The entity class %s MUST be an instance of %s',
+                    $entity,
+                    IndexableInterface::class,
+                ));
+            }
+        }
+    }
+
+    public function indexer(): IndexerInterface
+    {
+        return $this->locator->get(IndexerInterface::class);
     }
 
     /**
