@@ -6,7 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin\Model;
 
 interface IndexableInterface
 {
-    public function getId(): null|int|string;
+    public function getId();
 
     /**
      * This will be the document id in Meilisearch. This MUST be unique across the index, therefore if you mix

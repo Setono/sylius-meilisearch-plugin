@@ -11,9 +11,4 @@ use Sylius\Component\Core\Model\Product as BaseProduct;
 class Product extends BaseProduct implements IndexableInterface
 {
     use IndexableAwareTrait;
-
-    public function getId(): ?int
-    {
-        return (int) $this->id;
-    }
 }

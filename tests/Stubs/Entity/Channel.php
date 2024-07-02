@@ -11,9 +11,4 @@ use Sylius\Component\Core\Model\Channel as BaseChannel;
 class Channel extends BaseChannel implements IndexableInterface
 {
     use IndexableAwareTrait;
-
-    public function getId(): ?int
-    {
-        return (int) $this->id;
-    }
 }

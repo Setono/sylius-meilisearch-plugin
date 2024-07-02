@@ -11,9 +11,4 @@ use Sylius\Component\Core\Model\Taxon as BaseTaxon;
 class Taxon extends BaseTaxon implements IndexableInterface
 {
     use IndexableAwareTrait;
-
-    public function getId(): ?int
-    {
-        return (int) $this->id;
-    }
 }
