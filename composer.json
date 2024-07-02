@@ -85,9 +85,9 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": false,
             "ergebnis/composer-normalize": true,
-            "symfony/thanks": false,
             "infection/extension-installer": true,
-            "php-http/discovery": false
+            "php-http/discovery": false,
+            "symfony/thanks": false
         },
         "sort-packages": true
     },
