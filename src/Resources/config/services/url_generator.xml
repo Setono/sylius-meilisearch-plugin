@@ -2,11 +2,11 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="EntityUrlGeneratorInterface"
+        <service id="\Setono\SyliusMeilisearchPlugin\UrlGenerator\EntityUrlGeneratorInterface"
                  alias="setono_sylius_meilisearch.url_generator.composite"/>
 
         <service id="setono_sylius_meilisearch.url_generator.composite"
-                 class="CompositeEntityUrlGenerator"/>
+                 class="\Setono\SyliusMeilisearchPlugin\UrlGenerator\CompositeEntityUrlGenerator"/>
 
         <service id="setono_sylius_meilisearch.url_generator.product"
                  class="Setono\SyliusMeilisearchPlugin\UrlGenerator\ProductUrlGenerator">

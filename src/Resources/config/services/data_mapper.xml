@@ -27,13 +27,6 @@
             <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
         </service>
 
-        <service id="setono_sylius_meilisearch.data_mapper.resource_name"
-                 class="Setono\SyliusMeilisearchPlugin\DataMapper\ResourceNameDataMapper">
-            <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
-
-            <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
-        </service>
-
         <!-- Product data mappers -->
         <service id="setono_sylius_meilisearch.data_mapper.product"
                  class="Setono\SyliusMeilisearchPlugin\DataMapper\Product\ProductDataMapper">
