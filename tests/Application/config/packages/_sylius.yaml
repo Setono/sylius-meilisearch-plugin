@@ -18,12 +18,10 @@ sylius_product:
     resources:
         product:
             classes:
-                repository: Setono\SyliusMeilisearchPlugin\Tests\Application\Repository\ProductRepository
                 model: Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product
 
 sylius_taxonomy:
     resources:
         taxon:
             classes:
-                repository: Setono\SyliusMeilisearchPlugin\Tests\Application\Repository\TaxonRepository
                 model: Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Taxon
