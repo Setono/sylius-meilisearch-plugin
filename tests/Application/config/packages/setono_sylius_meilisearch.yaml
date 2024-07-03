@@ -5,7 +5,7 @@ setono_sylius_meilisearch:
             entities: [ 'Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product' ]
         taxons:
             document: 'Setono\SyliusMeilisearchPlugin\Document\Taxon'
-            entities: [ '\Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Taxon' ]
+            entities: [ 'Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Taxon' ]
     search:
         indexes:
             - 'products'
