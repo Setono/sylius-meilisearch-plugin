@@ -6,7 +6,6 @@
         <service id="setono_sylius_meilisearch.event_subscriber.doctrine.entity_change"
                  class="Setono\SyliusMeilisearchPlugin\EventSubscriber\Doctrine\EntityChangeSubscriber">
             <argument type="service" id="setono_sylius_meilisearch.command_bus"/>
-            <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
 
             <tag name="doctrine.event_subscriber"/>
         </service>
