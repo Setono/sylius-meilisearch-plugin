@@ -30,16 +30,7 @@ final class TaxonIndexScopeProvider implements IndexScopeProviderInterface
 
     public function getFromContext(Index $index): IndexScope
     {
-        return $this->getFromChannelAndLocaleAndCurrency(
-            $index,
-            null,
-            $this->localeContext->getLocaleCode(),
-        );
-    }
-
-    public function getFromChannelAndLocaleAndCurrency(Index $index, string $channelCode = null, string $localeCode = null, string $currencyCode = null): IndexScope
-    {
-        return new IndexScope(index: $index, localeCode: $localeCode);
+        return new IndexScope(index: $index, localeCode: $this->localeContext->getLocaleCode());
     }
 
     public function supports(Index $index): bool

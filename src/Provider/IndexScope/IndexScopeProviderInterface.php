@@ -23,15 +23,5 @@ interface IndexScopeProviderInterface
      */
     public function getFromContext(Index $index): IndexScope;
 
-    /**
-     * Returns an index scope based on the given arguments
-     */
-    public function getFromChannelAndLocaleAndCurrency(
-        Index $index,
-        string $channelCode = null,
-        string $localeCode = null,
-        string $currencyCode = null,
-    ): IndexScope;
-
     public function supports(Index $index): bool;
 }

@@ -45,21 +45,11 @@ final class ProductIndexScopeProvider implements IndexScopeProviderInterface
 
     public function getFromContext(Index $index): IndexScope
     {
-        return $this->getFromChannelAndLocaleAndCurrency(
-            $index,
-            $this->channelContext->getChannel()->getCode(),
-            $this->localeContext->getLocaleCode(),
-            $this->currencyContext->getCurrencyCode(),
-        );
-    }
-
-    public function getFromChannelAndLocaleAndCurrency(Index $index, string $channelCode = null, string $localeCode = null, string $currencyCode = null): IndexScope
-    {
         return new IndexScope(
             index: $index,
-            channelCode: $channelCode,
-            localeCode: $localeCode,
-            currencyCode: $currencyCode,
+            channelCode: $this->channelContext->getChannel()->getCode(),
+            localeCode: $this->localeContext->getLocaleCode(),
+            currencyCode: $this->currencyContext->getCurrencyCode(),
         );
     }
 

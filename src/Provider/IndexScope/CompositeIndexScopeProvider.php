@@ -4,65 +4,51 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Provider\IndexScope;
 
+use Setono\CompositeCompilerPass\CompositeService;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 
-final class CompositeIndexScopeProvider implements IndexScopeProviderInterface
+/**
+ * @extends CompositeService<IndexScopeProviderInterface>
+ */
+final class CompositeIndexScopeProvider extends CompositeService implements IndexScopeProviderInterface
 {
-    /** @var list<IndexScopeProviderInterface> */
-    private array $providers = [];
-
-    public function add(IndexScopeProviderInterface $indexScopeProvider): void
-    {
-        $this->providers[] = $indexScopeProvider;
-    }
-
     public function getAll(Index $index): iterable
     {
-        foreach ($this->providers as $provider) {
-            if ($provider->supports($index)) {
-                yield from $provider->getAll($index);
+        foreach ($this->services as $service) {
+            if ($service->supports($index)) {
+                yield from $service->getAll($index);
 
                 return;
             }
         }
 
-        throw new \RuntimeException('Unsupported resource'); // todo better exception
+        throw self::createException($index->name);
     }
 
     public function getFromContext(Index $index): IndexScope
     {
-        foreach ($this->providers as $provider) {
-            if ($provider->supports($index)) {
-                return $provider->getFromContext($index);
+        foreach ($this->services as $service) {
+            if ($service->supports($index)) {
+                return $service->getFromContext($index);
             }
         }
 
-        throw new \RuntimeException('Unsupported resource'); // todo better exception
-    }
-
-    public function getFromChannelAndLocaleAndCurrency(
-        Index $index,
-        string $channelCode = null,
-        string $localeCode = null,
-        string $currencyCode = null,
-    ): IndexScope {
-        foreach ($this->providers as $provider) {
-            if ($provider->supports($index)) {
-                return $provider->getFromChannelAndLocaleAndCurrency($index, $channelCode, $localeCode, $currencyCode);
-            }
-        }
-
-        throw new \RuntimeException('Unsupported index'); // todo better exception
+        throw self::createException($index->name);
     }
 
     public function supports(Index $index): bool
     {
-        foreach ($this->providers as $provider) {
-            if ($provider->supports($index)) {
+        foreach ($this->services as $service) {
+            if ($service->supports($index)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private static function createException(string $indexName): \InvalidArgumentException
+    {
+        return new \InvalidArgumentException(sprintf('The index %s is not supported by any index scope providers', $indexName));
     }
 }
