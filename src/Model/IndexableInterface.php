@@ -6,6 +6,11 @@ namespace Setono\SyliusMeilisearchPlugin\Model;
 
 interface IndexableInterface
 {
+    /**
+     * This is compatible with Sylius' getId() method
+     *
+     * @return mixed
+     */
     public function getId();
 
     /**
