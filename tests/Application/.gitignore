@@ -9,6 +9,11 @@
 
 /node_modules
 
+###> meilisearch ###
+/data.ms/
+/meilisearch
+###< meilisearch ###
+
 ###> symfony/framework-bundle ###
 /.env.*.local
 /.env.local

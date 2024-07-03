@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Model;
 
-use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 
 /**
  * Implement this interface on entities that you want to filter in a simple way

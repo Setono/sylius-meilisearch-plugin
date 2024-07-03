@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Indexer;
 
 use Doctrine\Persistence\ManagerRegistry;
+use DoctrineBatchUtils\BatchProcessing\SelectBatchIteratorAggregate;
 use Meilisearch\Client;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
@@ -51,16 +52,18 @@ class DefaultIndexer extends AbstractIndexer
         }
 
         foreach ($this->indexScopeProvider->getAll($this->index) as $indexScope) {
+            $documents = [];
+
             foreach ($entities as $entity) {
                 $document = new $this->index->document();
                 $this->dataMapper->map($entity, $document, $indexScope);
 
                 $this->objectFilter->filter($entity, $document, $indexScope);
 
-                $data = $this->normalize($document);
-
-                $this->client->index($this->indexNameResolver->resolveFromIndexScope($indexScope))->addDocuments([$data]);
+                $documents[] = $this->normalize($document);
             }
+
+            $this->client->index($this->indexNameResolver->resolveFromIndexScope($indexScope))->addDocuments($documents, 'id');
         }
     }
 
@@ -82,8 +85,20 @@ class DefaultIndexer extends AbstractIndexer
      */
     protected function indexEntityClass(string $entity): void
     {
-        // todo use Ocramius' batch library
-        throw new \RuntimeException('Not implemented');
+        $q = $this
+            ->getManager($entity)
+            ->createQueryBuilder()
+            ->select('o')
+            ->from($entity, 'o')
+            ->getQuery()
+        ;
+
+        /** @var SelectBatchIteratorAggregate<array-key, IndexableInterface> $objects */
+        $objects = SelectBatchIteratorAggregate::fromQuery($q, 100);
+
+        foreach ($objects as $object) {
+            $this->indexEntity($object);
+        }
     }
 
     // todo move this to a service

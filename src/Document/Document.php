@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Document;
 
-use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Settings\IndexSettings;
 
 /**

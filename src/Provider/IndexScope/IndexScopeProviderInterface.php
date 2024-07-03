@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Provider\IndexScope;
 
 use Setono\SyliusMeilisearchPlugin\Config\Index;
-use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
 
 /**
  * The responsibility of the index scope provider is to provide all the relevant index scopes for a given index

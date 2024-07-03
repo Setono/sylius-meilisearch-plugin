@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Filter\Object;
 
 use Setono\SyliusMeilisearchPlugin\Document\Document;
-use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Model\FilterableInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 
 final class FilterableFilter implements FilterInterface
 {

@@ -6,7 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin\Resolver\IndexName;
 
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
-use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 

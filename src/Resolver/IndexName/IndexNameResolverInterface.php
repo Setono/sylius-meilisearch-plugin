@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Resolver\IndexName;
 
 use Setono\SyliusMeilisearchPlugin\Config\Index;
-use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 
 interface IndexNameResolverInterface
 {

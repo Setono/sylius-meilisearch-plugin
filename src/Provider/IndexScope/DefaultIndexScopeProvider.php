@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Provider\IndexScope;
 
 use Setono\SyliusMeilisearchPlugin\Config\Index;
-use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
 
 final class DefaultIndexScopeProvider implements IndexScopeProviderInterface
 {

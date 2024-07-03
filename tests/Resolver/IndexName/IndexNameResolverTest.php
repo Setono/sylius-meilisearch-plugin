@@ -9,7 +9,7 @@ use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistry;
 use Setono\SyliusMeilisearchPlugin\Document\Product;
-use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolver;
 use Symfony\Component\DependencyInjection\Container;
@@ -40,11 +40,7 @@ final class IndexNameResolverTest extends TestCase
             'prod',
         );
 
-        $indexScope = (new IndexScope($index))
-            ->withChannelCode('FASHION_WEB')
-            ->withLocaleCode('en_US')
-            ->withCurrencyCode('USD')
-        ;
+        $indexScope = new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD');
 
         self::assertSame('prefix__prod__products__fashion_web__en_us__usd', $resolver->resolveFromIndexScope($indexScope));
     }

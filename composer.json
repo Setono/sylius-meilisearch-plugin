@@ -17,6 +17,7 @@
         "doctrine/persistence": "^2.5 || ^3.0",
         "liip/imagine-bundle": "^2.10",
         "meilisearch/meilisearch-php": "^1.8",
+        "ocramius/doctrine-batch-utils": "^2.6",
         "psr/cache": "^1.0 || ^2.0 || ^3.0",
         "psr/event-dispatcher": "^1.0",
         "psr/log": "^1.1 || ^2.0 || ^3.0",

@@ -6,8 +6,8 @@ namespace Setono\SyliusMeilisearchPlugin\DataMapper;
 
 use Setono\CompositeCompilerPass\CompositeService;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
-use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 
 /**
  * @extends CompositeService<DataMapperInterface>
