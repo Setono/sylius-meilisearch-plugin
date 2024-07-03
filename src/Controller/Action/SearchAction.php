@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Controller\Action;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Setono\SyliusMeilisearchPlugin\Config\IndexRegistry;
+use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Event\ProductIndexEvent;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\SortBy\SortByResolverInterface;
@@ -24,7 +24,7 @@ final class SearchAction
         private readonly TaxonRepositoryInterface $taxonRepository,
         private readonly LocaleContextInterface $localeContext,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly IndexRegistry $indexRegistry,
+        private readonly IndexRegistryInterface $indexRegistry,
         private readonly SortByResolverInterface $sortByResolver,
     ) {
     }

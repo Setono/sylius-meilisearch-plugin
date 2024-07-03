@@ -6,7 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin\Message\Handler;
 
 use Doctrine\Persistence\ManagerRegistry;
 use Setono\Doctrine\ORMTrait;
-use Setono\SyliusMeilisearchPlugin\Config\IndexRegistry;
+use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
 use Webmozart\Assert\Assert;
 
@@ -14,7 +14,7 @@ final class IndexEntitiesHandler
 {
     use ORMTrait;
 
-    public function __construct(ManagerRegistry $managerRegistry, private readonly IndexRegistry $indexRegistry)
+    public function __construct(ManagerRegistry $managerRegistry, private readonly IndexRegistryInterface $indexRegistry)
     {
         $this->managerRegistry = $managerRegistry;
     }

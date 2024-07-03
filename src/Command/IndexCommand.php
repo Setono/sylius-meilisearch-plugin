@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Command;
 
-use Setono\SyliusMeilisearchPlugin\Config\IndexRegistry;
+use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -20,7 +20,7 @@ final class IndexCommand extends Command
 {
     public function __construct(
         private readonly MessageBusInterface $commandBus,
-        private readonly IndexRegistry $indexRegistry,
+        private readonly IndexRegistryInterface $indexRegistry,
     ) {
         parent::__construct();
     }

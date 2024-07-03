@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Resolver\IndexName;
 
 use Setono\SyliusMeilisearchPlugin\Config\Index;
-use Setono\SyliusMeilisearchPlugin\Config\IndexRegistry;
+use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
@@ -17,7 +17,7 @@ use Sylius\Component\Resource\Model\ResourceInterface;
 final class IndexNameResolver implements IndexNameResolverInterface
 {
     public function __construct(
-        private readonly IndexRegistry $indexRegistry,
+        private readonly IndexRegistryInterface $indexRegistry,
         private readonly IndexScopeProviderInterface $indexScopeProvider,
         private readonly string $environment,
     ) {
