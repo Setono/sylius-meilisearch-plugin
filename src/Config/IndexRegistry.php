@@ -21,7 +21,7 @@ final class IndexRegistry implements \IteratorAggregate, IndexRegistryInterface
     public function add(Index $index): void
     {
         if (isset($this->indexes[$index->name])) {
-            throw new \InvalidArgumentException(sprintf('An index with the name %s already exists', $index->name));
+            throw new \InvalidArgumentException(sprintf('An index with the name %s already exists', $index->name)); // todo better exception
         }
 
         $this->indexes[$index->name] = $index;
