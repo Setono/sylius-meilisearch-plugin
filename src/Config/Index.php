@@ -53,8 +53,12 @@ final class Index implements \Stringable
         }
     }
 
+    /**
+     * @psalm-suppress MixedInferredReturnType
+     */
     public function indexer(): IndexerInterface
     {
+        /** @psalm-suppress MixedReturnStatement */
         return $this->locator->get(IndexerInterface::class);
     }
 
