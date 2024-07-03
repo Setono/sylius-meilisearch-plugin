@@ -2,13 +2,6 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="setono_sylius_meilisearch.event_subscriber.inject_configuration"
-                 class="Setono\SyliusMeilisearchPlugin\EventSubscriber\InjectConfigurationSubscriber">
-            <argument type="service" id="twig"/>
-
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <!-- Doctrine specific event subscribers -->
         <service id="setono_sylius_meilisearch.event_subscriber.doctrine.entity_change"
                  class="Setono\SyliusMeilisearchPlugin\EventSubscriber\Doctrine\EntityChangeSubscriber">
