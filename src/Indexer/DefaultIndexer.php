@@ -10,11 +10,9 @@ use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
-use Setono\SyliusMeilisearchPlugin\Filter\Doctrine\FilterInterface as DoctrineFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Filter\Object\FilterInterface as ObjectFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
-use Setono\SyliusMeilisearchPlugin\Provider\IndexSettings\IndexSettingsProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Webmozart\Assert\Assert;
@@ -31,11 +29,9 @@ class DefaultIndexer extends AbstractIndexer
         ManagerRegistry $managerRegistry,
         protected readonly IndexScopeProviderInterface $indexScopeProvider,
         protected readonly IndexNameResolverInterface $indexNameResolver,
-        protected readonly IndexSettingsProviderInterface $indexSettingsProvider,
         protected readonly DataMapperInterface $dataMapper,
         protected readonly NormalizerInterface $normalizer,
         protected readonly Client $client,
-        protected readonly DoctrineFilterInterface $doctrineFilter,
         protected readonly ObjectFilterInterface $objectFilter,
     ) {
         $this->managerRegistry = $managerRegistry;
@@ -90,6 +86,7 @@ class DefaultIndexer extends AbstractIndexer
         throw new \RuntimeException('Not implemented');
     }
 
+    // todo move this to a service
     protected function normalize(Document $document): array
     {
         $data = $this->normalizer->normalize($document);
