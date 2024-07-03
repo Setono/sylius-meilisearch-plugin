@@ -2,54 +2,47 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
+        <!-- Generic data mappers -->
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface"
-                 alias="setono_sylius_meilisearch.data_mapper.composite"/>
+                 alias="Setono\SyliusMeilisearchPlugin\DataMapper\CompositeDataMapper"/>
 
-        <service id="setono_sylius_meilisearch.data_mapper.composite"
-                 class="Setono\SyliusMeilisearchPlugin\DataMapper\CompositeDataMapper"/>
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\CompositeDataMapper"/>
 
-        <service id="setono_sylius_meilisearch.data_mapper.url"
-                 class="Setono\SyliusMeilisearchPlugin\DataMapper\UrlDataMapper">
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\UrlDataMapper">
             <argument type="service" id="setono_sylius_meilisearch.url_generator.composite"/>
 
             <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
         </service>
 
-        <service id="setono_sylius_meilisearch.data_mapper.image_urls"
-                 class="Setono\SyliusMeilisearchPlugin\DataMapper\ImageUrlsDataMapper">
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\ImageUrlsDataMapper">
             <argument type="service" id="liip_imagine.cache.manager"/>
 
             <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
         </service>
 
-        <service id="setono_sylius_meilisearch.data_mapper.indexable"
-                 class="Setono\SyliusMeilisearchPlugin\DataMapper\IndexableDataMapper">
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\IndexableDataMapper">
             <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
         </service>
 
         <!-- Product data mappers -->
-        <service id="setono_sylius_meilisearch.data_mapper.product"
-                 class="Setono\SyliusMeilisearchPlugin\DataMapper\Product\ProductDataMapper">
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\ProductDataMapper">
             <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
         </service>
 
-        <service id="setono_sylius_meilisearch.data_mapper.product.price"
-                 class="Setono\SyliusMeilisearchPlugin\DataMapper\Product\PriceDataMapper">
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\PriceDataMapper">
             <argument type="service" id="sylius.repository.channel"/>
 
             <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
         </service>
 
-        <service id="setono_sylius_meilisearch.data_mapper.product.taxon_codes"
-                 class="Setono\SyliusMeilisearchPlugin\DataMapper\Product\TaxonCodesDataMapper">
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\TaxonCodesDataMapper">
             <argument>%sylius_shop.product_grid.include_all_descendants%</argument>
 
             <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
         </service>
 
         <!-- Taxon data mappers -->
-        <service id="setono_sylius_meilisearch.data_mapper.taxon"
-                 class="Setono\SyliusMeilisearchPlugin\DataMapper\Taxon\TaxonDataMapper">
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Taxon\TaxonDataMapper">
             <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
         </service>
     </services>

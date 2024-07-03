@@ -119,7 +119,7 @@ final class SetonoSyliusMeilisearchExtension extends Extension
             new Reference('doctrine'),
             new Reference('setono_sylius_meilisearch.provider.index_scope.composite'),
             new Reference('setono_sylius_meilisearch.resolver.index_name'),
-            new Reference('setono_sylius_meilisearch.data_mapper.composite'),
+            new Reference(DataMapperInterface::class),
             new Reference('serializer'),
             new Reference(Client::class),
             new Reference('setono_sylius_meilisearch.filter.object.composite'),

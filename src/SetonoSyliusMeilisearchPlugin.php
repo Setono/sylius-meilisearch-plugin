@@ -19,7 +19,7 @@ final class SetonoSyliusMeilisearchPlugin extends Bundle
 
         // Register services in composite services
         $container->addCompilerPass(new CompositeCompilerPass(
-            'setono_sylius_meilisearch.data_mapper.composite',
+            'Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface',
             'setono_sylius_meilisearch.data_mapper',
         ));
 
