@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin;
 
 use Setono\CompositeCompilerPass\CompositeCompilerPass;
+use Setono\SyliusMeilisearchPlugin\DataMapper\CompositeDataMapper;
 use Sylius\Bundle\CoreBundle\Application\SyliusPluginTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -19,7 +20,7 @@ final class SetonoSyliusMeilisearchPlugin extends Bundle
 
         // Register services in composite services
         $container->addCompilerPass(new CompositeCompilerPass(
-            'Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface',
+            CompositeDataMapper::class,
             'setono_sylius_meilisearch.data_mapper',
         ));
 
