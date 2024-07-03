@@ -4,33 +4,29 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\DataMapper;
 
+use Setono\CompositeCompilerPass\CompositeService;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 
-final class CompositeDataMapper implements DataMapperInterface
+/**
+ * @extends CompositeService<DataMapperInterface>
+ */
+final class CompositeDataMapper extends CompositeService implements DataMapperInterface
 {
-    /** @var list<DataMapperInterface> */
-    private array $dataMappers = [];
-
-    public function add(DataMapperInterface $dataMapper): void
-    {
-        $this->dataMappers[] = $dataMapper;
-    }
-
     public function map(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): void
     {
-        foreach ($this->dataMappers as $dataMapper) {
-            if ($dataMapper->supports($source, $target, $indexScope, $context)) {
-                $dataMapper->map($source, $target, $indexScope, $context);
+        foreach ($this->services as $service) {
+            if ($service->supports($source, $target, $indexScope, $context)) {
+                $service->map($source, $target, $indexScope, $context);
             }
         }
     }
 
     public function supports(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
     {
-        foreach ($this->dataMappers as $dataMapper) {
-            if ($dataMapper->supports($source, $target, $indexScope, $context)) {
+        foreach ($this->services as $service) {
+            if ($service->supports($source, $target, $indexScope, $context)) {
                 return true;
             }
         }
