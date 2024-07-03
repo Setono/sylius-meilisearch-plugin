@@ -73,7 +73,10 @@
     "autoload": {
         "psr-4": {
             "Setono\\SyliusMeilisearchPlugin\\": "src/"
-        }
+        },
+        "files": [
+            "src/Resources/functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

@@ -6,8 +6,8 @@ namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product;
 
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
-use Setono\SyliusMeilisearchPlugin\Document\FormatAmountTrait;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
+use function Setono\SyliusMeilisearchPlugin\formatAmount;
 use Setono\SyliusMeilisearchPlugin\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Sylius\Component\Channel\Model\ChannelInterface as BaseChannelInterface;
@@ -22,8 +22,6 @@ use Webmozart\Assert\Assert;
  */
 final class PriceDataMapper implements DataMapperInterface
 {
-    use FormatAmountTrait;
-
     public function __construct(private readonly ChannelRepositoryInterface $channelRepository)
     {
     }
@@ -72,10 +70,10 @@ final class PriceDataMapper implements DataMapperInterface
         }
 
         $target->currency = $baseCurrencyCode;
-        $target->price = self::formatAmount($price);
+        $target->price = formatAmount($price);
 
         if (null !== $originalPrice) {
-            $target->originalPrice = self::formatAmount($originalPrice);
+            $target->originalPrice = formatAmount($originalPrice);
         }
     }
 
