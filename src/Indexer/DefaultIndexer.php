@@ -26,9 +26,6 @@ class DefaultIndexer extends AbstractIndexer
 {
     use ORMTrait;
 
-    /**
-     * @param list<string> $normalizationGroups
-     */
     public function __construct(
         protected readonly Index $index,
         ManagerRegistry $managerRegistry,
@@ -40,7 +37,6 @@ class DefaultIndexer extends AbstractIndexer
         protected readonly Client $client,
         protected readonly DoctrineFilterInterface $doctrineFilter,
         protected readonly ObjectFilterInterface $objectFilter,
-        protected readonly array $normalizationGroups = ['setono:sylius-meilisearch:document'],
     ) {
         $this->managerRegistry = $managerRegistry;
     }
@@ -96,11 +92,9 @@ class DefaultIndexer extends AbstractIndexer
 
     protected function normalize(Document $document): array
     {
-        $res = $this->normalizer->normalize($document, null, [
-            'groups' => $this->normalizationGroups,
-        ]);
-        Assert::isArray($res);
+        $data = $this->normalizer->normalize($document);
+        Assert::isArray($data);
 
-        return $res;
+        return $data;
     }
 }
