@@ -1,6 +1,3 @@
-imports:
-    - { resource: "@SetonoSyliusMeilisearchPlugin/Resources/config/app/config.yaml" }
-
 setono_sylius_meilisearch:
     indexes:
         products:

@@ -19,11 +19,12 @@ use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use function Symfony\Component\String\u;
 
-final class SetonoSyliusMeilisearchExtension extends Extension
+final class SetonoSyliusMeilisearchExtension extends Extension implements PrependExtensionInterface
 {
     public function load(array $configs, ContainerBuilder $container): void
     {
@@ -81,6 +82,17 @@ final class SetonoSyliusMeilisearchExtension extends Extension
             ->addTag('setono_sylius_meilisearch.url_generator');
 
         self::registerIndexesConfiguration($config['indexes'], $container);
+    }
+
+    public function prepend(ContainerBuilder $container): void
+    {
+        $container->prependExtensionConfig('framework', [
+            'messenger' => [
+                'buses' => [
+                    'setono_sylius_meilisearch.command_bus' => null,
+                ],
+            ],
+        ]);
     }
 
     /**

@@ -1,4 +1,0 @@
-framework:
-    messenger:
-        buses:
-            setono_sylius_meilisearch.command_bus: ~
