@@ -2,14 +2,3 @@ framework:
     messenger:
         buses:
             setono_sylius_meilisearch.command_bus: ~
-
-sylius_ui:
-    events:
-        sylius.shop.layout.javascripts:
-            blocks:
-                ssa_shop_product_index_scripts:
-                    template: "@SetonoSyliusMeilisearchPlugin/shop/product/index/_scripts.html.twig"
-        sylius.shop.layout.stylesheets:
-            blocks:
-                ssa_shop_product_index_styles:
-                    template: "@SetonoSyliusMeilisearchPlugin/shop/product/index/_styles.html.twig"
