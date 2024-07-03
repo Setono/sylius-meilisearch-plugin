@@ -7,7 +7,6 @@ namespace Setono\SyliusMeilisearchPlugin\DependencyInjection;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\Filter\Doctrine\FilterInterface as DoctrineFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Filter\Object\FilterInterface as ObjectFilterInterface;
-use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\UrlGenerator\EntityUrlGeneratorInterface;
 use Symfony\Component\Config\FileLocator;
@@ -71,8 +70,5 @@ final class SetonoSyliusMeilisearchExtension extends Extension
 
         $container->registerForAutoconfiguration(EntityUrlGeneratorInterface::class)
             ->addTag('setono_sylius_meilisearch.url_generator');
-
-        $container->registerForAutoconfiguration(IndexerInterface::class)
-            ->addTag('setono_sylius_meilisearch.indexer');
     }
 }
