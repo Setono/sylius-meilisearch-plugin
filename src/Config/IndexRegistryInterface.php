@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Config;
 
-use Setono\SyliusMeilisearchPlugin\Exception\NonExistingIndexException;
-
 /**
  * @extends \Traversable<Index>
  */
@@ -17,7 +15,7 @@ interface IndexRegistryInterface extends \Traversable
     public function add(Index $index): void;
 
     /**
-     * @throws NonExistingIndexException if no index exists with the given name
+     * @throws \InvalidArgumentException if no index exists with the given name
      */
     public function get(string $name): Index;
 

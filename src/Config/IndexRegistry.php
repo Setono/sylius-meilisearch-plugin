@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Config;
 
-use Setono\SyliusMeilisearchPlugin\Exception\NonExistingIndexException;
-
 /**
  * @implements \IteratorAggregate<string, Index>
  */
@@ -21,19 +19,20 @@ final class IndexRegistry implements \IteratorAggregate, IndexRegistryInterface
     public function add(Index $index): void
     {
         if (isset($this->indexes[$index->name])) {
-            throw new \InvalidArgumentException(sprintf('An index with the name %s already exists', $index->name)); // todo better exception
+            throw new \InvalidArgumentException(sprintf('An index with the name %s already exists', $index->name));
         }
 
         $this->indexes[$index->name] = $index;
     }
 
-    /**
-     * @throws NonExistingIndexException if no index exists with the given name
-     */
     public function get(string $name): Index
     {
         if (!isset($this->indexes[$name])) {
-            throw NonExistingIndexException::fromName($name, array_keys($this->indexes));
+            throw new \InvalidArgumentException(sprintf(
+                'No index exists with the name %s. Available indexes are: [%s]',
+                implode(', ', array_keys($this->indexes)),
+                $name,
+            ));
         }
 
         return $this->indexes[$name];
