@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin;
 
 use Setono\CompositeCompilerPass\CompositeCompilerPass;
-use Setono\SyliusMeilisearchPlugin\DependencyInjection\Compiler\RegisterIndexesPass;
 use Sylius\Bundle\CoreBundle\Application\SyliusPluginTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -17,8 +16,6 @@ final class SetonoSyliusMeilisearchPlugin extends Bundle
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
-
-        $container->addCompilerPass(new RegisterIndexesPass());
 
         // Register services in composite services
         $container->addCompilerPass(new CompositeCompilerPass(
