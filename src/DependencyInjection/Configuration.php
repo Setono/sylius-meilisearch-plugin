@@ -53,7 +53,7 @@ final class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('host')
                             ->info('This is the host of the Meilisearch instance')
-                            ->defaultValue('http://127.0.0.1:7700')
+                            ->defaultValue('%env(MEILISEARCH_HOST)%')
                             ->cannotBeEmpty()
                         ->end()
                         ->scalarNode('master_key')
