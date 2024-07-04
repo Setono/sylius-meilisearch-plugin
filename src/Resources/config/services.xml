@@ -11,6 +11,7 @@
         <import resource="services/filter.xml"/>
         <import resource="services/javascript.xml"/>
         <import resource="services/message.xml"/>
+        <import resource="services/normalizer.xml"/>
         <import resource="services/provider.xml"/>
         <import resource="services/resolver.xml"/>
         <import resource="services/url_generator.xml"/>
