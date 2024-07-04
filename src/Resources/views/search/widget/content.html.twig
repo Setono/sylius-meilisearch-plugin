@@ -1,0 +1,7 @@
+{% form_theme form '@SyliusShop/Form/theme.html.twig' %}
+
+<div class="ui center aligned column">
+    {{ form_start(form, { 'action': path('setono_sylius_meilisearch_shop_search') }) }}
+        {{ form_widget(form.q) }}
+    {{ form_end(form) }}
+</div>

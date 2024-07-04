@@ -79,6 +79,19 @@ final class SetonoSyliusMeilisearchExtension extends Extension implements Prepen
                 ],
             ],
         ]);
+
+        $container->prependExtensionConfig('sylius_ui', [
+            'events' => [
+                'sylius.shop.layout.header.grid' => [
+                    'blocks' => [
+                        'search' => [
+                            'template' => '@SetonoSyliusMeilisearchPlugin/search/widget.html.twig',
+                            'priority' => 20,
+                        ],
+                    ],
+                ],
+            ],
+        ]);
     }
 
     /**

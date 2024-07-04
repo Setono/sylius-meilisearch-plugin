@@ -2,19 +2,22 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Controller\Action;
+namespace Setono\SyliusMeilisearchPlugin\Controller;
 
 use Doctrine\Persistence\ManagerRegistry;
 use Meilisearch\Client;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
+use Setono\SyliusMeilisearchPlugin\Form\Type\SearchType;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
-final class SearchAction
+final class SearchController
 {
     use ORMTrait;
 
@@ -30,7 +33,7 @@ final class SearchAction
         $this->managerRegistry = $managerRegistry;
     }
 
-    public function __invoke(Request $request): Response
+    public function search(Request $request): Response
     {
         $indexNames = array_map(fn (string $searchIndex) => $this->indexNameResolver->resolve($this->indexRegistry->get($searchIndex)), $this->searchIndexes);
 
@@ -47,6 +50,17 @@ final class SearchAction
 
         return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/search/index.html.twig', [
             'items' => $items,
+        ]));
+    }
+
+    public function widget(RequestStack $requestStack, FormFactoryInterface $formFactory): Response
+    {
+        $q = $requestStack->getMainRequest()?->query->get('q');
+
+        $form = $formFactory->createNamed('', SearchType::class, ['q' => $q]);
+
+        return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/search/widget/content.html.twig', [
+            'form' => $form->createView(),
         ]));
     }
 }

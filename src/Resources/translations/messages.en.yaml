@@ -1,0 +1,4 @@
+setono_sylius_meilisearch:
+    form:
+        search:
+            q_placeholder: Search...
