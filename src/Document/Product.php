@@ -43,6 +43,9 @@ class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInter
 
     public ?float $originalPrice = null;
 
+    /** @var array<string, list<string>> */
+    public array $options = [];
+
     /**
      * This attribute will allow you to create a filter like 'Only show products on sale'
      */

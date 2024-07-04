@@ -104,6 +104,7 @@ class DefaultIndexer extends AbstractIndexer
     // todo move this to a service
     protected function normalize(Document $document): array
     {
+        // todo skip null values
         $data = $this->normalizer->normalize($document);
         Assert::isArray($data);
 
