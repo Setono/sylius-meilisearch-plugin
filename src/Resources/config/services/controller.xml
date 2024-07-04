@@ -2,15 +2,12 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="setono_sylius_meilisearch.controller.action.product_index"
-                 class="Setono\SyliusMeilisearchPlugin\Controller\Action\SearchAction" public="true">
+        <service id="Setono\SyliusMeilisearchPlugin\Controller\Action\SearchAction" public="true">
             <argument type="service" id="twig"/>
             <argument type="service" id="setono_sylius_meilisearch.resolver.index_name"/>
-            <argument type="service" id="sylius.repository.taxon"/>
-            <argument type="service" id="sylius.context.locale"/>
-            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
-            <argument type="service" id="setono_sylius_meilisearch.resolver.sort_by"/>
+            <argument type="service" id="Meilisearch\Client"/>
+            <argument>%setono_sylius_meilisearch.search.indexes%</argument>
         </service>
     </services>
 </container>

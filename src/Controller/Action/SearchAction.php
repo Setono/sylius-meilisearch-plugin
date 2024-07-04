@@ -4,16 +4,11 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Controller\Action;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
+use Meilisearch\Client;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
-use Setono\SyliusMeilisearchPlugin\Event\ProductIndexEvent;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\SortBy\SortByResolverInterface;
-use Sylius\Component\Core\Model\ProductInterface;
-use Sylius\Component\Locale\Context\LocaleContextInterface;
-use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Twig\Environment;
 
 final class SearchAction
@@ -21,39 +16,24 @@ final class SearchAction
     public function __construct(
         private readonly Environment $twig,
         private readonly IndexNameResolverInterface $indexNameResolver,
-        private readonly TaxonRepositoryInterface $taxonRepository,
-        private readonly LocaleContextInterface $localeContext,
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly IndexRegistryInterface $indexRegistry,
-        private readonly SortByResolverInterface $sortByResolver,
+        private readonly Client $client,
+        /** @var list<string> $searchIndexes */
+        private readonly array $searchIndexes,
     ) {
     }
 
-    public function __invoke(string $slug): Response
+    public function __invoke(Request $request): Response
     {
-        $locale = $this->localeContext->getLocaleCode();
+        $indexNames = array_map(fn (string $searchIndex) => $this->indexNameResolver->resolve($this->indexRegistry->get($searchIndex)), $this->searchIndexes);
 
-        $taxon = $this->taxonRepository->findOneBySlug($slug, $locale);
-        if (null === $taxon) {
-            throw new NotFoundHttpException(sprintf(
-                'The taxon with slug "%s" does not exist, is not enabled or is not translated in locale "%s"',
-                $slug,
-                $locale,
-            ));
+        foreach ($indexNames as $indexName) {
+            $searchResult = $this->client->index($indexName)->search($request->query->getString('q'));
+            dd($searchResult);
         }
 
-        // todo we should get the index from the plugin configuration
-        $index = $this->indexNameResolver->resolve(ProductInterface::class);
-
-        $response = new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/shop/product/index.html.twig', [
-            'index' => $index,
-            'taxon' => $taxon,
-            //'sortBy' => $this->sortByResolver->resolveFromIndexableResource($indexableResource),
+        return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/search/index.html.twig', [
+            'items' => [],
         ]));
-
-        $event = new ProductIndexEvent($response, $index, $taxon, $slug, $locale);
-        $this->eventDispatcher->dispatch($event);
-
-        return $event->response;
     }
 }

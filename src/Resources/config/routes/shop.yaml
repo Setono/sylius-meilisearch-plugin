@@ -1,4 +1,4 @@
 setono_sylius_meilisearch_shop_search:
-    path: '%setono_sylius_meilisearch.routes.search%'
+    path: '%setono_sylius_meilisearch.search.route%'
     methods: [GET]
-    controller: setono_sylius_meilisearch.controller.action.search
+    controller: Setono\SyliusMeilisearchPlugin\Controller\Action\SearchAction

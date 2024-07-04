@@ -4,7 +4,6 @@
     <services>
         <service id="setono_sylius_meilisearch.resolver.index_name"
                  class="Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolver">
-            <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
             <argument type="service" id="setono_sylius_meilisearch.provider.index_scope.composite"/>
             <argument>%kernel.environment%</argument>
         </service>

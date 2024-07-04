@@ -48,21 +48,6 @@ final class SetonoSyliusMeilisearchExtension extends Extension implements Prepen
         $container->setParameter('setono_sylius_meilisearch.server.host', $config['server']['host']);
         $container->setParameter('setono_sylius_meilisearch.server.master_key', $config['server']['master_key']);
 
-        // search
-        if (true === $config['search']['enabled'] && [] === $config['search']['indexes']) {
-            throw new \RuntimeException('When you enable search you need to provide at least one index to search');
-        }
-        foreach ($config['search']['indexes'] as $index) {
-            if (!isset($config['indexes'][$index])) {
-                throw new \RuntimeException(sprintf('For the search configuration you have added the index "%s". That index is not configured in setono_sylius_meilisearch.indexes.', $index));
-            }
-        }
-        $container->setParameter('setono_sylius_meilisearch.search.enabled', $config['search']['enabled']);
-        $container->setParameter('setono_sylius_meilisearch.search.indexes', $config['search']['indexes']);
-
-        // routes
-        $container->setParameter('setono_sylius_meilisearch.routes.search', $config['routes']['search']);
-
         $loader->load('services.xml');
 
         // auto configuration
@@ -82,6 +67,7 @@ final class SetonoSyliusMeilisearchExtension extends Extension implements Prepen
             ->addTag('setono_sylius_meilisearch.url_generator');
 
         self::registerIndexesConfiguration($config['indexes'], $container);
+        self::registerSearchConfiguration($config['search'], array_keys($config['indexes']), $container);
     }
 
     public function prepend(ContainerBuilder $container): void
@@ -138,5 +124,26 @@ final class SetonoSyliusMeilisearchExtension extends Extension implements Prepen
         ]));
 
         return $indexerServiceId;
+    }
+
+    /**
+     * @param array{ enabled: bool, route: string, indexes: list<string> } $config the search configuration
+     * @param list<string> $indexes a list of index names
+     */
+    private static function registerSearchConfiguration(array $config, array $indexes, ContainerBuilder $container): void
+    {
+        // search
+        if (true === $config['enabled'] && [] === $config['indexes']) {
+            throw new \RuntimeException('When you enable search you need to provide at least one index to search');
+        }
+        foreach ($config['indexes'] as $index) {
+            if (!in_array($index, $indexes, true)) {
+                throw new \RuntimeException(sprintf('For the search configuration you have added the index "%s". That index is not configured in setono_sylius_meilisearch.indexes. Available indexes are [%s]', $index, implode(', ', $indexes)));
+            }
+        }
+
+        $container->setParameter('setono_sylius_meilisearch.search.enabled', $config['enabled']);
+        $container->setParameter('setono_sylius_meilisearch.search.route', $config['route']);
+        $container->setParameter('setono_sylius_meilisearch.search.indexes', $config['indexes']);
     }
 }
