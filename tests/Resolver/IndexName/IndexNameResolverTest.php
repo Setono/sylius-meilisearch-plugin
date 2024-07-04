@@ -7,7 +7,6 @@ namespace Setono\SyliusMeilisearchPlugin\Tests\Resolver\IndexName;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
-use Setono\SyliusMeilisearchPlugin\Config\IndexRegistry;
 use Setono\SyliusMeilisearchPlugin\Document\Product;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
@@ -26,21 +25,12 @@ final class IndexNameResolverTest extends TestCase
      */
     public function it_resolves_from_index_scope(): void
     {
-        $index = new Index(
-            'products',
-            Product::class,
-            [],
-            new Container(),
-            'prefix',
-        );
-
+        $index = new Index('products', Product::class, [], new Container(), 'prefix');
+        $indexScope = new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD');
         $resolver = new IndexNameResolver(
-            new IndexRegistry(),
             $this->prophesize(IndexScopeProviderInterface::class)->reveal(),
             'prod',
         );
-
-        $indexScope = new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD');
 
         self::assertSame('prefix__prod__products__fashion_web__en_us__usd', $resolver->resolveFromIndexScope($indexScope));
     }
