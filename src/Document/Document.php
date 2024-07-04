@@ -33,21 +33,10 @@ abstract class Document
     public ?string $entityClass = null;
 
     /**
-     * todo do we need this?
-     *
-     * This is the FQCN for the document being sent to Meilisearch. This makes it a lot easier to deserialize the JSON
-     * when it comes back from Meilisearch since we know which class to deserialize to
-     *
-     * @var class-string<Document>
-     */
-    public string $documentClass;
-
-    /**
-     * Making the constructor final allows us to always be able toinstantiate an extending class without worrying about constructor arguments
+     * Making the constructor final allows us to always be able to instantiate an extending class without worrying about constructor arguments
      */
     final public function __construct()
     {
-        $this->documentClass = static::class;
     }
 
     /**
