@@ -1,0 +1,7 @@
+{% extends '@SyliusShop/layout.html.twig' %}
+
+{% block content %}
+    {% for item in items %}
+        {{ item.name }}<br>
+    {% endfor %}
+{% endblock %}
