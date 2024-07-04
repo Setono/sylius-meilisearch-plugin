@@ -9,4 +9,3 @@ setono_sylius_meilisearch:
     search:
         indexes:
             - 'products'
-            - 'taxons'
