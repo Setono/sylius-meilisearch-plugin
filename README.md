@@ -17,33 +17,23 @@ composer require setono/sylius-meilisearch-plugin
 
 ```yaml
 # config/packages/setono_sylius_meilisearch.yaml
-imports:
-    - { resource: "@SetonoSyliusMeilisearchPlugin/Resources/config/app/config.yaml" }
-
 setono_sylius_meilisearch:
-    credentials:
-        app_id: '%env(MEILISEARCH_APP_ID)%'
-        search_only_api_key: '%env(MEILISEARCH_SEARCH_ONLY_API_KEY)%'
-        admin_api_key: '%env(MEILISEARCH_ADMIN_API_KEY)%'
     indexes:
         products:
-            document: 'Setono\SyliusMeilisearchPlugin\Document\Product'
-            resources: [ 'sylius.product' ]
-        taxons:
-            document: 'Setono\SyliusMeilisearchPlugin\Document\Taxon'
-            resources: [ 'sylius.taxon' ]
+            document: 'Setono\SyliusMeilisearchPlugin\Tests\Application\Document\Product'
+            entities: [ 'App\Entity\Product\Product' ]
     search:
         indexes:
             - 'products'
+
 ```
 
 In your `.env.local` add your parameters: 
 
 ```dotenv
 ###> setono/sylius-meilisearch-plugin ###
-MEILISEARCH_APP_ID=YOUR_APPLICATION_ID
-MEILISEARCH_ADMIN_API_KEY=YOUR_ADMIN_API_KEY
-MEILISEARCH_SEARCH_ONLY_API_KEY=YOUR_SEARCH_ONLY_KEY
+MEILISEARCH_HOST=http://localhost:7700
+MEILISEARCH_MASTER=YOUR_MASTER_KEY
 ###< setono/sylius-meilisearch-plugin ###
 ```
 
@@ -63,11 +53,11 @@ setono_sylius_meilisearch:
     resource: "@SetonoSyliusMeilisearchPlugin/Resources/config/routes_no_locale.yaml"
 ```
 
-### Implement the `IndexableInterface` in your configured indexable resources
+### Implement the `IndexableInterface` in your entities
 
-You have to implement the `Setono\SyliusMeilisearchPlugin\Model\IndexableInterface` in the indexable resources you
-configured in `setono_sylius_meilisearch.indexable_resources`. In a typical Sylius application for the `Product` entity
-it could look like this:
+The entities you've configured for indexing has to implement the `Setono\SyliusMeilisearchPlugin\Model\IndexableInterface`.
+
+In a typical Sylius application for the `Product` entity it could look like this:
 
 ```php
 <?php
@@ -86,18 +76,12 @@ use Sylius\Component\Core\Model\Product as BaseProduct;
  */
 class Product extends BaseProduct implements IndexableInterface
 {
-    use IndexableAwareTrait;
+    public function getDocumentIdentifier(): ?string
+    {
+        return (string) $this->getId();
+    }
 }
 ```
-
-### Implement the `IndexableResourceRepositoryInterface` in applicable repositories
-
-The configured indexable resources' associated repositories has to implement the `Setono\SyliusMeilisearchPlugin\Repository\IndexableResourceRepositoryInterface`.
-If you're configuring the `sylius.product` there is a trait available you can use: `Setono\SyliusMeilisearchPlugin\Repository\ProductRepositoryTrait`.
-
-## Usage
-
-TODO
 
 [ico-version]: https://poser.pugx.org/setono/sylius-meilisearch-plugin/v/stable
 [ico-license]: https://poser.pugx.org/setono/sylius-meilisearch-plugin/license
