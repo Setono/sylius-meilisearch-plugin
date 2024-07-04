@@ -8,12 +8,11 @@ use Doctrine\Persistence\ManagerRegistry;
 use Meilisearch\Client;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
-use Setono\SyliusMeilisearchPlugin\Form\Type\SearchType;
+use Setono\SyliusMeilisearchPlugin\Form\Type\SearchWidgetType;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
@@ -53,11 +52,9 @@ final class SearchController
         ]));
     }
 
-    public function widget(RequestStack $requestStack, FormFactoryInterface $formFactory): Response
+    public function widget(FormFactoryInterface $formFactory): Response
     {
-        $q = $requestStack->getMainRequest()?->query->get('q');
-
-        $form = $formFactory->createNamed('', SearchType::class, ['q' => $q]);
+        $form = $formFactory->createNamed('', SearchWidgetType::class);
 
         return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/search/widget/content.html.twig', [
             'form' => $form->createView(),
