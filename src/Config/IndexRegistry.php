@@ -9,6 +9,11 @@ namespace Setono\SyliusMeilisearchPlugin\Config;
  */
 final class IndexRegistry implements \IteratorAggregate, IndexRegistryInterface
 {
+    public function has(string $name): bool
+    {
+        return isset($this->indexes[$name]);
+    }
+
     /**
      * An array of indexes, indexed by the name of the index
      *
@@ -44,13 +49,23 @@ final class IndexRegistry implements \IteratorAggregate, IndexRegistryInterface
 
         $indexes = [];
 
-        foreach ($this->indexes as $index) {
+        foreach ($this->indexes as $name => $index) {
             if ($index->hasEntity($entity)) {
-                $indexes[] = $index;
+                $indexes[$name] = $index;
             }
         }
 
         return $indexes;
+    }
+
+    public function getAll(): array
+    {
+        return $this->indexes;
+    }
+
+    public function getNames(): array
+    {
+        return array_keys($this->indexes);
     }
 
     /**
@@ -59,5 +74,10 @@ final class IndexRegistry implements \IteratorAggregate, IndexRegistryInterface
     public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->indexes);
+    }
+
+    public function count(): int
+    {
+        return count($this->indexes);
     }
 }
