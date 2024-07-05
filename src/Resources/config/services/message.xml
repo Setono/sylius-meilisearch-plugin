@@ -4,6 +4,11 @@
     <services>
         <service id="Setono\SyliusMeilisearchPlugin\Message\Handler\IndexHandler">
             <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
+            <argument type="service" id="Meilisearch\Client"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProviderInterface"/>
+            <argument type="service" id="setono_sylius_meilisearch.provider.index_scope.composite"/>
+            <argument type="service" id="setono_sylius_meilisearch.resolver.index_name"/>
+            <argument type="service" id="serializer"/>
 
             <tag name="messenger.message_handler"/>
         </service>

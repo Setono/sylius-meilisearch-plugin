@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Document;
 
-use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
-use Setono\SyliusMeilisearchPlugin\Settings\IndexSettings;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\Searchable;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable;
 
-/**
- * Should not be final, so it's easier for plugin users to extend it and add more properties
- */
 class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInterface
 {
+    #[Searchable]
     public ?string $name = null;
 
-    /**
-     * UNIX timestamp for creation date
-     */
+    #[Sortable]
     public ?int $createdAt = null;
 
     public ?string $url = null;
@@ -35,10 +32,12 @@ class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInter
      *
      * @var list<string>
      */
+    #[Filterable]
     public array $taxonCodes = [];
 
     public ?string $currency = null;
 
+    #[Filterable]
     public ?float $price = null;
 
     public ?float $originalPrice = null;
@@ -92,28 +91,5 @@ class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInter
     {
         $this->imageUrls[] = $imageUrl;
         $this->primaryImageUrl = $this->imageUrls[0];
-    }
-
-    public static function getDefaultSettings(IndexScope $indexScope): IndexSettings
-    {
-        $settings = parent::getDefaultSettings($indexScope);
-
-        $settings->searchableAttributes = [
-            'code', // usually the code is the SKU. This gives users the opportunity to search directly for a SKU if they know it
-            'name',
-        ];
-
-        $settings->attributesForFaceting = [
-            'filterOnly(taxonCodes)', // this allows us to show products in a given taxon. This is used in product lists
-            'filterOnly(onSale)', // this will allow users to filter for products that are on sale
-            'price', // this will allow you to create a price slider
-        ];
-
-        $settings->customRanking = ['desc(createdAt)']; // if nothing else applies, your newest products will be at the top of the product list
-        $settings->disablePrefixOnAttributes = ['code'];
-        $settings->ignorePlurals = true;
-        $settings->allowTyposOnNumericTokens = false;
-
-        return $settings;
     }
 }

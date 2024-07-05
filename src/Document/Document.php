@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Document;
 
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
-use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
-use Setono\SyliusMeilisearchPlugin\Settings\IndexSettings;
 
 /**
- * All documents should extend this class
+ * ALL documents MUST extend this class
  */
 abstract class Document
 {
@@ -37,41 +35,5 @@ abstract class Document
      */
     final public function __construct()
     {
-    }
-
-    /**
-     * MUST return an array indexed by the attribute name and the sort order as the value, e.g.
-     *
-     * [
-     *   'price' => 'asc',
-     *   'createdAt => 'desc'
-     * ]
-     *
-     * NOTE that this is not applied to the customRanking setting, but is used to create replica indexes where the
-     * ranking setting will match your sorting. The above example would result in two replica indexes with
-     * ranking as asc(price) and desc(createdAt) respectively
-     *
-     * @return array<string, string>
-     */
-    public static function getSortableAttributes(): array
-    {
-        return [];
-    }
-
-    public static function getDefaultSettings(IndexScope $indexScope): IndexSettings
-    {
-        $settings = new IndexSettings();
-
-        if (null !== $indexScope->localeCode) {
-            $language = substr($indexScope->localeCode, 0, 2);
-            $settings->queryLanguages = [$language];
-            $settings->indexLanguages = [$language];
-        }
-
-        // 60 is a very good number because it is dividable by 6, 5, 4, 3, and 2 which means that your responsive views
-        // are going to look good no matter how many products you show per row (with a max of 6 per row though ;))
-        $settings->hitsPerPage = 60;
-
-        return $settings;
     }
 }

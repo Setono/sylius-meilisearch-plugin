@@ -7,5 +7,11 @@
 
             <tag name="serializer.normalizer"/>
         </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Normalizer\SettingsNormalizer">
+            <argument type="service" id="serializer.normalizer.object"/>
+
+            <tag name="serializer.normalizer"/>
+        </service>
     </services>
 </container>

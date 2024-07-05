@@ -29,8 +29,10 @@
             <tag name="setono_sylius_meilisearch.index_scope_provider"/>
         </service>
 
-        <!-- Index settings providers -->
-        <service id="setono_sylius_meilisearch.provider.index_settings"
-                 class="Setono\SyliusMeilisearchPlugin\Provider\IndexSettings\IndexSettingsProvider"/>
+        <!-- Settings providers -->
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProviderInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProvider"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProvider"/>
     </services>
 </container>
