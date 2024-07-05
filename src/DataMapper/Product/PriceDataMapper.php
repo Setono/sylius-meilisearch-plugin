@@ -70,7 +70,7 @@ final class PriceDataMapper implements DataMapperInterface
         }
 
         $target->currency = $baseCurrencyCode;
-        $target->price = formatAmount($price);
+        $target->price = formatAmount($price); // todo this price is not necessarily correct, because it can be in another currency than the one in $indexScope->currencyCode
 
         if (null !== $originalPrice) {
             $target->originalPrice = formatAmount($originalPrice);
