@@ -1,34 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="5.25.0@01a8eb06b9e9cc6cfb6a320bf9fb14331919d505">
-  <file src="src/Indexer/DefaultIndexer.php">
-    <MixedArgument>
-      <code><![CDATA[SearchIndex::class]]></code>
-    </MixedArgument>
-    <MixedAssignment>
-      <code><![CDATA[$index]]></code>
-    </MixedAssignment>
-    <MixedInferredReturnType>
-      <code><![CDATA[SearchIndex]]></code>
-    </MixedInferredReturnType>
-    <MixedMethodCall>
-      <code><![CDATA[exists]]></code>
-      <code><![CDATA[getSettings]]></code>
-    </MixedMethodCall>
-    <MixedReturnStatement>
-      <code><![CDATA[$index]]></code>
-      <code><![CDATA[$index]]></code>
-    </MixedReturnStatement>
-    <PossiblyInvalidArgument>
-      <code><![CDATA[$resource]]></code>
-    </PossiblyInvalidArgument>
-    <UndefinedClass>
-      <code><![CDATA[$algoliaIndex]]></code>
-      <code><![CDATA[$algoliaIndex]]></code>
-      <code><![CDATA[SearchIndex]]></code>
-      <code><![CDATA[SearchIndex]]></code>
-    </UndefinedClass>
-    <UndefinedMethod>
-      <code><![CDATA[initIndex]]></code>
-    </UndefinedMethod>
+<files psalm-version="5.23.1@8471a896ccea3526b26d082f4461eeea467f10a4">
+  <file src="src/Settings/Settings.php">
+    <PropertyTypeCoercion>
+      <code><![CDATA[new UniqueList()]]></code>
+      <code><![CDATA[new UniqueList()]]></code>
+      <code><![CDATA[new UniqueList()]]></code>
+      <code><![CDATA[new UniqueList()]]></code>
+      <code><![CDATA[new UniqueList()]]></code>
+      <code><![CDATA[new UniqueList()]]></code>
+    </PropertyTypeCoercion>
   </file>
 </files>

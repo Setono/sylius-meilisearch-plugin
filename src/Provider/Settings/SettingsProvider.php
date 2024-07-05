@@ -20,14 +20,51 @@ final class SettingsProvider implements SettingsProviderInterface
         foreach ($documentReflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
             foreach ($reflectionProperty->getAttributes() as $reflectionAttribute) {
                 $attribute = $reflectionAttribute->newInstance();
+
                 match ($attribute::class) {
                     Filterable::class => $settings->filterableAttributes[] = $reflectionProperty->getName(),
                     Searchable::class => $settings->searchableAttributes[] = $reflectionProperty->getName(),
                     Sortable::class => $settings->sortableAttributes[] = $reflectionProperty->getName(),
+                    default => null,
+                };
+            }
+        }
+
+        foreach ($documentReflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
+            $property = self::getterProperty($reflectionMethod);
+            if (null === $property) {
+                continue;
+            }
+
+            foreach ($reflectionMethod->getAttributes() as $reflectionAttribute) {
+                $attribute = $reflectionAttribute->newInstance();
+
+                match ($attribute::class) {
+                    Filterable::class => $settings->filterableAttributes[] = $property,
+                    Searchable::class => $settings->searchableAttributes[] = $property,
+                    Sortable::class => $settings->sortableAttributes[] = $property,
+                    default => null,
                 };
             }
         }
 
         return $settings;
+    }
+
+    private static function getterProperty(\ReflectionMethod $reflectionMethod): ?string
+    {
+        if ($reflectionMethod->getNumberOfParameters() > 0) {
+            return null;
+        }
+
+        $name = $reflectionMethod->getName();
+
+        foreach (['get', 'is', 'has'] as $prefix) {
+            if (str_starts_with($name, $prefix)) {
+                return lcfirst(substr($name, strlen($prefix)));
+            }
+        }
+
+        return null;
     }
 }

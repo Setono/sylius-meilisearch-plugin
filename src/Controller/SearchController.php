@@ -8,9 +8,12 @@ use Doctrine\Persistence\ManagerRegistry;
 use Meilisearch\Client;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facet;
+use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Form\Type\SearchWidgetType;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
+use Sylius\Component\Product\Repository\ProductOptionRepositoryInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +29,7 @@ final class SearchController
         private readonly IndexNameResolverInterface $indexNameResolver,
         private readonly IndexRegistryInterface $indexRegistry,
         private readonly Client $client,
+        private readonly ProductOptionRepositoryInterface $productOptionRepository,
         /** @var list<string> $searchIndexes */
         private readonly array $searchIndexes,
     ) {
@@ -34,12 +38,14 @@ final class SearchController
 
     public function search(Request $request): Response
     {
-        $indexNames = array_map(fn (string $searchIndex) => $this->indexNameResolver->resolve($this->indexRegistry->get($searchIndex)), $this->searchIndexes);
+        $indexes = array_map(fn (string $searchIndex) => $this->indexRegistry->get($searchIndex), $this->searchIndexes);
 
         $items = [];
 
-        foreach ($indexNames as $indexName) {
-            $searchResult = $this->client->index($indexName)->search($request->query->getString('q'));
+        foreach ($indexes as $index) {
+            $searchResult = $this->client->index($this->indexNameResolver->resolve($index))->search($request->query->getString('q'), [
+                'facets' => $this->getFacets($index->document),
+            ]);
 
             /** @var array{entityClass: class-string<IndexableInterface>, entityId: mixed} $hit */
             foreach ($searchResult->getHits() as $hit) {
@@ -59,5 +65,27 @@ final class SearchController
         return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/search/widget/content.html.twig', [
             'form' => $form->createView(),
         ]));
+    }
+
+    /**
+     * @param class-string<Document> $document
+     *
+     * @return list<string>
+     */
+    private function getFacets(string $document): array
+    {
+        $facets = [];
+
+        $reflectionClass = new \ReflectionClass($document);
+        foreach ($reflectionClass->getProperties() as $reflectionProperty) {
+            foreach ($reflectionProperty->getAttributes() as $reflectionAttribute) {
+                $attribute = $reflectionAttribute->newInstance();
+                if ($attribute instanceof Facet) {
+                    $facets[] = $reflectionProperty->getName();
+                }
+            }
+        }
+
+        return $facets;
     }
 }
