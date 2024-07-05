@@ -31,6 +31,7 @@
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\PriceDataMapper">
             <argument type="service" id="sylius.repository.channel"/>
+            <argument type="service" id="sylius.currency_converter"/>
 
             <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
         </service>

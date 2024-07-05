@@ -10,11 +10,11 @@ use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use function Setono\SyliusMeilisearchPlugin\formatAmount;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
-use Sylius\Component\Channel\Model\ChannelInterface as BaseChannelInterface;
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
+use Sylius\Component\Currency\Converter\CurrencyConverterInterface;
 use Webmozart\Assert\Assert;
 
 /**
@@ -22,8 +22,10 @@ use Webmozart\Assert\Assert;
  */
 final class PriceDataMapper implements DataMapperInterface
 {
-    public function __construct(private readonly ChannelRepositoryInterface $channelRepository)
-    {
+    public function __construct(
+        private readonly ChannelRepositoryInterface $channelRepository,
+        private readonly CurrencyConverterInterface $currencyConverter,
+    ) {
     }
 
     /**
@@ -32,17 +34,12 @@ final class PriceDataMapper implements DataMapperInterface
      */
     public function map(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): void
     {
-        Assert::true($this->supports($source, $target, $indexScope, $context), 'The given $source and $target is not supported');
+        Assert::true($this->supports($source, $target, $indexScope, $context));
 
-        /** @var BaseChannelInterface|ChannelInterface $channel */
         $channel = $this->channelRepository->findOneByCode($indexScope->channelCode);
         Assert::isInstanceOf($channel, ChannelInterface::class);
 
-        $baseCurrency = $channel->getBaseCurrency();
-        Assert::notNull($baseCurrency);
-
-        $baseCurrencyCode = $baseCurrency->getCode();
-        Assert::notNull($baseCurrencyCode);
+        $baseCurrencyCode = $this->getBaseCurrencyCode($channel);
 
         $price = null;
         $originalPrice = null;
@@ -69,8 +66,8 @@ final class PriceDataMapper implements DataMapperInterface
             return;
         }
 
-        $target->currency = $baseCurrencyCode;
-        $target->price = formatAmount($price); // todo this price is not necessarily correct, because it can be in another currency than the one in $indexScope->currencyCode
+        $target->currency = $indexScope->currencyCode;
+        $target->price = formatAmount($this->currencyConverter->convert($price, $baseCurrencyCode, $indexScope->currencyCode));
 
         if (null !== $originalPrice) {
             $target->originalPrice = formatAmount($originalPrice);
@@ -81,12 +78,21 @@ final class PriceDataMapper implements DataMapperInterface
      * @psalm-assert-if-true ProductInterface $source
      * @psalm-assert-if-true ProductDocument $target
      * @psalm-assert-if-true !null $indexScope->channelCode
+     * @psalm-assert-if-true !null $indexScope->currencyCode
      */
     public function supports(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
     {
-        return $source instanceof ProductInterface &&
-            $target instanceof ProductDocument &&
-            $indexScope->channelCode !== null
-        ;
+        return $source instanceof ProductInterface && $target instanceof ProductDocument && $indexScope->channelCode !== null;
+    }
+
+    private function getBaseCurrencyCode(ChannelInterface $channel): string
+    {
+        $baseCurrency = $channel->getBaseCurrency();
+        Assert::notNull($baseCurrency);
+
+        $baseCurrencyCode = $baseCurrency->getCode();
+        Assert::notNull($baseCurrencyCode);
+
+        return $baseCurrencyCode;
     }
 }
