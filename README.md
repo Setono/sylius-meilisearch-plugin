@@ -5,7 +5,7 @@
 [![Build Status][ico-github-actions]][link-github-actions]
 [![Code Coverage][ico-code-coverage]][link-code-coverage]
 
-Use Meilisearch in your Sylius store.
+[Meilisearch](https://github.com/meilisearch/meilisearch) is an open-source search engine written in Rust, designed to create lightning-fast and hyper-relevant search experiences out of the box.
 
 ## Installation
 
