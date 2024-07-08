@@ -2,6 +2,27 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
+        <!-- Builders -->
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\FacetFormBuilderInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFacetFormBuilder"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFacetFormBuilder"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\ToggleFacetFormBuilder">
+            <tag name="setono_sylius_meilisearch.facet_form_builder"/>
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilder"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilder">
+            <argument type="service" id="form.factory"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Form\Builder\FacetFormBuilderInterface"/>
+
+            <tag name="form.type"/>
+        </service>
+
+        <!-- Types -->
         <service id="Setono\SyliusMeilisearchPlugin\Form\Type\SearchWidgetType">
             <argument type="service" id="request_stack"/>
 

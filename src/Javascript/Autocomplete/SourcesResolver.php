@@ -9,27 +9,20 @@ use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface
 
 final class SourcesResolver implements SourcesResolverInterface
 {
-    /**
-     * @param list<string> $searchIndexes
-     */
     public function __construct(
         private readonly IndexRegistryInterface $indexRegistry,
         private readonly IndexNameResolverInterface $indexNameResolver,
         /**
-         * These are the search indexes defined in the configuration of the plugin (inside setono_sylius_meilisearch.search.indexes)
+         * This is the search index defined in the configuration of the plugin (inside setono_sylius_meilisearch.search.index)
          */
-        private readonly array $searchIndexes,
+        private readonly string $searchIndex,
     ) {
     }
 
     public function getSources(): array
     {
-        $sources = [];
-        foreach ($this->searchIndexes as $searchIndex) {
-            $index = $this->indexRegistry->get($searchIndex);
-            $sources[] = new Source($searchIndex, $this->indexNameResolver->resolve($index));
-        }
+        $index = $this->indexRegistry->get($this->searchIndex);
 
-        return $sources;
+        return [new Source($this->searchIndex, $this->indexNameResolver->resolve($index))];
     }
 }

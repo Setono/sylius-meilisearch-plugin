@@ -72,10 +72,9 @@ final class Configuration implements ConfigurationInterface
                             ->info('This is the path where searches are displayed')
                             ->cannotBeEmpty()
                         ->end()
-                        ->arrayNode('indexes')
-                            ->requiresAtLeastOneElement()
-                            ->info('The indexes to search (must be configured in setono_sylius_meilisearch.indexes). Please notice that if you enable search you MUST provide at least one index to search.')
-                            ->scalarPrototype()->end()
+                        ->scalarNode('index')
+                            ->info('The index to search (must be configured in setono_sylius_meilisearch.indexes)')
+                            ->cannotBeEmpty()
         ;
 
         return $treeBuilder;

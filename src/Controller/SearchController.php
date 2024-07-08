@@ -7,9 +7,11 @@ namespace Setono\SyliusMeilisearchPlugin\Controller;
 use Doctrine\Persistence\ManagerRegistry;
 use Meilisearch\Client;
 use Setono\Doctrine\ORMTrait;
+use Setono\SyliusMeilisearchPlugin\Builder\FilterBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facet;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
+use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Form\Type\SearchWidgetType;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
@@ -30,30 +32,34 @@ final class SearchController
         private readonly IndexRegistryInterface $indexRegistry,
         private readonly Client $client,
         private readonly ProductOptionRepositoryInterface $productOptionRepository,
-        /** @var list<string> $searchIndexes */
-        private readonly array $searchIndexes,
+        private readonly string $searchIndex,
     ) {
         $this->managerRegistry = $managerRegistry;
     }
 
-    public function search(Request $request): Response
+    public function search(Request $request, SearchFormBuilderInterface $searchFormBuilder, FilterBuilderInterface $filterBuilder): Response
     {
-        $indexes = array_map(fn (string $searchIndex) => $this->indexRegistry->get($searchIndex), $this->searchIndexes);
+        $index = $this->indexRegistry->get($this->searchIndex);
 
         $items = [];
 
-        foreach ($indexes as $index) {
-            $searchResult = $this->client->index($this->indexNameResolver->resolve($index))->search($request->query->getString('q'), [
-                'facets' => $this->getFacets($index->document),
-            ]);
+        $searchResult = $this->client->index($this->indexNameResolver->resolve($index))->search($request->query->getString('q'), [
+            'facets' => $this->getFacets($index->document),
+            'filter' => $filterBuilder->build($request),
+        ]);
 
-            /** @var array{entityClass: class-string<IndexableInterface>, entityId: mixed} $hit */
-            foreach ($searchResult->getHits() as $hit) {
-                $items[] = $this->getManager($hit['entityClass'])->find($hit['entityClass'], $hit['entityId']);
-            }
+        $searchForm = $searchFormBuilder->build($searchResult);
+        $searchForm->handleRequest($request);
+
+        dump($searchResult);
+
+        /** @var array{entityClass: class-string<IndexableInterface>, entityId: mixed} $hit */
+        foreach ($searchResult->getHits() as $hit) {
+            $items[] = $this->getManager($hit['entityClass'])->find($hit['entityClass'], $hit['entityId']);
         }
 
         return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/search/index.html.twig', [
+            'searchForm' => $searchForm->createView(),
             'items' => $items,
         ]));
     }
@@ -76,8 +82,8 @@ final class SearchController
     {
         $facets = [];
 
-        $reflectionClass = new \ReflectionClass($document);
-        foreach ($reflectionClass->getProperties() as $reflectionProperty) {
+        $documentReflection = new \ReflectionClass($document);
+        foreach ($documentReflection->getProperties() as $reflectionProperty) {
             foreach ($reflectionProperty->getAttributes() as $reflectionAttribute) {
                 $attribute = $reflectionAttribute->newInstance();
                 if ($attribute instanceof Facet) {
@@ -86,6 +92,38 @@ final class SearchController
             }
         }
 
+        foreach ($documentReflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
+            $property = self::getterProperty($reflectionMethod);
+            if (null === $property) {
+                continue;
+            }
+
+            foreach ($reflectionMethod->getAttributes() as $reflectionAttribute) {
+                $attribute = $reflectionAttribute->newInstance();
+
+                if ($attribute instanceof Facet) {
+                    $facets[] = $property;
+                }
+            }
+        }
+
         return $facets;
+    }
+
+    private static function getterProperty(\ReflectionMethod $reflectionMethod): ?string
+    {
+        if ($reflectionMethod->getNumberOfParameters() > 0) {
+            return null;
+        }
+
+        $name = $reflectionMethod->getName();
+
+        foreach (['get', 'is', 'has'] as $prefix) {
+            if (str_starts_with($name, $prefix)) {
+                return lcfirst(substr($name, strlen($prefix)));
+            }
+        }
+
+        return null;
     }
 }

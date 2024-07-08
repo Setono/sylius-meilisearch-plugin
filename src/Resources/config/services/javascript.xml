@@ -6,7 +6,7 @@
                  class="Setono\SyliusMeilisearchPlugin\Javascript\Autocomplete\SourcesResolver">
             <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
             <argument type="service" id="setono_sylius_meilisearch.resolver.index_name"/>
-            <argument>%setono_sylius_meilisearch.search.indexes%</argument>
+            <argument>%setono_sylius_meilisearch.search.index%</argument>
         </service>
     </services>
 </container>

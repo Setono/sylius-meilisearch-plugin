@@ -6,6 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin;
 
 use Setono\CompositeCompilerPass\CompositeCompilerPass;
 use Setono\SyliusMeilisearchPlugin\DataMapper\CompositeDataMapper;
+use Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFacetFormBuilder;
 use Sylius\Bundle\CoreBundle\Application\SyliusPluginTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -19,6 +20,11 @@ final class SetonoSyliusMeilisearchPlugin extends Bundle
         parent::build($container);
 
         // Register services in composite services
+        $container->addCompilerPass(new CompositeCompilerPass(
+            CompositeFacetFormBuilder::class,
+            'setono_sylius_meilisearch.facet_form_builder',
+        ));
+
         $container->addCompilerPass(new CompositeCompilerPass(
             CompositeDataMapper::class,
             'setono_sylius_meilisearch.data_mapper',

@@ -9,7 +9,7 @@
             <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
             <argument type="service" id="Meilisearch\Client"/>
             <argument type="service" id="sylius.repository.product_option"/>
-            <argument>%setono_sylius_meilisearch.search.indexes%</argument>
+            <argument>%setono_sylius_meilisearch.search.index%</argument>
 
             <tag name="controller.service_arguments"/>
         </service>

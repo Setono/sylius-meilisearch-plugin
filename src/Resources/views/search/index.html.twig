@@ -2,9 +2,25 @@
 {% extends '@SyliusShop/layout.html.twig' %}
 
 {% block content %}
-    <div class="ui three cards">
-        {% for item in items %}
-            {{ include('@SyliusShop/Product/_box.html.twig', { product: item }) }}
-        {% endfor %}
+    <h1 class="ui monster section dividing header">
+        Search results
+    </h1>
+    <div class="ui stackable grid">
+        <div class="four wide column">
+            {{ form_start(searchForm) }}
+                {% if searchForm.onSale is defined %}
+                    {{ form_row(searchForm.onSale) }}
+                {% endif %}
+
+                <button class="ui button" type="submit">{{ 'setono_sylius_meilisearch.form.search.update_filter'|trans }}</button>
+            {{ form_end(searchForm) }}
+        </div>
+        <div class="twelve wide column">
+            <div class="ui three cards">
+                {% for item in items %}
+                    {{ include('@SyliusShop/Product/_box.html.twig', { product: item }) }}
+                {% endfor %}
+            </div>
+        </div>
     </div>
 {% endblock %}
