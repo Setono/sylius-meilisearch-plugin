@@ -1,19 +1,16 @@
 {# @var items \Sylius\Component\Core\Model\ProductInterface[] #}
 {% extends '@SyliusShop/layout.html.twig' %}
 
+{% form_theme searchForm '@SyliusShop/Form/theme.html.twig' %}
+
 {% block content %}
     <h1 class="ui monster section dividing header">
         Search results
     </h1>
     <div class="ui stackable grid">
         <div class="four wide column">
-            {{ form_start(searchForm) }}
-                {% if searchForm.onSale is defined %}
-                    {{ form_row(searchForm.onSale) }}
-                {% endif %}
-
-                <button class="ui button" type="submit">{{ 'setono_sylius_meilisearch.form.search.update_filter'|trans }}</button>
-            {{ form_end(searchForm) }}
+            {{ form(searchForm, { 'attr': { 'id': 'search-form', 'class': 'ui form' } }) }}
+            <button class="ui button" type="submit" form="search-form">{{ 'setono_sylius_meilisearch.form.search.update_filter'|trans }}</button>
         </div>
         <div class="twelve wide column">
             <div class="ui three cards">
