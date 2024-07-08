@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Form\Builder;
 
 use Meilisearch\Search\SearchResult;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 
@@ -18,7 +19,8 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
     {
         $builder = $this->formFactory->createNamedBuilder('', options: [
             'csrf_protection' => false,
-        ]);
+            'allow_extra_fields' => true,
+        ])->add('q', HiddenType::class);
 
         /**
          * Here is an example of the facet stats array

@@ -2,7 +2,7 @@ setono_sylius_meilisearch:
     form:
         search:
             facet:
-                on_sale: On sale
+                on_sale: On sale (%count%)
                 size: Size
             q_placeholder: Search...
             update_filter: Update filter

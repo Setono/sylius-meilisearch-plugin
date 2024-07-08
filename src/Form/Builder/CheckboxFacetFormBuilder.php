@@ -14,6 +14,9 @@ final class CheckboxFacetFormBuilder implements FacetFormBuilderInterface
     {
         $builder->add($name, CheckboxType::class, [
             'label' => sprintf('setono_sylius_meilisearch.form.search.facet.%s', u($name)->snake()),
+            'label_translation_parameters' => [
+                '%count%' => $values['true'],
+            ],
             'required' => false,
         ]);
     }
@@ -23,7 +26,7 @@ final class CheckboxFacetFormBuilder implements FacetFormBuilderInterface
         $c = count($values);
 
         return match ($c) {
-            1 => isset($values['true']) || isset($values['false']),
+            1 => isset($values['true']),
             2 => isset($values['true'], $values['false']),
             default => false,
         };
