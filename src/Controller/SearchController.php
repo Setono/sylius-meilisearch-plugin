@@ -20,6 +20,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
+use Webmozart\Assert\Assert;
 
 final class SearchController
 {
@@ -39,11 +40,14 @@ final class SearchController
 
     public function search(Request $request, SearchFormBuilderInterface $searchFormBuilder, FilterBuilderInterface $filterBuilder): Response
     {
+        $q = $request->query->get('q');
+        Assert::nullOrString($q);
+
         $index = $this->indexRegistry->get($this->searchIndex);
 
         $items = [];
 
-        $searchResult = $this->client->index($this->indexNameResolver->resolve($index))->search($request->query->getString('q'), [
+        $searchResult = $this->client->index($this->indexNameResolver->resolve($index))->search($q, [
             'facets' => $this->getFacets($index->document),
             'filter' => $filterBuilder->build($request),
         ]);
@@ -51,7 +55,7 @@ final class SearchController
         $searchForm = $searchFormBuilder->build($searchResult);
         $searchForm->handleRequest($request);
 
-        dump($searchResult);
+        //dump($searchResult);
 
         /** @var array{entityClass: class-string<IndexableInterface>, entityId: mixed} $hit */
         foreach ($searchResult->getHits() as $hit) {
