@@ -22,6 +22,7 @@ final class ChoiceFacetFormBuilder implements FacetFormBuilderInterface
             'expanded' => true,
             'multiple' => true,
             'required' => false,
+            'block_prefix' => 'setono_sylius_meilisearch_facet_choice',
         ]);
     }
 

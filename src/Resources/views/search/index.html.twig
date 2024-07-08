@@ -1,17 +1,17 @@
 {# @var items \Sylius\Component\Core\Model\ProductInterface[] #}
 {% extends '@SyliusShop/layout.html.twig' %}
 
-{% form_theme searchForm '@SyliusShop/Form/theme.html.twig' %}
+{% form_theme searchForm '@SetonoSyliusMeilisearchPlugin/facets_theme.html.twig' %}
 
 {% block content %}
-    <h1 class="ui monster section dividing header">
-        Search results
-    </h1>
+    <h1>Search results</h1>
     {% if items|length > 0 %}
         <div class="ui stackable grid">
             <div class="four wide column">
-                {{ form(searchForm, { 'attr': { 'id': 'search-form', 'class': 'ui form' } }) }}
-                <button class="ui button" type="submit" form="search-form">{{ 'setono_sylius_meilisearch.form.search.update_filter'|trans }}</button>
+                {{ form_start(searchForm, { 'attr': { 'id': 'search-form', 'class': 'facets' } }) }}
+                {{ form_end(searchForm) }}
+
+                <button class="ui button" type="submit" form="search-form" style="margin-top: 10px">{{ 'setono_sylius_meilisearch.form.search.update_filter'|trans }}</button>
             </div>
             <div class="twelve wide column">
                 <div class="ui three cards">

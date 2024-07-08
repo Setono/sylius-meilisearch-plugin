@@ -18,6 +18,7 @@ final class CheckboxFacetFormBuilder implements FacetFormBuilderInterface
                 '%count%' => $values['true'],
             ],
             'required' => false,
+            'block_prefix' => 'setono_sylius_meilisearch_facet_checkbox',
         ]);
     }
 
