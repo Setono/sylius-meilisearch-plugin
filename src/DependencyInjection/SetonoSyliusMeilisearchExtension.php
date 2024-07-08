@@ -146,8 +146,8 @@ final class SetonoSyliusMeilisearchExtension extends Extension implements Prepen
      */
     private static function registerSearchConfiguration(array $config, array $indexes, ContainerBuilder $container): void
     {
-        if (true === $config['enabled'] && !isset($config['index'])) {
-            throw new \RuntimeException('When you enable search you need to provide an index to search');
+        if (!isset($config['index'])) {
+            return;
         }
 
         if (!in_array($config['index'], $indexes, true)) {

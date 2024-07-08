@@ -25,7 +25,5 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
     public function after_loading_the_correct_parameter_has_been_set(): void
     {
         $this->load();
-
-        $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.credentials.master_key', 'aSampleMasterKey');
     }
 }

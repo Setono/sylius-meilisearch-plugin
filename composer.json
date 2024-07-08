@@ -56,7 +56,6 @@
         "infection/infection": "^0.27.10",
         "jms/serializer-bundle": "^4.2",
         "lexik/jwt-authentication-bundle": "^2.17",
-        "matthiasnoback/symfony-config-test": "^4.3 || ^5.1",
         "matthiasnoback/symfony-dependency-injection-test": "^4.3 || ^5.1",
         "nyholm/psr7": "^1.8",
         "phpspec/prophecy-phpunit": "^2.0",
