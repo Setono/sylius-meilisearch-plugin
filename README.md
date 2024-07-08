@@ -23,8 +23,7 @@ setono_sylius_meilisearch:
             document: 'Setono\SyliusMeilisearchPlugin\Document\Product'
             entities: [ 'App\Entity\Product\Product' ]
     search:
-        indexes:
-            - 'products'
+        index: products
 
 ```
 
