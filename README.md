@@ -20,7 +20,7 @@ composer require setono/sylius-meilisearch-plugin
 setono_sylius_meilisearch:
     indexes:
         products:
-            document: 'Setono\SyliusMeilisearchPlugin\Tests\Application\Document\Product'
+            document: 'Setono\SyliusMeilisearchPlugin\Document\Product'
             entities: [ 'App\Entity\Product\Product' ]
     search:
         indexes:
