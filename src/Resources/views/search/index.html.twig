@@ -7,17 +7,26 @@
     <h1 class="ui monster section dividing header">
         Search results
     </h1>
-    <div class="ui stackable grid">
-        <div class="four wide column">
-            {{ form(searchForm, { 'attr': { 'id': 'search-form', 'class': 'ui form' } }) }}
-            <button class="ui button" type="submit" form="search-form">{{ 'setono_sylius_meilisearch.form.search.update_filter'|trans }}</button>
-        </div>
-        <div class="twelve wide column">
-            <div class="ui three cards">
-                {% for item in items %}
-                    {{ include('@SyliusShop/Product/_box.html.twig', { product: item }) }}
-                {% endfor %}
+    {% if items|length > 0 %}
+        <div class="ui stackable grid">
+            <div class="four wide column">
+                {{ form(searchForm, { 'attr': { 'id': 'search-form', 'class': 'ui form' } }) }}
+                <button class="ui button" type="submit" form="search-form">{{ 'setono_sylius_meilisearch.form.search.update_filter'|trans }}</button>
+            </div>
+            <div class="twelve wide column">
+                <div class="ui three cards">
+                    {% for item in items %}
+                        {{ include('@SyliusShop/Product/_box.html.twig', { product: item }) }}
+                    {% endfor %}
+                </div>
             </div>
         </div>
-    </div>
+    {% else %}
+        <div class="ui message">
+            <div class="header">
+                No results found
+            </div>
+            <p>Try to search for something else</p>
+        </div>
+    {% endif %}
 {% endblock %}
