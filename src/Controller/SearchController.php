@@ -51,13 +51,14 @@ final class SearchController
         $searchResult = $this->client->index($this->indexNameResolver->resolve($index))->search($q, [
             'facets' => $this->getFacets($index->document),
             'filter' => $filterBuilder->build($request),
+            'sort' => ['price:asc'], // todo doesn't work for some reason...?
             'hitsPerPage' => $this->hitsPerPage,
         ]);
 
         $searchForm = $searchFormBuilder->build($searchResult);
         $searchForm->handleRequest($request);
 
-        //dump($searchResult);
+        dump($searchResult);
 
         /** @var array{entityClass: class-string<IndexableInterface>, entityId: mixed} $hit */
         foreach ($searchResult->getHits() as $hit) {
@@ -65,6 +66,7 @@ final class SearchController
         }
 
         return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/search/index.html.twig', [
+            'searchResult' => $searchResult,
             'searchForm' => $searchForm->createView(),
             'items' => $items,
         ]));

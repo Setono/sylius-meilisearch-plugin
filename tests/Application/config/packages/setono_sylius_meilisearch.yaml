@@ -8,4 +8,4 @@ setono_sylius_meilisearch:
             entities: [ 'Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Taxon' ]
     search:
         index: products
-        hits_per_page: 2
+        hits_per_page: 120

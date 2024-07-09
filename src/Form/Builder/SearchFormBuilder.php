@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Form\Builder;
 
 use Meilisearch\Search\SearchResult;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
@@ -72,6 +73,15 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
         }
 
         $searchFormBuilder->add($facetsFormBuilder);
+
+        $searchFormBuilder->add('sort', ChoiceType::class, [
+            'choices' => [
+                'Price: Low to High' => 'price:asc',
+                'Price: High to Low' => 'price:desc',
+            ],
+            'required' => false,
+            'placeholder' => 'Sort by',
+        ]);
 
         return $searchFormBuilder->getForm();
     }
