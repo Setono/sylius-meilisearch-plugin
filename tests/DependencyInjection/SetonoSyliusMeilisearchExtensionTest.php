@@ -22,8 +22,39 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
     /**
      * @test
      */
-    public function after_loading_the_correct_parameter_has_been_set(): void
+    public function it_loads_without_any_configuration(): void
     {
         $this->load();
+
+        $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.search.enabled', false);
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_exception_if_search_index_is_not_set(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        $this->load([
+            'search' => [
+                'path' => 'search',
+            ],
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_exception_if_search_index_is_not_configured(): void
+    {
+        $this->expectException(\RuntimeException::class);
+
+        $this->load([
+            'search' => [
+                'path' => 'search',
+                'index' => 'products',
+            ],
+        ]);
     }
 }

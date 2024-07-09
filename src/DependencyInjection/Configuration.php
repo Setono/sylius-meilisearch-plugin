@@ -67,13 +67,19 @@ final class Configuration implements ConfigurationInterface
                     ->canBeEnabled()
                     ->info('Configures your site search (and autocomplete) experience')
                     ->children()
-                        ->scalarNode('route')
+                        ->scalarNode('path')
                             ->defaultValue('search')
                             ->info('This is the path where searches are displayed')
                             ->cannotBeEmpty()
                         ->end()
+                        ->integerNode('hits_per_page')
+                            ->defaultValue(60) // 60 is a good number for product lists, because it is divisible by 2, 3, 4, 5, and 6
+                            ->info('The number of hits per page')
+                            ->min(1)
+                        ->end()
                         ->scalarNode('index')
                             ->info('The index to search (must be configured in setono_sylius_meilisearch.indexes)')
+                            ->isRequired()
                             ->cannotBeEmpty()
         ;
 

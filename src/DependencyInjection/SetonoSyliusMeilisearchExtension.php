@@ -34,14 +34,11 @@ final class SetonoSyliusMeilisearchExtension extends Extension implements Prepen
          * @var array{
          *      indexes: array<string, array{document: class-string<Document>, indexer: string|null, entities: list<class-string>, prefix: string|null}>,
          *      server: array{ host: string, master_key: string },
-         *      search: array{ enabled: bool, route: string, index: string }
+         *      search: array{ enabled: bool, path: string, index: string, hits_per_page: integer }
          * } $config
          */
         $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
-
-        // indexes
-        $container->setParameter('setono_sylius_meilisearch.indexes', $config['indexes']);
 
         // server
         $container->setParameter('setono_sylius_meilisearch.server.host', $config['server']['host']);
@@ -141,21 +138,27 @@ final class SetonoSyliusMeilisearchExtension extends Extension implements Prepen
     /**
      * todo the search controller should only be available when search is enabled
      *
-     * @param array{ enabled: bool, route: string, index: string } $config the search configuration
+     * @param array{ enabled: bool, path: string, index: string, hits_per_page: integer } $config the search configuration
      * @param list<string> $indexes a list of index names
      */
     private static function registerSearchConfiguration(array $config, array $indexes, ContainerBuilder $container): void
     {
-        if (!isset($config['index'])) {
+        $container->setParameter('setono_sylius_meilisearch.search.enabled', $config['enabled']);
+
+        if (!$config['enabled']) {
             return;
+        }
+
+        if (!isset($config['index'])) {
+            throw new \RuntimeException('When search is enabled, you have to configure the index for the search');
         }
 
         if (!in_array($config['index'], $indexes, true)) {
             throw new \RuntimeException(sprintf('For the search configuration you have added the index "%s". That index is not configured in setono_sylius_meilisearch.indexes. Available indexes are [%s]', $config['index'], implode(', ', $indexes)));
         }
 
-        $container->setParameter('setono_sylius_meilisearch.search.enabled', $config['enabled']);
-        $container->setParameter('setono_sylius_meilisearch.search.route', $config['route']);
+        $container->setParameter('setono_sylius_meilisearch.search.path', $config['path']);
         $container->setParameter('setono_sylius_meilisearch.search.index', $config['index']);
+        $container->setParameter('setono_sylius_meilisearch.search.hits_per_page', $config['hits_per_page']);
     }
 }
