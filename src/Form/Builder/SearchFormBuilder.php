@@ -11,16 +11,25 @@ use Symfony\Component\Form\FormInterface;
 
 final class SearchFormBuilder implements SearchFormBuilderInterface
 {
-    public function __construct(private readonly FormFactoryInterface $formFactory, private readonly FacetFormBuilderInterface $facetFormBuilder)
-    {
+    public function __construct(
+        private readonly FormFactoryInterface $formFactory,
+        private readonly FacetFormBuilderInterface $facetFormBuilder,
+    ) {
     }
 
     public function build(SearchResult $searchResult): FormInterface
     {
-        $searchFormBuilder = $this->formFactory->createNamedBuilder('', options: [
-            'csrf_protection' => false,
-            'allow_extra_fields' => true,
-        ])->add('q', HiddenType::class);
+        $searchFormBuilder = $this
+            ->formFactory
+            ->createNamedBuilder('', options: [
+                'csrf_protection' => false,
+                'allow_extra_fields' => true,
+            ])
+            ->add('q', HiddenType::class)
+            ->setMethod('GET')
+        ;
+
+        $facetsFormBuilder = $this->formFactory->createNamedBuilder('facets');
 
         /**
          * Here is an example of the facet stats array
@@ -58,11 +67,11 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
          */
         foreach ($searchResult->getFacetDistribution() as $name => $values) {
             if ($this->facetFormBuilder->supports($name, $values, $facetStats[$name] ?? null)) {
-                $this->facetFormBuilder->build($searchFormBuilder, $name, $values, $facetStats[$name] ?? null);
+                $this->facetFormBuilder->build($facetsFormBuilder, $name, $values, $facetStats[$name] ?? null);
             }
         }
 
-        $searchFormBuilder->setMethod('GET');
+        $searchFormBuilder->add($facetsFormBuilder);
 
         return $searchFormBuilder->getForm();
     }

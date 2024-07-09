@@ -6,21 +6,22 @@
 {% block content %}
     <h1>Search results</h1>
     {% if items|length > 0 %}
-        <div class="ui stackable grid">
-            <div class="four wide column">
-                {{ form_start(searchForm, { 'attr': { 'id': 'search-form', 'class': 'facets' } }) }}
-                {{ form_end(searchForm) }}
+        {{ form_start(searchForm, { 'attr': { 'id': 'search-form' } }) }}
+            <div class="ui stackable grid">
+                <div class="four wide column">
+                    {{ form_widget(searchForm.facets) }}
 
-                <button class="ui button" type="submit" form="search-form" style="margin-top: 10px">{{ 'setono_sylius_meilisearch.form.search.update_filter'|trans }}</button>
-            </div>
-            <div class="twelve wide column">
-                <div class="ui three cards">
-                    {% for item in items %}
-                        {{ include('@SyliusShop/Product/_box.html.twig', { product: item }) }}
-                    {% endfor %}
+                    <button class="ui button" type="submit" form="search-form" style="margin-top: 10px">{{ 'setono_sylius_meilisearch.form.search.update_filter'|trans }}</button>
+                </div>
+                <div class="twelve wide column">
+                    <div class="ui three cards">
+                        {% for item in items %}
+                            {{ include('@SyliusShop/Product/_box.html.twig', { product: item }) }}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
+        {{ form_end(searchForm.facets) }}
     {% else %}
         <div class="ui message">
             <div class="header">
