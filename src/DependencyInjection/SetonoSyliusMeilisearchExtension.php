@@ -15,6 +15,7 @@ use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\UrlGenerator\EntityUrlGeneratorInterface;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -63,7 +64,7 @@ final class SetonoSyliusMeilisearchExtension extends Extension implements Prepen
             ->addTag('setono_sylius_meilisearch.url_generator');
 
         self::registerIndexesConfiguration($config['indexes'], $container);
-        self::registerSearchConfiguration($config['search'], array_keys($config['indexes']), $container);
+        self::registerSearchConfiguration($config['search'], array_keys($config['indexes']), $container, $loader);
     }
 
     public function prepend(ContainerBuilder $container): void
@@ -141,7 +142,7 @@ final class SetonoSyliusMeilisearchExtension extends Extension implements Prepen
      * @param array{ enabled: bool, path: string, index: string, hits_per_page: integer } $config the search configuration
      * @param list<string> $indexes a list of index names
      */
-    private static function registerSearchConfiguration(array $config, array $indexes, ContainerBuilder $container): void
+    private static function registerSearchConfiguration(array $config, array $indexes, ContainerBuilder $container, LoaderInterface $loader): void
     {
         $container->setParameter('setono_sylius_meilisearch.search.enabled', $config['enabled']);
 
@@ -160,5 +161,7 @@ final class SetonoSyliusMeilisearchExtension extends Extension implements Prepen
         $container->setParameter('setono_sylius_meilisearch.search.path', $config['path']);
         $container->setParameter('setono_sylius_meilisearch.search.index', $config['index']);
         $container->setParameter('setono_sylius_meilisearch.search.hits_per_page', $config['hits_per_page']);
+
+        $loader->load('services/conditional/search.xml');
     }
 }
