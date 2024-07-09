@@ -17,7 +17,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
 
     public function build(SearchResult $searchResult): FormInterface
     {
-        $builder = $this->formFactory->createNamedBuilder('', options: [
+        $searchFormBuilder = $this->formFactory->createNamedBuilder('', options: [
             'csrf_protection' => false,
             'allow_extra_fields' => true,
         ])->add('q', HiddenType::class);
@@ -58,12 +58,12 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
          */
         foreach ($searchResult->getFacetDistribution() as $name => $values) {
             if ($this->facetFormBuilder->supports($name, $values, $facetStats[$name] ?? null)) {
-                $this->facetFormBuilder->build($builder, $name, $values, $facetStats[$name] ?? null);
+                $this->facetFormBuilder->build($searchFormBuilder, $name, $values, $facetStats[$name] ?? null);
             }
         }
 
-        $builder->setMethod('GET');
+        $searchFormBuilder->setMethod('GET');
 
-        return $builder->getForm();
+        return $searchFormBuilder->getForm();
     }
 }

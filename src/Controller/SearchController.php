@@ -34,6 +34,7 @@ final class SearchController
         private readonly Client $client,
         private readonly ProductOptionRepositoryInterface $productOptionRepository,
         private readonly string $searchIndex,
+        private readonly int $hitsPerPage,
     ) {
         $this->managerRegistry = $managerRegistry;
     }
@@ -50,6 +51,7 @@ final class SearchController
         $searchResult = $this->client->index($this->indexNameResolver->resolve($index))->search($q, [
             'facets' => $this->getFacets($index->document),
             'filter' => $filterBuilder->build($request),
+            'hitsPerPage' => $this->hitsPerPage,
         ]);
 
         $searchForm = $searchFormBuilder->build($searchResult);
