@@ -8,12 +8,20 @@ use Setono\CompositeCompilerPass\CompositeCompilerPass;
 use Setono\SyliusMeilisearchPlugin\DataMapper\CompositeDataMapper;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFacetFormBuilder;
 use Sylius\Bundle\CoreBundle\Application\SyliusPluginTrait;
+use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
+use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-final class SetonoSyliusMeilisearchPlugin extends Bundle
+final class SetonoSyliusMeilisearchPlugin extends AbstractResourceBundle
 {
     use SyliusPluginTrait;
+
+    public function getSupportedDrivers(): array
+    {
+        return [
+            SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
+        ];
+    }
 
     public function build(ContainerBuilder $container): void
     {

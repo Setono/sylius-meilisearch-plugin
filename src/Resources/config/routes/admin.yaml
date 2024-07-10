@@ -1,1 +1,15 @@
-# TODO Add your admin routes here
+setono_sylius_meilisearch_admin_synonym:
+    resource: |
+        section: admin
+        alias: setono_sylius_meilisearch.synonym
+        templates: "@SyliusAdmin\\Crud"
+        redirect: index
+        permission: true
+        grid: setono_sylius_meilisearch_admin_synonym
+        vars:
+            all:
+                header: setono_sylius_meilisearch.ui.synonym_header
+                subheader: setono_sylius_meilisearch.ui.synonym_subheader
+                templates:
+                    form: "@SetonoSyliusMeilisearchPlugin/admin/synonym/_form.html.twig"
+    type: sylius.resource

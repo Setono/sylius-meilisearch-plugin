@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<doctrine-mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:gedmo="http://gediminasm.org/schemas/orm/doctrine-extensions-mapping"
+                  xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                                      http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <mapped-superclass name="Setono\SyliusMeilisearchPlugin\Model\Synonym"
+                       table="setono_sylius_meilisearch__synonym">
+        <id name="id" type="integer">
+            <generator strategy="AUTO"/>
+        </id>
+
+        <field name="term" type="string"/>
+        <field name="synonym" type="string"/>
+
+        <many-to-one field="channel" target-entity="Sylius\Component\Channel\Model\ChannelInterface">
+            <join-column name="channel_id" referenced-column-name="id" nullable="true"/>
+        </many-to-one>
+
+        <many-to-one field="locale" target-entity="Sylius\Component\Locale\Model\LocaleInterface">
+            <join-column name="locale_id" referenced-column-name="id" nullable="false"/>
+        </many-to-one>
+    </mapped-superclass>
+</doctrine-mapping>

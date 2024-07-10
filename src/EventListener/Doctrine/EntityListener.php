@@ -2,37 +2,31 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\EventSubscriber\Doctrine;
+namespace Setono\SyliusMeilisearchPlugin\EventListener\Doctrine;
 
-use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntity;
 use Setono\SyliusMeilisearchPlugin\Message\Command\RemoveEntity;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-final class EntityChangeSubscriber implements EventSubscriber
+final class EntityListener
 {
     public function __construct(private readonly MessageBusInterface $commandBus)
     {
     }
 
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postPersist => 'update',
-            Events::postUpdate => 'update',
-            Events::postRemove => 'remove',
-        ];
-    }
-
-    public function update(LifecycleEventArgs $eventArgs): void
+    public function postPersist(LifecycleEventArgs $eventArgs): void
     {
         $this->dispatch($eventArgs, static fn (IndexableInterface $entity) => IndexEntity::new($entity));
     }
 
-    public function remove(LifecycleEventArgs $eventArgs): void
+    public function postUpdate(LifecycleEventArgs $eventArgs): void
+    {
+        $this->dispatch($eventArgs, static fn (IndexableInterface $entity) => IndexEntity::new($entity));
+    }
+
+    public function postRemove(LifecycleEventArgs $eventArgs): void
     {
         $this->dispatch($eventArgs, static fn (IndexableInterface $entity) => RemoveEntity::new($entity));
     }

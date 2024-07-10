@@ -14,18 +14,19 @@ use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\UrlGenerator\EntityUrlGeneratorInterface;
+use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
+use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use function Symfony\Component\String\u;
 
-final class SetonoSyliusMeilisearchExtension extends Extension implements PrependExtensionInterface
+final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension implements PrependExtensionInterface
 {
     public function load(array $configs, ContainerBuilder $container): void
     {
@@ -35,11 +36,14 @@ final class SetonoSyliusMeilisearchExtension extends Extension implements Prepen
          * @var array{
          *      indexes: array<string, array{document: class-string<Document>, indexer: string|null, entities: list<class-string>, prefix: string|null}>,
          *      server: array{ host: string, master_key: string },
-         *      search: array{ enabled: bool, path: string, index: string, hits_per_page: integer }
+         *      search: array{ enabled: bool, path: string, index: string, hits_per_page: integer },
+         *      resources: array,
          * } $config
          */
         $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+
+        $this->registerResources('setono_sylius_meilisearch', SyliusResourceBundle::DRIVER_DOCTRINE_ORM, $config['resources'], $container);
 
         // server
         $container->setParameter('setono_sylius_meilisearch.server.host', $config['server']['host']);
@@ -73,6 +77,62 @@ final class SetonoSyliusMeilisearchExtension extends Extension implements Prepen
             'messenger' => [
                 'buses' => [
                     'setono_sylius_meilisearch.command_bus' => null,
+                ],
+            ],
+        ]);
+
+        $container->prependExtensionConfig('sylius_grid', [
+            'grids' => [
+                'setono_sylius_meilisearch_admin_synonym' => [
+                    'driver' => [
+                        'name' => SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
+                        'options' => [
+                            'class' => '%setono_sylius_meilisearch.model.synonym.class%',
+                        ],
+                    ],
+                    'limits' => [100, 250, 500, 1000],
+                    'fields' => [
+                        'term' => [
+                            'type' => 'string',
+                            'label' => 'setono_sylius_meilisearch.ui.term',
+                        ],
+                        'synonym' => [
+                            'type' => 'string',
+                            'label' => 'setono_sylius_meilisearch.ui.synonym',
+                        ],
+                        'locale' => [
+                            'type' => 'string',
+                            'label' => 'sylius.ui.locale',
+                        ],
+                        'channel' => [
+                            'type' => 'string',
+                            'label' => 'sylius.ui.channel',
+                        ],
+                    ],
+                    'filters' => [
+                        'search' => [
+                            'type' => 'string',
+                            'label' => 'sylius.ui.search',
+                            'options' => [
+                                'fields' => ['term', 'synonym'],
+                            ],
+                        ],
+                    ],
+                    'actions' => [
+                        'main' => [
+                            'create' => [
+                                'type' => 'create',
+                            ],
+                        ],
+                        'item' => [
+                            'update' => [
+                                'type' => 'update',
+                            ],
+                            'delete' => [
+                                'type' => 'delete',
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ]);

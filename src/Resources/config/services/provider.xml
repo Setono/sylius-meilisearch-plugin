@@ -33,6 +33,8 @@
         <service id="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProviderInterface"
                  alias="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProvider"/>
 
-        <service id="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProvider"/>
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProvider">
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolverInterface"/>
+        </service>
     </services>
 </container>

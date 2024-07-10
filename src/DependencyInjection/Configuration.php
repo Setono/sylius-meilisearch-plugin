@@ -5,7 +5,13 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\DependencyInjection;
 
 use Setono\SyliusMeilisearchPlugin\Document\Product;
+use Setono\SyliusMeilisearchPlugin\Form\Type\SynonymType;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
+use Setono\SyliusMeilisearchPlugin\Model\Synonym;
+use Setono\SyliusMeilisearchPlugin\Repository\SynonymRepository;
+use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+use Sylius\Component\Resource\Factory\Factory;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -14,7 +20,11 @@ final class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('setono_sylius_meilisearch');
+
+        /** @var ArrayNodeDefinition $rootNode */
         $rootNode = $treeBuilder->getRootNode();
+
+        $this->addResourcesSection($rootNode);
 
         /** @psalm-suppress MixedMethodCall,UndefinedMethod,PossiblyUndefinedMethod,PossiblyNullReference */
         $rootNode
@@ -84,5 +94,30 @@ final class Configuration implements ConfigurationInterface
         ;
 
         return $treeBuilder;
+    }
+
+    private function addResourcesSection(ArrayNodeDefinition $node): void
+    {
+        /**
+         * @psalm-suppress MixedMethodCall,PossiblyUndefinedMethod,PossiblyNullReference,UndefinedInterfaceMethod
+         */
+        $node
+            ->children()
+                ->arrayNode('resources')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->arrayNode('synonym')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->variableNode('options')->end()
+                                ->arrayNode('classes')
+                                    ->addDefaultsIfNotSet()
+                                    ->children()
+                                        ->scalarNode('model')->defaultValue(Synonym::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('repository')->defaultValue(SynonymRepository::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('form')->defaultValue(SynonymType::class)->end()
+                                        ->scalarNode('factory')->defaultValue(Factory::class)->end()
+        ;
     }
 }

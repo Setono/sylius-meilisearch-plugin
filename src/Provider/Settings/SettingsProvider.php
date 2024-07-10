@@ -7,11 +7,16 @@ namespace Setono\SyliusMeilisearchPlugin\Provider\Settings;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Searchable;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable;
+use Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Settings\Settings;
 
 final class SettingsProvider implements SettingsProviderInterface
 {
+    public function __construct(private readonly SynonymResolverInterface $synonymResolver)
+    {
+    }
+
     public function getSettings(IndexScope $indexScope): Settings
     {
         $settings = new Settings();
@@ -47,6 +52,8 @@ final class SettingsProvider implements SettingsProviderInterface
                 };
             }
         }
+
+        $settings->synonyms = $this->synonymResolver->resolve($indexScope);
 
         return $settings;
     }

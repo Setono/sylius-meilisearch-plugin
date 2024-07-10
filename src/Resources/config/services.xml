@@ -7,10 +7,13 @@
         <import resource="services/command.xml"/>
         <import resource="services/config.xml"/>
         <import resource="services/data_mapper.xml"/>
+        <import resource="services/event_listener.xml"/>
         <import resource="services/event_subscriber.xml"/>
+        <import resource="services/factory.xml"/>
         <import resource="services/filter.xml"/>
         <import resource="services/form.xml"/>
         <import resource="services/javascript.xml"/>
+        <import resource="services/meilisearch.xml"/>
         <import resource="services/message.xml"/>
         <import resource="services/normalizer.xml"/>
         <import resource="services/provider.xml"/>

@@ -70,7 +70,8 @@ class Settings
      */
     public UniqueList $dictionary;
 
-    public Synonyms $synonyms;
+    /** @var array<non-empty-string, list<non-empty-string>> */
+    public array $synonyms = [];
 
     /**
      * Search returns documents with distinct (different) values of the given field
@@ -105,7 +106,6 @@ class Settings
         $this->nonSeparatorTokens = new UniqueList();
         $this->separatorTokens = new UniqueList();
         $this->dictionary = new UniqueList();
-        $this->synonyms = new Synonyms();
         $this->typoTolerance = new TypoTolerance();
         $this->faceting = new Faceting();
         $this->pagination = new Pagination();
