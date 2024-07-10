@@ -14,7 +14,7 @@ class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInter
     #[Searchable]
     public ?string $name = null;
 
-    #[Sortable]
+    #[Sortable(direction: Sortable::DESC)]
     public ?int $createdAt = null;
 
     public ?string $url = null;
@@ -40,7 +40,7 @@ class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInter
 
     #[Facet]
     #[Filterable]
-    #[Sortable]
+    #[Sortable(direction: Sortable::ASC)]
     public ?float $price = null;
 
     public ?float $originalPrice = null;
@@ -65,7 +65,7 @@ class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInter
      *     ];
      * }
      */
-    #[Sortable]
+    #[Sortable(direction: Sortable::DESC)]
     public function getDiscount(): float
     {
         if (null === $this->originalPrice || null === $this->price) {
