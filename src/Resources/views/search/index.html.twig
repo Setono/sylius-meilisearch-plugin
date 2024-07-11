@@ -14,7 +14,14 @@
                     <button class="ui button" type="submit" form="search-form" style="margin-top: 10px">{{ 'setono_sylius_meilisearch.form.search.update_filter'|trans }}</button>
                 </div>
                 <div class="twelve wide column">
-                    {{ form_widget(searchForm.sort) }}
+                    <div class="ui grid">
+                        <div class="eight wide column">
+                            {{ searchResult.hitsCount }} results found
+                        </div>
+                        <div class="eight wide right aligned column">
+                            {{ form_widget(searchForm.sort) }}
+                        </div>
+                    </div>
                     <div class="ui three cards">
                         {% for item in items %}
                             {{ include('@SyliusShop/Product/_box.html.twig', { product: item }) }}
