@@ -31,6 +31,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
         ;
 
         // todo this nesting makes the URLs uglier. Can we do something else?
+        // todo could this be fixed by adding the facet forms to some kind of collection?
         $facetsFormBuilder = $this->formFactory->createNamedBuilder('facets');
 
         /**
