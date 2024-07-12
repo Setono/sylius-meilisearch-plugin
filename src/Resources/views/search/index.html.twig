@@ -39,3 +39,12 @@
         </div>
     {% endif %}
 {% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script src="{{ asset('bundles/setonosyliusmeilisearchplugin/js/search-manager.js') }}"></script>
+    <script>
+        const searchManager = new SearchManager('#search-form');
+    </script>
+{% endblock %}
