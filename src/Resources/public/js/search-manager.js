@@ -1,4 +1,3 @@
-// todo add a method that will remove empty fields from the form before submitting it
 class SearchManager {
 
     /**
