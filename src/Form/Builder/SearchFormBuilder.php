@@ -113,6 +113,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
             'choices' => $choices,
             'required' => false,
             'expanded' => true,
+            'placeholder' => false,
         ]);
     }
 }
