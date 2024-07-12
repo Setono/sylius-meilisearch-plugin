@@ -30,6 +30,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
             ->setMethod('GET')
         ;
 
+        // todo this nesting makes the URLs uglier. Can we do something else?
         $facetsFormBuilder = $this->formFactory->createNamedBuilder('facets');
 
         /**
