@@ -4,6 +4,9 @@ setono_sylius_meilisearch:
             facet:
                 on_sale: On sale (%count%)
                 size: Size
+            pagination:
+                previous: Previous
+                next: Next
             q_placeholder: Search...
             update_filter: Update filter
         synonym:

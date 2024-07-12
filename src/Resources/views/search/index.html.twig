@@ -16,7 +16,7 @@
                 <div class="twelve wide column">
                     <div class="ui grid">
                         <div class="eight wide column">
-                            {{ searchResult.hitsCount }} results found
+                            Displaying {{ (searchResult.page * searchResult.hitsPerPage) - searchResult.hitsPerPage }} - {{ searchResult.page * searchResult.hitsPerPage }} of {{ searchResult.hitsCount }}
                         </div>
                         <div class="eight wide right aligned column">
                             {{ form_widget(searchForm.sort) }}

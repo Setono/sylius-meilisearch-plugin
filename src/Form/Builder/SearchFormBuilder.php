@@ -99,21 +99,25 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
         }
 
         $choices = [];
-        $choices['Current'] = $page;
+
+        // current is a special choice that we need to keep the page query parameter in the url on form submission
+        $choices['__current'] = $page;
 
         if ($searchResult->getPage() > 1) {
-            $choices['Previous'] = $page - 1;
+            $choices['setono_sylius_meilisearch.form.search.pagination.previous'] = $page - 1;
         }
 
         if ($searchResult->getPage() < $searchResult->getTotalPages()) {
-            $choices['Next'] = $page + 1;
+            $choices['setono_sylius_meilisearch.form.search.pagination.next'] = $page + 1;
         }
 
         $builder->add('p', ChoiceType::class, [
             'choices' => $choices,
+            'choice_attr' => fn (string $page) => ['style' => 'display: none'], // we only want to display the labels
             'required' => false,
             'expanded' => true,
             'placeholder' => false,
+            'block_prefix' => 'setono_sylius_meilisearch_page_choice',
         ]);
     }
 }

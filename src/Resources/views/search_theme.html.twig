@@ -21,3 +21,16 @@
         </ul>
     </div>
 {% endblock %}
+
+{% block setono_sylius_meilisearch_page_choice_widget %}
+    <nav class="pagination">
+        <ol>
+            {%- for child in form %}
+                <li{{ child.vars.label == '__current' ? ' style="display:none"' : '' }}>
+                    {{- form_widget(child) -}}
+                    {{- form_label(child, null, {translation_domain: choice_translation_domain}) -}}
+                </li>
+            {% endfor -%}
+        </ol>
+    </nav>
+{% endblock %}
