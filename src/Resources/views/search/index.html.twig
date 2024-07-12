@@ -27,6 +27,9 @@
                             {{ include('@SyliusShop/Product/_box.html.twig', { product: item }) }}
                         {% endfor %}
                     </div>
+                    {% if searchForm.p is defined %}
+                        {{ form_widget(searchForm.p) }}
+                    {% endif %}
                 </div>
             </div>
         {{ form_end(searchForm.facets) }}

@@ -7,6 +7,7 @@ namespace Setono\SyliusMeilisearchPlugin\Form\Builder;
 use Meilisearch\Search\SearchResult;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 
@@ -85,6 +86,33 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
             'placeholder' => 'Sort by',
         ]);
 
+        $this->buildPagination($searchResult, $searchFormBuilder);
+
         return $searchFormBuilder->getForm();
+    }
+
+    private function buildPagination(SearchResult $searchResult, FormBuilderInterface $builder): void
+    {
+        $page = $searchResult->getPage();
+        if (null === $page) {
+            return;
+        }
+
+        $choices = [];
+        $choices['Current'] = $page;
+
+        if ($searchResult->getPage() > 1) {
+            $choices['Previous'] = $page - 1;
+        }
+
+        if ($searchResult->getPage() < $searchResult->getTotalPages()) {
+            $choices['Next'] = $page + 1;
+        }
+
+        $builder->add('p', ChoiceType::class, [
+            'choices' => $choices,
+            'required' => false,
+            'expanded' => true,
+        ]);
     }
 }

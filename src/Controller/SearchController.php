@@ -44,6 +44,9 @@ final class SearchController
         $q = $request->query->get('q');
         Assert::nullOrString($q);
 
+        $page = (int) $request->query->get('p', 1);
+        $page = max(1, $page);
+
         $index = $this->indexRegistry->get($this->searchIndex);
 
         $items = [];
@@ -53,6 +56,7 @@ final class SearchController
             'filter' => $filterBuilder->build($request),
             'sort' => ['price:asc'], // todo doesn't work for some reason...?
             'hitsPerPage' => $this->hitsPerPage,
+            'page' => $page,
         ]);
 
         $searchForm = $searchFormBuilder->build($searchResult);
