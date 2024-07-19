@@ -61,9 +61,7 @@ final class SearchController
 
         $searchForm = $searchFormBuilder->build($searchResult);
         $searchForm->handleRequest($request);
-
-        dump($searchResult);
-
+        
         /** @var array{entityClass: class-string<IndexableInterface>, entityId: mixed} $hit */
         foreach ($searchResult->getHits() as $hit) {
             $items[] = $this->getManager($hit['entityClass'])->find($hit['entityClass'], $hit['entityId']);
