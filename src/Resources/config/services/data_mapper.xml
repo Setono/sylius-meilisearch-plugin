@@ -26,24 +26,28 @@
 
         <!-- Product data mappers -->
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\ProductDataMapper">
-            <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
+            <tag name="setono_sylius_meilisearch.data_mapper" priority="200"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\PriceDataMapper">
             <argument type="service" id="sylius.repository.channel"/>
             <argument type="service" id="sylius.currency_converter"/>
 
-            <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
+            <tag name="setono_sylius_meilisearch.data_mapper" priority="190"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\TaxonCodesDataMapper">
             <argument>%sylius_shop.product_grid.include_all_descendants%</argument>
 
-            <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
+            <tag name="setono_sylius_meilisearch.data_mapper" priority="180"/>
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\AttributesDataMapper">
+            <tag name="setono_sylius_meilisearch.data_mapper" priority="170"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\OptionsDataMapper">
-            <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
+            <tag name="setono_sylius_meilisearch.data_mapper" priority="160"/>
         </service>
 
         <!-- Taxon data mappers -->
