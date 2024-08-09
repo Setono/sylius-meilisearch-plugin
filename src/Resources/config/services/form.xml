@@ -14,11 +14,11 @@
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFacetFormBuilder"/>
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\CheckboxFacetFormBuilder">
-            <tag name="setono_sylius_meilisearch.facet_form_builder"/>
+            <tag name="setono_sylius_meilisearch.facet_form_builder" priority="100"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\ChoiceFacetFormBuilder">
-            <tag name="setono_sylius_meilisearch.facet_form_builder"/>
+            <tag name="setono_sylius_meilisearch.facet_form_builder" priority="90"/>
         </service>
 
         <!-- Search form builder -->

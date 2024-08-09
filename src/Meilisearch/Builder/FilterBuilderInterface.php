@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Builder;
+namespace Setono\SyliusMeilisearchPlugin\Meilisearch\Builder;
 
 use Symfony\Component\HttpFoundation\Request;
 

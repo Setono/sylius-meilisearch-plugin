@@ -2,6 +2,13 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
+        <!-- Builder -->
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilderInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilder"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilder"/>
+
+        <!-- Synonym resolver -->
         <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolverInterface"
                  alias="Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolver"/>
 
