@@ -1,4 +1,8 @@
 setono_sylius_meilisearch:
+    form:
+        search:
+            facet:
+                brand: Brand
     ui:
         sort_by:
             price_asc: Price ascending
