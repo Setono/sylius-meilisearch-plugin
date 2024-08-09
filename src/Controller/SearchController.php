@@ -49,8 +49,6 @@ final class SearchController
 
         $index = $this->indexRegistry->get($this->searchIndex);
 
-        $items = [];
-
         $searchResult = $this->client->index($this->indexNameResolver->resolve($index))->search($q, [
             'facets' => $this->getFacets($index->document),
             'filter' => $filterBuilder->build($request),
@@ -63,6 +61,8 @@ final class SearchController
         $searchForm->handleRequest($request);
 
         dump($searchResult);
+
+        $items = [];
 
         /** @var array{entityClass: class-string<IndexableInterface>, entityId: mixed} $hit */
         foreach ($searchResult->getHits() as $hit) {
