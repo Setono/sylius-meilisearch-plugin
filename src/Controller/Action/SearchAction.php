@@ -7,7 +7,7 @@ namespace Setono\SyliusMeilisearchPlugin\Controller\Action;
 use Doctrine\Persistence\ManagerRegistry;
 use Meilisearch\Client;
 use Setono\Doctrine\ORMTrait;
-use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
+use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
@@ -27,12 +27,11 @@ final class SearchAction
         ManagerRegistry $managerRegistry,
         private readonly Environment $twig,
         private readonly IndexNameResolverInterface $indexNameResolver,
-        private readonly IndexRegistryInterface $indexRegistry,
         private readonly Client $client,
         private readonly MetadataFactoryInterface $metadataFactory,
         private readonly SearchFormBuilderInterface $searchFormBuilder,
         private readonly FilterBuilderInterface $filterBuilder,
-        private readonly string $searchIndex,
+        private readonly Index $index,
         private readonly int $hitsPerPage,
     ) {
         $this->managerRegistry = $managerRegistry;
@@ -46,11 +45,9 @@ final class SearchAction
         $page = (int) $request->query->get('p', 1);
         $page = max(1, $page);
 
-        $index = $this->indexRegistry->get($this->searchIndex);
+        $metadata = $this->metadataFactory->getMetadataFor($this->index->document);
 
-        $metadata = $this->metadataFactory->getMetadataFor($index->document);
-
-        $searchResult = $this->client->index($this->indexNameResolver->resolve($index))->search($q, [
+        $searchResult = $this->client->index($this->indexNameResolver->resolve($this->index))->search($q, [
             'facets' => array_map(static fn (Facet $facet) => $facet->name, $metadata->getFacets()),
             'filter' => $this->filterBuilder->build($request),
             'sort' => ['price:asc'], // todo doesn't work for some reason...?

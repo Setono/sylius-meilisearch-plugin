@@ -166,7 +166,11 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         $indexRegistry = $container->getDefinition('setono_sylius_meilisearch.config.index_registry');
 
         foreach ($config as $indexName => $index) {
-            $indexServiceId = sprintf('setono_sylius_meilisearch.index.%s', $indexName);
+            if ('search' === $indexName) {
+                throw new \RuntimeException('You cannot use "search" as an index name. It is reserved for the search configuration');
+            }
+
+            $indexServiceId = self::getIndexServiceId($indexName);
 
             $indexerServiceId = $index['indexer'] ?? self::registerDefaultIndexer($container, $indexName, $indexServiceId);
 
@@ -225,10 +229,18 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
             throw new \RuntimeException(sprintf('For the search configuration you have added the index "%s". That index is not configured in setono_sylius_meilisearch.indexes. Available indexes are [%s]', $config['index'], implode(', ', $indexes)));
         }
 
+        $container->setAlias('setono_sylius_meilisearch.index.search', self::getIndexServiceId($config['index']));
+        $container->setAlias(Index::class . ' $searchIndex', self::getIndexServiceId($config['index']));
+
         $container->setParameter('setono_sylius_meilisearch.search.path', $config['path']);
         $container->setParameter('setono_sylius_meilisearch.search.index', $config['index']);
         $container->setParameter('setono_sylius_meilisearch.search.hits_per_page', $config['hits_per_page']);
 
         $loader->load('services/conditional/search.xml');
+    }
+
+    private static function getIndexServiceId(string $indexName): string
+    {
+        return sprintf('setono_sylius_meilisearch.index.%s', $indexName);
     }
 }
