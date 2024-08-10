@@ -19,7 +19,7 @@ final class FilterBuilder implements FilterBuilderInterface
             $filters[] = 'onSale = true';
         }
 
-        if(isset($query['brand'])) {
+        if (isset($query['brand'])) {
             foreach ($query['brand'] as $brand) {
                 $filters[] = sprintf('brand = "%s"', $brand);
             }

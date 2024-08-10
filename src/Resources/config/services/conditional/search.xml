@@ -8,7 +8,7 @@
             <argument type="service" id="setono_sylius_meilisearch.resolver.index_name"/>
             <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
             <argument type="service" id="Meilisearch\Client"/>
-            <argument type="service" id="sylius.repository.product_option"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface"/>
             <argument>%setono_sylius_meilisearch.search.index%</argument>
             <argument>%setono_sylius_meilisearch.search.hits_per_page%</argument>
 
