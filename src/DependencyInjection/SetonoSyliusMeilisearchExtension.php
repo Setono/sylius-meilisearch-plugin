@@ -74,6 +74,13 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     public function prepend(ContainerBuilder $container): void
     {
         $container->prependExtensionConfig('framework', [
+            'cache' => [
+                'pools' => [
+                    'setono_sylius_meilisearch.cache.metadata' => [
+                        'adapter' => 'cache.system',
+                    ],
+                ],
+            ],
             'messenger' => [
                 'buses' => [
                     'setono_sylius_meilisearch.command_bus' => null,
