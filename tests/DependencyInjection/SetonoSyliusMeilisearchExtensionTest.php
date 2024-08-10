@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Tests\DependencyInjection;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
-use Setono\SyliusMeilisearchPlugin\Controller\SearchController;
+use Setono\SyliusMeilisearchPlugin\Controller\Action\SearchAction;
 use Setono\SyliusMeilisearchPlugin\DependencyInjection\SetonoSyliusMeilisearchExtension;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product as ProductEntity;
@@ -30,7 +30,7 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
         $this->load();
 
         $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.search.enabled', false);
-        $this->assertContainerBuilderNotHasService(SearchController::class);
+        $this->assertContainerBuilderNotHasService(SearchAction::class);
     }
 
     /**
@@ -85,6 +85,6 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.search.index', 'products');
         $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.search.hits_per_page', 120);
         $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.search.enabled', true);
-        $this->assertContainerBuilderHasService(SearchController::class);
+        $this->assertContainerBuilderHasService(SearchAction::class);
     }
 }

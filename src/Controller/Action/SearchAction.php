@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Controller;
+namespace Setono\SyliusMeilisearchPlugin\Controller\Action;
 
 use Doctrine\Persistence\ManagerRegistry;
 use Meilisearch\Client;
@@ -11,17 +11,15 @@ use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
-use Setono\SyliusMeilisearchPlugin\Form\Type\SearchWidgetType;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
-use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 use Webmozart\Assert\Assert;
 
-final class SearchController
+final class SearchAction
 {
     use ORMTrait;
 
@@ -32,13 +30,15 @@ final class SearchController
         private readonly IndexRegistryInterface $indexRegistry,
         private readonly Client $client,
         private readonly MetadataFactoryInterface $metadataFactory,
+        private readonly SearchFormBuilderInterface $searchFormBuilder,
+        private readonly FilterBuilderInterface $filterBuilder,
         private readonly string $searchIndex,
         private readonly int $hitsPerPage,
     ) {
         $this->managerRegistry = $managerRegistry;
     }
 
-    public function search(Request $request, SearchFormBuilderInterface $searchFormBuilder, FilterBuilderInterface $filterBuilder): Response
+    public function __invoke(Request $request): Response
     {
         $q = $request->query->get('q');
         Assert::nullOrString($q);
@@ -52,13 +52,13 @@ final class SearchController
 
         $searchResult = $this->client->index($this->indexNameResolver->resolve($index))->search($q, [
             'facets' => array_map(static fn (Facet $facet) => $facet->name, $metadata->getFacets()),
-            'filter' => $filterBuilder->build($request),
+            'filter' => $this->filterBuilder->build($request),
             'sort' => ['price:asc'], // todo doesn't work for some reason...?
             'hitsPerPage' => $this->hitsPerPage,
             'page' => $page,
         ]);
 
-        $searchForm = $searchFormBuilder->build($searchResult);
+        $searchForm = $this->searchFormBuilder->build($searchResult);
         $searchForm->handleRequest($request);
 
         dump($searchResult);
@@ -74,15 +74,6 @@ final class SearchController
             'searchResult' => $searchResult,
             'searchForm' => $searchForm->createView(),
             'items' => $items,
-        ]));
-    }
-
-    public function widget(FormFactoryInterface $formFactory): Response
-    {
-        $form = $formFactory->createNamed('', SearchWidgetType::class);
-
-        return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/search/widget/content.html.twig', [
-            'form' => $form->createView(),
         ]));
     }
 }
