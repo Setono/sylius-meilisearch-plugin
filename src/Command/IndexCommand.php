@@ -50,6 +50,8 @@ final class IndexCommand extends Command
         $indexes = $input->getArgument('indexes');
 
         foreach ($indexes as $index) {
+            $output->writeln(sprintf('%s submitted for indexing', $index));
+
             $this->commandBus->dispatch(new Index($index));
         }
 
