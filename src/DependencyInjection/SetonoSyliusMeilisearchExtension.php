@@ -202,6 +202,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
             new Reference('serializer'),
             new Reference(Client::class),
             new Reference('setono_sylius_meilisearch.filter.object.composite'),
+            new Reference('event_dispatcher'),
         ]));
 
         return $indexerServiceId;

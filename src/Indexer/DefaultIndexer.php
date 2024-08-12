@@ -7,10 +7,12 @@ namespace Setono\SyliusMeilisearchPlugin\Indexer;
 use Doctrine\Persistence\ManagerRegistry;
 use DoctrineBatchUtils\BatchProcessing\SelectBatchIteratorAggregate;
 use Meilisearch\Client;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
+use Setono\SyliusMeilisearchPlugin\Event\EntityBasedQueryBuilderForIndexingCreatedEvent;
 use Setono\SyliusMeilisearchPlugin\Filter\Object\FilterInterface as ObjectFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
@@ -34,6 +36,7 @@ class DefaultIndexer extends AbstractIndexer
         protected readonly NormalizerInterface $normalizer,
         protected readonly Client $client,
         protected readonly ObjectFilterInterface $objectFilter,
+        protected readonly EventDispatcherInterface $eventDispatcher,
     ) {
         $this->managerRegistry = $managerRegistry;
     }
@@ -85,16 +88,17 @@ class DefaultIndexer extends AbstractIndexer
      */
     protected function indexEntityClass(string $entity): void
     {
-        $q = $this
+        $qb = $this
             ->getManager($entity)
             ->createQueryBuilder()
             ->select('o')
             ->from($entity, 'o')
-            ->getQuery()
         ;
 
+        $this->eventDispatcher->dispatch(new EntityBasedQueryBuilderForIndexingCreatedEvent($entity, $qb));
+
         /** @var SelectBatchIteratorAggregate<array-key, IndexableInterface> $objects */
-        $objects = SelectBatchIteratorAggregate::fromQuery($q, 100);
+        $objects = SelectBatchIteratorAggregate::fromQuery($qb->getQuery(), 100);
 
         foreach ($objects as $object) {
             $this->indexEntity($object);
