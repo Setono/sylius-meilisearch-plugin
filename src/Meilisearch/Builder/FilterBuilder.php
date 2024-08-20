@@ -26,8 +26,6 @@ final class FilterBuilder implements FilterBuilderInterface
             }
         }
 
-        dump($query);
-
         return $filters;
     }
 }

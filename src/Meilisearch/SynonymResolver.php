@@ -22,7 +22,7 @@ final class SynonymResolver implements SynonymResolverInterface
         }
 
         /** @var list<array{term: non-empty-string, synonym: non-empty-string}> $synonyms */
-        $synonyms = array_map(static fn(SynonymInterface $synonym): array => [
+        $synonyms = array_map(static fn (SynonymInterface $synonym): array => [
             'term' => (string) $synonym->getTerm(),
             'synonym' => (string) $synonym->getSynonym(),
         ], $this->synonymRepository->findByLocaleAndChannel($indexScope->localeCode, $indexScope->channelCode));

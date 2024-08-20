@@ -58,8 +58,6 @@ final class SearchAction
         $searchForm = $this->searchFormBuilder->build($searchResult);
         $searchForm->handleRequest($request);
 
-        dump($searchResult);
-
         $items = [];
 
         /** @var array{entityClass: class-string<IndexableInterface>, entityId: mixed} $hit */
