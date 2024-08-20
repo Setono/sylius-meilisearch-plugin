@@ -5,26 +5,24 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product;
 
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
+use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductIndexedPricesProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
-use function Setono\SyliusMeilisearchPlugin\formatAmount;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductInterface;
-use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Currency\Converter\CurrencyConverterInterface;
 use Webmozart\Assert\Assert;
+use function Setono\SyliusMeilisearchPlugin\formatAmount;
 
-/**
- * This data mapper maps prices on product documents
- */
 final class PriceDataMapper implements DataMapperInterface
 {
     public function __construct(
         private readonly ChannelRepositoryInterface $channelRepository,
         private readonly CurrencyConverterInterface $currencyConverter,
+        private readonly ProductIndexedPricesProviderInterface $productIndexedPricesProvider,
     ) {
     }
 
@@ -41,36 +39,18 @@ final class PriceDataMapper implements DataMapperInterface
 
         $baseCurrencyCode = $this->getBaseCurrencyCode($channel);
 
-        $price = null;
-        $originalPrice = null;
-
-        /**
-         * Let's get the lowest price of any enabled variant and use that as our product price reference
-         *
-         * @var ProductVariantInterface $variant
-         */
-        foreach ($source->getEnabledVariants() as $variant) {
-            $channelPricing = $variant->getChannelPricingForChannel($channel);
-            if (null === $channelPricing) {
-                continue;
-            }
-
-            if (null === $price || $channelPricing->getPrice() < $price) {
-                $price = $channelPricing->getPrice();
-                $originalPrice = $channelPricing->getOriginalPrice();
-            }
-        }
+        $prices = $this->productIndexedPricesProvider->getPricesForChannel($source, $channel);
 
         // no variants have prices
-        if (null === $price) {
+        if (null === $prices->price) {
             return;
         }
 
         $target->currency = $indexScope->currencyCode;
-        $target->price = formatAmount($this->currencyConverter->convert($price, $baseCurrencyCode, $indexScope->currencyCode));
+        $target->price = formatAmount($this->currencyConverter->convert($prices->price, $baseCurrencyCode, $indexScope->currencyCode));
 
-        if (null !== $originalPrice) {
-            $target->originalPrice = formatAmount($originalPrice);
+        if (null !== $prices->originalPrice) {
+            $target->originalPrice = formatAmount($prices->originalPrice);
         }
     }
 
