@@ -24,7 +24,6 @@
     </plugins>
     <forbiddenFunctions>
         <function name="dd"/>
-        <function name="dump"/>
         <function name="exit"/>
         <function name="var_dump"/>
         <function name="print_r"/>

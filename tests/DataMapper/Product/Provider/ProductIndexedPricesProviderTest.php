@@ -39,7 +39,7 @@ final class ProductIndexedPricesProviderTest extends TestCase
 
         self::assertEquals(
             new ProductPrices(1000),
-            ((new ProductIndexedPricesProvider())->getPricesForChannel($product, $channel))
+            ((new ProductIndexedPricesProvider())->getPricesForChannel($product, $channel)),
         );
     }
 
@@ -53,7 +53,7 @@ final class ProductIndexedPricesProviderTest extends TestCase
 
         self::assertEquals(
             new ProductPrices(),
-            ((new ProductIndexedPricesProvider())->getPricesForChannel($product, $channel))
+            ((new ProductIndexedPricesProvider())->getPricesForChannel($product, $channel)),
         );
     }
 
@@ -75,7 +75,7 @@ final class ProductIndexedPricesProviderTest extends TestCase
 
         self::assertEquals(
             new ProductPrices(),
-            ((new ProductIndexedPricesProvider())->getPricesForChannel($product, $channel))
+            ((new ProductIndexedPricesProvider())->getPricesForChannel($product, $channel)),
         );
     }
 }

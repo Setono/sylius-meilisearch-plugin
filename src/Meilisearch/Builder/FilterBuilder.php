@@ -20,6 +20,7 @@ final class FilterBuilder implements FilterBuilderInterface
         }
 
         if (isset($query['brand'])) {
+            /** @var string $brand */
             foreach ($query['brand'] as $brand) {
                 $filters[] = sprintf('brand = "%s"', $brand);
             }
