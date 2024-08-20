@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Tests\DataMapper\Product;
+namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\DataMapper\Product;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Tests\DependencyInjection;
+namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\DependencyInjection;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
 use Setono\SyliusMeilisearchPlugin\Controller\Action\SearchAction;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Tests\Resolver\IndexName;
+namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Resolver\IndexName;
 
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;

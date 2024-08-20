@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Tests\Document\Metadata;
+namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Document\Metadata;
 
 use PHPUnit\Framework\TestCase;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facet;
