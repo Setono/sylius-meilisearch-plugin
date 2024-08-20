@@ -9,11 +9,11 @@ use Symfony\Component\HttpFoundation\Request;
 // todo this should be refactored
 final class FilterBuilder implements FilterBuilderInterface
 {
-    public function build(Request $request): array
+    public function build(array $parameters): array
     {
         $filters = [];
 
-        $query = $request->query->has('facets') ? $request->query->all('facets') : $request->query->all();
+        $query = $parameters['facets'] ?? $parameters;
 
         if (isset($query['onSale'])) {
             $filters[] = 'onSale = true';
