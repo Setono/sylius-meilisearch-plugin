@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Config;
 
 use Psr\Container\ContainerInterface;
+use Setono\SyliusMeilisearchPlugin\DataProvider\IndexableDataProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
@@ -54,15 +55,6 @@ final class Index implements \Stringable
     }
 
     /**
-     * @psalm-suppress MixedInferredReturnType
-     */
-    public function indexer(): IndexerInterface
-    {
-        /** @psalm-suppress MixedReturnStatement */
-        return $this->locator->get(IndexerInterface::class);
-    }
-
-    /**
      * @param class-string|object $entity
      */
     public function hasEntity(string|object $entity): bool
@@ -78,6 +70,24 @@ final class Index implements \Stringable
         }
 
         return false;
+    }
+
+    /**
+     * @psalm-suppress MixedInferredReturnType
+     */
+    public function indexer(): IndexerInterface
+    {
+        /** @psalm-suppress MixedReturnStatement */
+        return $this->locator->get(IndexerInterface::class);
+    }
+
+    /**
+     * @psalm-suppress MixedInferredReturnType
+     */
+    public function dataProvider(): IndexableDataProviderInterface
+    {
+        /** @psalm-suppress MixedReturnStatement */
+        return $this->locator->get(IndexableDataProviderInterface::class);
     }
 
     public function __toString(): string

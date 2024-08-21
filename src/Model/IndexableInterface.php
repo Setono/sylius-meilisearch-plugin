@@ -9,7 +9,7 @@ interface IndexableInterface
     /**
      * This is compatible with Sylius' getId() method
      *
-     * @return mixed
+     * @return int|string|null
      */
     public function getId();
 

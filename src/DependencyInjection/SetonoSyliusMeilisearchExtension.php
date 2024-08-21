@@ -7,6 +7,7 @@ namespace Setono\SyliusMeilisearchPlugin\DependencyInjection;
 use Meilisearch\Client;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
+use Setono\SyliusMeilisearchPlugin\DataProvider\IndexableDataProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Filter\Doctrine\FilterInterface as DoctrineFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Filter\Object\FilterInterface as ObjectFilterInterface;
@@ -34,7 +35,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
          * @psalm-suppress PossiblyNullArgument
          *
          * @var array{
-         *      indexes: array<string, array{document: class-string<Document>, indexer: string|null, entities: list<class-string>, prefix: string|null}>,
+         *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null}>,
          *      server: array{ host: string, master_key: string },
          *      search: array{ enabled: bool, path: string, index: string, hits_per_page: integer },
          *      resources: array,
@@ -159,7 +160,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     }
 
     /**
-     *  @param array<string, array{document: class-string<Document>, indexer: string|null, entities: list<class-string>, prefix: string|null}> $config
+     *  @param array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null}> $config
      */
     private static function registerIndexesConfiguration(array $config, ContainerBuilder $container): void
     {
@@ -178,7 +179,10 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                 $indexName,
                 $index['document'],
                 $index['entities'],
-                ServiceLocatorTagPass::register($container, [IndexerInterface::class => new Reference($indexerServiceId)]),
+                ServiceLocatorTagPass::register($container, [
+                    IndexableDataProviderInterface::class => new Reference($index['data_provider']),
+                    IndexerInterface::class => new Reference($indexerServiceId),
+                ]),
                 $index['prefix'],
             ]));
 
@@ -203,6 +207,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
             new Reference(Client::class),
             new Reference('setono_sylius_meilisearch.filter.object.composite'),
             new Reference('event_dispatcher'),
+            new Reference('setono_sylius_meilisearch.command_bus'),
         ]));
 
         return $indexerServiceId;

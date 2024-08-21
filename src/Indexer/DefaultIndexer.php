@@ -5,18 +5,17 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Indexer;
 
 use Doctrine\Persistence\ManagerRegistry;
-use DoctrineBatchUtils\BatchProcessing\SelectBatchIteratorAggregate;
 use Meilisearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
-use Setono\SyliusMeilisearchPlugin\Event\EntityBasedQueryBuilderForIndexingCreatedEvent;
 use Setono\SyliusMeilisearchPlugin\Filter\Object\FilterInterface as ObjectFilterInterface;
-use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Webmozart\Assert\Assert;
 
@@ -37,6 +36,7 @@ class DefaultIndexer extends AbstractIndexer
         protected readonly Client $client,
         protected readonly ObjectFilterInterface $objectFilter,
         protected readonly EventDispatcherInterface $eventDispatcher,
+        protected readonly MessageBusInterface $commandBus,
     ) {
         $this->managerRegistry = $managerRegistry;
     }
@@ -44,7 +44,14 @@ class DefaultIndexer extends AbstractIndexer
     public function index(): void
     {
         foreach ($this->index->entities as $entity) {
-            $this->indexEntityClass($entity);
+            /** @var IndexBuffer<string|int> $buffer */
+            $buffer = new IndexBuffer(100, fn (array $ids) => $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids)));
+
+            foreach ($this->index->dataProvider()->getIds($entity, $this->index) as $id) {
+                $buffer->push($id);
+            }
+
+            $buffer->flush();
         }
     }
 
@@ -61,7 +68,9 @@ class DefaultIndexer extends AbstractIndexer
                 $document = new $this->index->document();
                 $this->dataMapper->map($entity, $document, $indexScope);
 
-                $this->objectFilter->filter($entity, $document, $indexScope);
+                if (!$this->objectFilter->filter($entity, $document, $indexScope)) {
+                    continue;
+                }
 
                 $documents[] = $this->normalize($document);
             }
@@ -80,28 +89,6 @@ class DefaultIndexer extends AbstractIndexer
             foreach ($entities as $entity) {
                 $this->client->index($this->indexNameResolver->resolveFromIndexScope($indexScope))->deleteDocument($entity->getDocumentIdentifier());
             }
-        }
-    }
-
-    /**
-     * @param class-string<IndexableInterface> $entity
-     */
-    protected function indexEntityClass(string $entity): void
-    {
-        $qb = $this
-            ->getManager($entity)
-            ->createQueryBuilder()
-            ->select('o')
-            ->from($entity, 'o')
-        ;
-
-        $this->eventDispatcher->dispatch(new EntityBasedQueryBuilderForIndexingCreatedEvent($entity, $qb));
-
-        /** @var SelectBatchIteratorAggregate<array-key, IndexableInterface> $objects */
-        $objects = SelectBatchIteratorAggregate::fromQuery($qb->getQuery(), 100);
-
-        foreach ($objects as $object) {
-            $this->indexEntity($object);
         }
     }
 

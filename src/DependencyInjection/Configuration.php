@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\DependencyInjection;
 
+use Setono\SyliusMeilisearchPlugin\DataProvider\DefaultIndexableDataProvider;
 use Setono\SyliusMeilisearchPlugin\Document\Product;
 use Setono\SyliusMeilisearchPlugin\Form\Type\SynonymType;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
@@ -36,19 +37,25 @@ final class Configuration implements ConfigurationInterface
                     ->beforeNormalization()->castToArray()->end()
                     ->defaultValue([])
                     ->arrayPrototype()
+                        ->addDefaultsIfNotSet()
                         ->children()
                             ->scalarNode('document')
                                 ->info(sprintf('The fully qualified class name for the document that maps to the index. If you are creating a product index, a good starting point is the %s', Product::class))
                                 ->cannotBeEmpty()
                                 ->isRequired()
                             ->end()
-                            ->scalarNode('indexer')
-                                ->info(sprintf('You can set a custom indexer here. If you do not set one, the default indexer will be used. The default indexer is %s', DefaultIndexer::class))
-                                ->defaultNull()
-                            ->end()
                             ->arrayNode('entities')
                                 ->info('The Doctrine entities that make up this index. Examples could be "App\Entity\Product\Product", "App\Entity\Taxonomy\Taxon", etc.')
                                 ->scalarPrototype()->end()
+                            ->end()
+                            ->scalarNode('data_provider')
+                                ->info('You can set a custom data provider here. If you do not set one, the default data provider will be used.')
+                                ->defaultValue(DefaultIndexableDataProvider::class)
+                            ->end()
+                            ->scalarNode('indexer')
+                                ->info(sprintf('You can set a custom indexer here. If you do not set one, the default indexer will be used. The default indexer is %s', DefaultIndexer::class))
+                                ->cannotBeEmpty()
+                                ->defaultNull()
                             ->end()
                             ->scalarNode('prefix')
                                 ->defaultNull()
