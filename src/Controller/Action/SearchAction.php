@@ -5,16 +5,10 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Controller\Action;
 
 use Doctrine\Persistence\ManagerRegistry;
-use Meilisearch\Client;
 use Setono\Doctrine\ORMTrait;
-use Setono\SyliusMeilisearchPlugin\Config\Index;
-use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
-use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchEngine;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
-use Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;

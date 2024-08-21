@@ -24,10 +24,10 @@ final class SearchEngine
     ) {
     }
 
-    public function execute(string $query, array $parameters = []): SearchResult
+    public function execute(?string $query, array $parameters = []): SearchResult
     {
         $page = max(1, (int) ($parameters['p'] ?? 1));
-        $sort = $parameters['sort'] ?? '';
+        $sort = (string) ($parameters['sort'] ?? '');
 
         $metadata = $this->metadataFactory->getMetadataFor($this->index->document);
 
@@ -37,7 +37,7 @@ final class SearchEngine
             'hitsPerPage' => $this->hitsPerPage,
             'page' => $page,
         ];
-        if (null !== $sort && '' !== $sort) {
+        if ('' !== $sort) {
             $searchParams['sort'] = [$sort];
         }
 

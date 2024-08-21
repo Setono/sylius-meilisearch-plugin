@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Meilisearch\Builder;
 
-use Symfony\Component\HttpFoundation\Request;
-
 // todo this should be refactored
 final class FilterBuilder implements FilterBuilderInterface
 {
@@ -13,7 +11,7 @@ final class FilterBuilder implements FilterBuilderInterface
     {
         $filters = [];
 
-        $query = $parameters['facets'] ?? $parameters;
+        $query = (array) ($parameters['facets'] ?? $parameters);
 
         if (isset($query['onSale'])) {
             $filters[] = 'onSale = true';

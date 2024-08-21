@@ -23,6 +23,7 @@ final class SearchTest extends WebTestCase
 
     public function testItProvidesSearchResults(): void
     {
+        /** @var SearchEngine $searchEngine */
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $result = $searchEngine->execute('jeans');
 
@@ -31,6 +32,7 @@ final class SearchTest extends WebTestCase
 
     public function testItSortsSearchResultsByLowestPrice(): void
     {
+        /** @var SearchEngine $searchEngine */
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $result = $searchEngine->execute('jeans', ['sort' => 'price:asc']);
 
@@ -40,16 +42,19 @@ final class SearchTest extends WebTestCase
         foreach ($result->getHits() as $key => $hit) {
             if ($previousKey === null) {
                 $previousKey = $key;
+
                 continue;
             }
 
-            self::assertGreaterThanOrEqual($result->getHit($previousKey)['price'], $hit['price']);
+            $previousHit = (array) $result->getHit($previousKey);
+            self::assertGreaterThanOrEqual($previousHit['price'], $hit['price']);
             $previousKey = $key;
         }
     }
 
     public function testItSortsSearchResultsByNewestDate(): void
     {
+        /** @var SearchEngine $searchEngine */
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $result = $searchEngine->execute('jeans', ['sort' => 'createdAt:desc']);
 
@@ -59,10 +64,12 @@ final class SearchTest extends WebTestCase
         foreach ($result->getHits() as $key => $hit) {
             if ($previousKey === null) {
                 $previousKey = $key;
+
                 continue;
             }
 
-            self::assertLessThanOrEqual($result->getHit($previousKey)['createdAt'], $hit['createdAt']);
+            $previousHit = (array) $result->getHit($previousKey);
+            self::assertLessThanOrEqual($previousHit['createdAt'], $hit['createdAt']);
             $previousKey = $key;
         }
     }
