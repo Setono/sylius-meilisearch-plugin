@@ -40,7 +40,9 @@
         <service
             id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProviderInterface"
             class="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProvider"
-        />
+        >
+            <argument type="service" id="sylius.product_variant_resolver.default" />
+        </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\TaxonCodesDataMapper">
             <argument>%sylius_shop.product_grid.include_all_descendants%</argument>

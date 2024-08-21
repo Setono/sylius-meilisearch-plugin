@@ -8,6 +8,7 @@ use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
+use function Setono\SyliusMeilisearchPlugin\formatAmount;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
@@ -15,14 +16,13 @@ use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Currency\Converter\CurrencyConverterInterface;
 use Webmozart\Assert\Assert;
-use function Setono\SyliusMeilisearchPlugin\formatAmount;
 
 final class PriceDataMapper implements DataMapperInterface
 {
     public function __construct(
         private readonly ChannelRepositoryInterface $channelRepository,
         private readonly CurrencyConverterInterface $currencyConverter,
-        private readonly ProductPricesProviderInterface $productIndexedPricesProvider,
+        private readonly ProductPricesProviderInterface $productPricesProvider,
     ) {
     }
 
@@ -39,12 +39,7 @@ final class PriceDataMapper implements DataMapperInterface
 
         $baseCurrencyCode = $this->getBaseCurrencyCode($channel);
 
-        $prices = $this->productIndexedPricesProvider->getPricesForChannel($source, $channel);
-
-        // no variants have prices
-        if (null === $prices->price) {
-            return;
-        }
+        $prices = $this->productPricesProvider->getPricesForChannel($source, $channel);
 
         $target->currency = $indexScope->currencyCode;
         $target->price = formatAmount($this->currencyConverter->convert($prices->price, $baseCurrencyCode, $indexScope->currencyCode));

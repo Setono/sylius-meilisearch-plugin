@@ -4,78 +4,96 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Tests\DataMapper\Product\Provider;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPrices;
+use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\Exception\ProductPricesCannotBeProvidedException;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProvider;
+use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product;
 use Sylius\Component\Core\Model\Channel;
 use Sylius\Component\Core\Model\ChannelPricing;
 use Sylius\Component\Core\Model\ProductVariant;
+use Sylius\Component\Product\Resolver\ProductVariantResolverInterface;
 
 final class ProductPricesProviderTest extends TestCase
 {
-    public function testItProvidesFirstPriceFromProductEnabledVariant(): void
+    private MockObject&ProductVariantResolverInterface $productVariantResolver;
+
+    protected function setUp(): void
     {
-        $product = new Product();
-        $channel = new Channel();
-        $channel->setCode('channel_code');
-
-        $disabledVariant = new ProductVariant();
-        $disabledVariant->setEnabled(false);
-
-        $enabledVariant = new ProductVariant();
-        $firstChannelPricing = new ChannelPricing();
-        $firstChannelPricing->setPrice(1000);
-        $firstChannelPricing->setChannelCode('channel_code');
-        $secondChannelPricing = new ChannelPricing();
-        $secondChannelPricing->setPrice(2000);
-        $secondChannelPricing->setOriginalPrice(3000);
-        $secondChannelPricing->setChannelCode('second_channel_code');
-        $enabledVariant->addChannelPricing($firstChannelPricing);
-        $enabledVariant->addChannelPricing($secondChannelPricing);
-
-        $product->addVariant($disabledVariant);
-        $product->addVariant($enabledVariant);
-
-        self::assertEquals(
-            new ProductPrices(1000),
-            ((new ProductPricesProvider())->getPricesForChannel($product, $channel)),
-        );
+        $this->productVariantResolver = $this->createMock(ProductVariantResolverInterface::class);
     }
 
-    public function testItProvideNullValuesIfThereAreNoEnabledVariants(): void
+    public function test_it_provides_prices_for_a_product(): void
     {
         $product = new Product();
         $channel = new Channel();
+        $channel->setCode('MY_CHANNEL');
 
-        $disabledVariant = new ProductVariant();
-        $product->addVariant($disabledVariant);
+        $channelPricing = new ChannelPricing();
+        $channelPricing->setChannelCode('MY_CHANNEL');
+        $channelPricing->setPrice(1000);
+        $channelPricing->setOriginalPrice(2000);
 
-        self::assertEquals(
-            new ProductPrices(),
-            ((new ProductPricesProvider())->getPricesForChannel($product, $channel)),
-        );
+        $productVariant = new ProductVariant();
+        $productVariant->addChannelPricing($channelPricing);
+
+        $this->productVariantResolver->method('getVariant')->willReturn($productVariant);
+
+        $productPrices = $this->getTestSubject()->getPricesForChannel($product, $channel);
+
+        $this->assertEquals(1000, $productPrices->price);
+        $this->assertEquals(2000, $productPrices->originalPrice);
     }
 
-    public function testItProvideNullValuesIfThereAreNoPricesForGivenChannel(): void
+    public function test_it_throws_an_exception_if_no_variant_is_found(): void
     {
         $product = new Product();
         $channel = new Channel();
-        $channel->setCode('another_code');
 
-        $disabledVariant = new ProductVariant();
-        $enabledVariant = new ProductVariant();
-        $firstChannelPricing = new ChannelPricing();
-        $firstChannelPricing->setPrice(1000);
-        $firstChannelPricing->setChannelCode('channel_code');
-        $enabledVariant->addChannelPricing($firstChannelPricing);
+        $this->productVariantResolver->method('getVariant')->willReturn(null);
 
-        $product->addVariant($disabledVariant);
-        $product->addVariant($enabledVariant);
+        $this->expectException(ProductPricesCannotBeProvidedException::class);
 
-        self::assertEquals(
-            new ProductPrices(),
-            ((new ProductPricesProvider())->getPricesForChannel($product, $channel)),
-        );
+        $this->getTestSubject()->getPricesForChannel($product, $channel);
+    }
+
+    public function test_it_throws_an_exception_if_no_channel_pricing_is_found(): void
+    {
+        $product = new Product();
+        $channel = new Channel();
+        $channel->setCode('MY_CHANNEL');
+
+        $productVariant = new ProductVariant();
+
+        $this->productVariantResolver->method('getVariant')->willReturn($productVariant);
+
+        $this->expectException(ProductPricesCannotBeProvidedException::class);
+
+        $this->getTestSubject()->getPricesForChannel($product, $channel);
+    }
+
+    public function test_it_throws_an_exception_if_no_price_is_found(): void
+    {
+        $product = new Product();
+        $channel = new Channel();
+        $channel->setCode('MY_CHANNEL');
+
+        $channelPricing = new ChannelPricing();
+        $channelPricing->setChannelCode('MY_CHANNEL');
+
+        $productVariant = new ProductVariant();
+        $productVariant->addChannelPricing($channelPricing);
+
+        $this->productVariantResolver->method('getVariant')->willReturn($productVariant);
+
+        $this->expectException(ProductPricesCannotBeProvidedException::class);
+
+        $this->getTestSubject()->getPricesForChannel($product, $channel);
+    }
+
+    private function getTestSubject(): ProductPricesProviderInterface
+    {
+        return new ProductPricesProvider($this->productVariantResolver);
     }
 }

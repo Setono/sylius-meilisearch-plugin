@@ -7,8 +7,8 @@ namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider;
 final class ProductPrices
 {
     public function __construct(
-        public readonly ?int $price = null,
-        public readonly ?int $originalPrice = null,
+        public readonly int $price,
+        public readonly ?int $originalPrice,
     ) {
     }
 }
