@@ -6,7 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin\Controller\Action;
 
 use Doctrine\Persistence\ManagerRegistry;
 use Setono\Doctrine\ORMTrait;
-use Setono\SyliusMeilisearchPlugin\Engine\SearchEngine;
+use Setono\SyliusMeilisearchPlugin\Engine\SearchEngineInterface;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +22,7 @@ final class SearchAction
         ManagerRegistry $managerRegistry,
         private readonly Environment $twig,
         private readonly SearchFormBuilderInterface $searchFormBuilder,
-        private readonly SearchEngine $searchEngine,
+        private readonly SearchEngineInterface $searchEngine,
     ) {
         $this->managerRegistry = $managerRegistry;
     }

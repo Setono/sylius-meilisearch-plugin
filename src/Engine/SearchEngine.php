@@ -12,7 +12,7 @@ use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
 
-final class SearchEngine
+final class SearchEngine implements SearchEngineInterface
 {
     public function __construct(
         private readonly MetadataFactoryInterface $metadataFactory,

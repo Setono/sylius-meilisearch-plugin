@@ -11,10 +11,10 @@
             <argument type="service" id="doctrine"/>
             <argument type="service" id="twig"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface"/>
-            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Engine\SearchEngine" />
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Engine\SearchEngineInterface" />
         </service>
 
-        <service id="Setono\SyliusMeilisearchPlugin\Engine\SearchEngine" public="true">
+        <service id="Setono\SyliusMeilisearchPlugin\Engine\SearchEngine">
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilderInterface"/>
             <argument type="service" id="setono_sylius_meilisearch.index.search"/>
@@ -22,5 +22,7 @@
             <argument type="service" id="Meilisearch\Client"/>
             <argument>%setono_sylius_meilisearch.search.hits_per_page%</argument>
         </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Engine\SearchEngineInterface" alias="Setono\SyliusMeilisearchPlugin\Engine\SearchEngine" />
     </services>
 </container>
