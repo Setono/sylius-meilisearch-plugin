@@ -50,15 +50,13 @@ final class SearchAction
         $searchResult = $this->client->index($this->indexNameResolver->resolve($this->index))->search($q, [
             'facets' => array_map(static fn (Facet $facet) => $facet->name, $metadata->getFacets()),
             'filter' => $this->filterBuilder->build($request),
-            'sort' => ['price:asc'], // todo doesn't work for some reason...?
+            'sort' => ['price:asc'],
             'hitsPerPage' => $this->hitsPerPage,
             'page' => $page,
         ]);
 
         $searchForm = $this->searchFormBuilder->build($searchResult);
         $searchForm->handleRequest($request);
-
-        dump($searchResult);
 
         $items = [];
 

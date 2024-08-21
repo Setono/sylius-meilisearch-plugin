@@ -32,8 +32,16 @@
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\PriceDataMapper">
             <argument type="service" id="sylius.repository.channel"/>
             <argument type="service" id="sylius.currency_converter"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProviderInterface" />
 
             <tag name="setono_sylius_meilisearch.data_mapper" priority="190"/>
+        </service>
+
+        <service
+            id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProviderInterface"
+            class="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProvider"
+        >
+            <argument type="service" id="sylius.product_variant_resolver.default" />
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\TaxonCodesDataMapper">
