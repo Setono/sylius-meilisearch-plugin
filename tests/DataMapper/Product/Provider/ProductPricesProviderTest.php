@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Tests\DataMapper\Product\Provider;
 
 use PHPUnit\Framework\TestCase;
-use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductIndexedPricesProvider;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPrices;
+use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProvider;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product;
 use Sylius\Component\Core\Model\Channel;
 use Sylius\Component\Core\Model\ChannelPricing;
 use Sylius\Component\Core\Model\ProductVariant;
 
-final class ProductIndexedPricesProviderTest extends TestCase
+final class ProductPricesProviderTest extends TestCase
 {
     public function testItProvidesFirstPriceFromProductEnabledVariant(): void
     {
@@ -39,7 +39,7 @@ final class ProductIndexedPricesProviderTest extends TestCase
 
         self::assertEquals(
             new ProductPrices(1000),
-            ((new ProductIndexedPricesProvider())->getPricesForChannel($product, $channel)),
+            ((new ProductPricesProvider())->getPricesForChannel($product, $channel)),
         );
     }
 
@@ -53,7 +53,7 @@ final class ProductIndexedPricesProviderTest extends TestCase
 
         self::assertEquals(
             new ProductPrices(),
-            ((new ProductIndexedPricesProvider())->getPricesForChannel($product, $channel)),
+            ((new ProductPricesProvider())->getPricesForChannel($product, $channel)),
         );
     }
 
@@ -75,7 +75,7 @@ final class ProductIndexedPricesProviderTest extends TestCase
 
         self::assertEquals(
             new ProductPrices(),
-            ((new ProductIndexedPricesProvider())->getPricesForChannel($product, $channel)),
+            ((new ProductPricesProvider())->getPricesForChannel($product, $channel)),
         );
     }
 }

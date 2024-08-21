@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product;
 
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
-use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductIndexedPricesProviderInterface;
+use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
-use function Setono\SyliusMeilisearchPlugin\formatAmount;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
@@ -16,13 +15,14 @@ use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Currency\Converter\CurrencyConverterInterface;
 use Webmozart\Assert\Assert;
+use function Setono\SyliusMeilisearchPlugin\formatAmount;
 
 final class PriceDataMapper implements DataMapperInterface
 {
     public function __construct(
         private readonly ChannelRepositoryInterface $channelRepository,
         private readonly CurrencyConverterInterface $currencyConverter,
-        private readonly ProductIndexedPricesProviderInterface $productIndexedPricesProvider,
+        private readonly ProductPricesProviderInterface $productIndexedPricesProvider,
     ) {
     }
 

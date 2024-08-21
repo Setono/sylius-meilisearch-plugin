@@ -8,7 +8,7 @@ use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 
-final class ProductIndexedPricesProvider implements ProductIndexedPricesProviderInterface
+final class ProductPricesProvider implements ProductPricesProviderInterface
 {
     /** We need to provide the price from the first valid variant, to reflect the default Sylius UI behavior */
     public function getPricesForChannel(ProductInterface $product, ChannelInterface $channel): ProductPrices
