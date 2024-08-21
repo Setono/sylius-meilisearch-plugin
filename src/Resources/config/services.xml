@@ -13,6 +13,7 @@
         <import resource="services/factory.xml"/>
         <import resource="services/filter.xml"/>
         <import resource="services/form.xml"/>
+        <import resource="services/grid.xml"/>
         <import resource="services/meilisearch.xml"/>
         <import resource="services/message.xml"/>
         <import resource="services/normalizer.xml"/>

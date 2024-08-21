@@ -16,6 +16,7 @@ setono_sylius_meilisearch:
                 label: Direction
                 one_way: One way
                 two_way: Two way
+            indexes: Indexes
     menu:
         admin:
             main:
@@ -23,9 +24,11 @@ setono_sylius_meilisearch:
                     header: Meilisearch
                     synonyms: Synonyms
     ui:
+        indexes: Indexes
+        no_indexes: No indexes
         search: Search
         search_results_for: 'Search results for'
-        synonyms: Synonyms
+        search_term_and_synonym: 'Search term and synonym'
         synonym: Synonym
         synonym_header: Synonyms
         synonym_subheader: Manage synonyms
@@ -33,4 +36,5 @@ setono_sylius_meilisearch:
             <h4>Understanding synonyms</h4>
             <p>Synonyms are words or phrases that have the same or similar meaning. For example, if you add the synonym "jacket" to the term "coat", then when a user searches for "coat", the search results will include results matching "jacket".</p>
             <p>If the direction is "one way", then the synonym will only work in one direction. For example, if the term is "coat" and the synonym is "jacket", then when a user searches for "coat", the search results will include results matching "jacket". However, if the direction is "two way", then the synonym will work in both directions. For example when a user searches for "jacket", the search results will include results matching "coat", and when a user searches for "coat", the search results will include results matching "jacket".</p>
+        synonyms: Synonyms
         term: Term

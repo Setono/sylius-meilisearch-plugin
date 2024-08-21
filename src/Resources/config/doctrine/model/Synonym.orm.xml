@@ -13,13 +13,29 @@
 
         <field name="term" type="string"/>
         <field name="synonym" type="string"/>
+        <field name="enabled" type="boolean" />
+        <field name="indexes" type="json" nullable="true"/>
 
-        <many-to-one field="channel" target-entity="Sylius\Component\Channel\Model\ChannelInterface">
-            <join-column name="channel_id" referenced-column-name="id" nullable="true"/>
-        </many-to-one>
+        <field name="createdAt" type="datetime">
+            <gedmo:timestampable on="create"/>
+        </field>
+        <field name="updatedAt" type="datetime" nullable="true">
+            <gedmo:timestampable on="update"/>
+        </field>
 
         <many-to-one field="locale" target-entity="Sylius\Component\Locale\Model\LocaleInterface">
             <join-column name="locale_id" referenced-column-name="id" nullable="false"/>
         </many-to-one>
+
+        <many-to-many field="channels" target-entity="Sylius\Component\Channel\Model\ChannelInterface">
+            <join-table name="setono_sylius_meilisearch__synonym_channels">
+                <join-columns>
+                    <join-column name="synonym_id" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
+                </join-columns>
+                <inverse-join-columns>
+                    <join-column name="channel_id" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
+                </inverse-join-columns>
+            </join-table>
+        </many-to-many>
     </mapped-superclass>
 </doctrine-mapping>
