@@ -28,4 +28,42 @@ final class SearchTest extends WebTestCase
 
         self::assertSame(8, $result->getHitsCount());
     }
+
+    public function testItSortsSearchResultsByLowestPrice(): void
+    {
+        $searchEngine = self::getContainer()->get(SearchEngine::class);
+        $result = $searchEngine->execute('jeans', ['sort' => 'price:asc']);
+
+        self::assertSame(8, $result->getHitsCount());
+
+        $previousKey = null;
+        foreach ($result->getHits() as $key => $hit) {
+            if ($previousKey === null) {
+                $previousKey = $key;
+                continue;
+            }
+
+            self::assertGreaterThanOrEqual($result->getHit($previousKey)['price'], $hit['price']);
+            $previousKey = $key;
+        }
+    }
+
+    public function testItSortsSearchResultsByNewestDate(): void
+    {
+        $searchEngine = self::getContainer()->get(SearchEngine::class);
+        $result = $searchEngine->execute('jeans', ['sort' => 'createdAt:desc']);
+
+        self::assertSame(8, $result->getHitsCount());
+
+        $previousKey = null;
+        foreach ($result->getHits() as $key => $hit) {
+            if ($previousKey === null) {
+                $previousKey = $key;
+                continue;
+            }
+
+            self::assertLessThanOrEqual($result->getHit($previousKey)['createdAt'], $hit['createdAt']);
+            $previousKey = $key;
+        }
+    }
 }
