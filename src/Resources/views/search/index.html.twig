@@ -4,7 +4,7 @@
 {% form_theme searchForm '@SetonoSyliusMeilisearchPlugin/search_theme.html.twig' %}
 
 {% block content %}
-    <h1>Search results</h1>
+    <h1>{{ 'setono_sylius_meilisearch.ui.search_results_for'|trans }} "{{ app.request.query.get('q') }}"</h1>
     {% if items|length > 0 %}
         {{ form_start(searchForm, { 'attr': { 'id': 'search-form' } }) }}
             <div class="ui stackable grid">
