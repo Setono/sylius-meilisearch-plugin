@@ -24,6 +24,7 @@ setono_sylius_meilisearch:
                     synonyms: Synonyms
     ui:
         search: Search
+        search_results_for: 'Search results for'
         synonyms: Synonyms
         synonym: Synonym
         synonym_header: Synonyms
