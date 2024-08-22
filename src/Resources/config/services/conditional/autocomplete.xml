@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Setono\SyliusMeilisearchPlugin\Twig\AutocompleteRuntime">
+            <argument type="service" id="setono_sylius_meilisearch.resolver.index_name"/>
+            <argument type="service" id="translator"/>
+            <argument>%setono_sylius_meilisearch.server.host%</argument>
+            <argument>%setono_sylius_meilisearch.server.search_key%</argument>
+            <argument>%setono_sylius_meilisearch.autocomplete.container%</argument>
+            <argument>%setono_sylius_meilisearch.autocomplete.placeholder%</argument>
+            <argument type="collection" /> <!-- Gets set in the extension -->
+
+            <tag name="twig.runtime"/>
+        </service>
+    </services>
+</container>

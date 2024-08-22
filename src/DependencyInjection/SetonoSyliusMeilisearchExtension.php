@@ -17,6 +17,7 @@ use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
+use Setono\SyliusMeilisearchPlugin\Twig\AutocompleteRuntime;
 use Setono\SyliusMeilisearchPlugin\UrlGenerator\EntityUrlGeneratorInterface;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
@@ -42,8 +43,9 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
          *
          * @var array{
          *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}>,
-         *      server: array{ host: string, master_key: string },
+         *      server: array{ host: string, master_key: string, search_key: string },
          *      search: array{ enabled: bool, path: string, index: string, hits_per_page: int },
+         *      autocomplete: array{ enabled: bool, indexes: list<string>, container: string, placeholder: string },
          *      resources: array,
          * } $config
          */
@@ -55,6 +57,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         // server
         $container->setParameter('setono_sylius_meilisearch.server.host', $config['server']['host']);
         $container->setParameter('setono_sylius_meilisearch.server.master_key', $config['server']['master_key']);
+        $container->setParameter('setono_sylius_meilisearch.server.search_key', $config['server']['search_key']);
 
         $loader->load('services.xml');
 
@@ -73,6 +76,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
 
         self::registerIndexesConfiguration($config['indexes'], $container);
         self::registerSearchConfiguration($config['search'], array_keys($config['indexes']), $container, $loader);
+        self::registerAutocompleteConfiguration($config['autocomplete'], array_keys($config['indexes']), $container, $loader);
     }
 
     public function prepend(ContainerBuilder $container): void
@@ -209,9 +213,24 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
             'events' => [
                 'sylius.shop.layout.header.grid' => [
                     'blocks' => [
-                        'search' => [
+                        'setono_sylius_meilisearch_search' => [
                             'template' => '@SetonoSyliusMeilisearchPlugin/search/widget.html.twig',
                             'priority' => 20,
+                        ],
+                    ],
+                ],
+                'sylius.shop.layout.javascripts' => [
+                    'blocks' => [
+                        'setono_sylius_meilisearch_autocomplete' => [
+                            'template' => '@SetonoSyliusMeilisearchPlugin/autocomplete/javascript.html.twig',
+                        ],
+                    ],
+                ],
+                'sylius.shop.layout.stylesheets' => [
+                    'blocks' => [
+                        'setono_sylius_meilisearch_styles' => [
+                            'template' => '@SetonoSyliusMeilisearchPlugin/autocomplete/styles.html.twig',
+                            'priority' => -20,
                         ],
                     ],
                 ],
@@ -291,6 +310,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     private static function registerSearchConfiguration(array $config, array $indexes, ContainerBuilder $container, LoaderInterface $loader): void
     {
         $container->setParameter('setono_sylius_meilisearch.search.enabled', $config['enabled']);
+        $container->setParameter('setono_sylius_meilisearch.search.path', $config['path']); // The route that uses this parameter is defined even if search is disabled
 
         if (!$config['enabled']) {
             return;
@@ -307,11 +327,46 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         $container->setAlias('setono_sylius_meilisearch.index.search', self::getIndexServiceId($config['index']));
         $container->setAlias(Index::class . ' $searchIndex', self::getIndexServiceId($config['index']));
 
-        $container->setParameter('setono_sylius_meilisearch.search.path', $config['path']);
         $container->setParameter('setono_sylius_meilisearch.search.index', $config['index']);
         $container->setParameter('setono_sylius_meilisearch.search.hits_per_page', $config['hits_per_page']);
 
         $loader->load('services/conditional/search.xml');
+    }
+
+    /**
+     * @param array{ enabled: bool, indexes: list<string>, container: string, placeholder: string } $config
+     * @param list<string> $indexes a list of configured index names
+     */
+    private static function registerAutocompleteConfiguration(array $config, array $indexes, ContainerBuilder $container, LoaderInterface $loader): void
+    {
+        $container->setParameter('setono_sylius_meilisearch.autocomplete.enabled', $config['enabled']);
+
+        if (!$config['enabled']) {
+            return;
+        }
+
+        if ([] === $config['indexes']) {
+            throw new \RuntimeException('You have to configure at least one index for the autocomplete');
+        }
+
+        foreach ($config['indexes'] as $index) {
+            if (!in_array($index, $indexes, true)) {
+                throw new \RuntimeException(sprintf('For the autocomplete configuration you have added the index "%s". That index is not configured in setono_sylius_meilisearch.indexes. Available indexes are [%s]', $index, implode(', ', $indexes)));
+            }
+        }
+
+        $container->setParameter('setono_sylius_meilisearch.autocomplete.container', $config['container']);
+        $container->setParameter('setono_sylius_meilisearch.autocomplete.placeholder', $config['placeholder']);
+
+        $loader->load('services/conditional/autocomplete.xml');
+
+        $container->getDefinition(AutocompleteRuntime::class)->setArgument(
+            '$indexes',
+            array_map(
+                static fn (string $index) => new Reference(self::getIndexServiceId($index)),
+                $config['indexes'],
+            ),
+        );
     }
 
     private static function getIndexServiceId(string $indexName): string
