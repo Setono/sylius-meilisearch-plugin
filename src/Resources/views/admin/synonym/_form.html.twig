@@ -11,9 +11,11 @@
             {{ form_row(form.synonym) }}
         </div>
 
-        <div class="ui two fields">
+        <div class="ui four fields">
             {{ form_row(form.locale) }}
-            {{ form_row(form.channel) }}
+            {{ form_row(form.channels) }}
+            {{ form_row(form.indexes) }}
+            {{ form_row(form.enabled) }}
         </div>
     </div>
     <div class="six wide column">{{ 'setono_sylius_meilisearch.ui.synonym_help'|trans|raw }}</div>

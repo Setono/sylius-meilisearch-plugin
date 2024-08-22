@@ -2,8 +2,8 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="Setono\SyliusMeilisearchPlugin\EventSubscriber\AddMenuSubscriber">
-            <tag name="kernel.event_subscriber"/>
+        <service id="Setono\SyliusMeilisearchPlugin\Grid\Filter\IndexFilter">
+            <tag name="sylius.grid_filter" type="indexes" form_type="Setono\SyliusMeilisearchPlugin\Form\Type\IndexChoiceType"/>
         </service>
     </services>
 </container>

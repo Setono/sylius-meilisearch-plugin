@@ -30,7 +30,10 @@ final class SynonymFactory implements SynonymFactoryInterface
         $obj->setTerm($synonym->getSynonym());
         $obj->setSynonym($synonym->getTerm());
         $obj->setLocale($synonym->getLocale());
-        $obj->setChannel($synonym->getChannel());
+
+        foreach ($synonym->getChannels() as $channel) {
+            $obj->addChannel($channel);
+        }
 
         return $obj;
     }

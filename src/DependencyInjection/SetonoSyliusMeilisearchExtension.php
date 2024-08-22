@@ -90,6 +90,11 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         ]);
 
         $container->prependExtensionConfig('sylius_grid', [
+            'templates' => [
+                'filter' => [
+                    'indexes' => '@SetonoSyliusMeilisearchPlugin/admin/grid/filter/indexes.html.twig',
+                ],
+            ],
             'grids' => [
                 'setono_sylius_meilisearch_admin_synonym' => [
                     'driver' => [
@@ -108,21 +113,67 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                             'type' => 'string',
                             'label' => 'setono_sylius_meilisearch.ui.synonym',
                         ],
+                        'enabled' => [
+                            'type' => 'twig',
+                            'label' => 'sylius.ui.enabled',
+                            'options' => [
+                                'template' => '@SyliusUi/Grid/Field/enabled.html.twig',
+                            ],
+                        ],
+                        'indexes' => [
+                            'type' => 'twig',
+                            'label' => 'setono_sylius_meilisearch.ui.indexes',
+                            'path' => '.',
+                            'options' => [
+                                'template' => '@SetonoSyliusMeilisearchPlugin/admin/grid/field/_indexes.html.twig',
+                            ],
+                        ],
                         'locale' => [
                             'type' => 'string',
                             'label' => 'sylius.ui.locale',
                         ],
-                        'channel' => [
-                            'type' => 'string',
-                            'label' => 'sylius.ui.channel',
+                        'channels' => [
+                            'type' => 'twig',
+                            'label' => 'sylius.ui.channels',
+                            'options' => [
+                                'template' => '@SyliusAdmin/Grid/Field/_channels.html.twig',
+                            ],
                         ],
                     ],
                     'filters' => [
                         'search' => [
                             'type' => 'string',
-                            'label' => 'sylius.ui.search',
+                            'label' => 'setono_sylius_meilisearch.ui.search_term_and_synonym',
                             'options' => [
                                 'fields' => ['term', 'synonym'],
+                            ],
+                        ],
+                        'enabled' => [
+                            'type' => 'boolean',
+                            'label' => 'sylius.ui.enabled',
+                        ],
+                        'indexes' => [
+                            'type' => 'indexes',
+                            'label' => 'setono_sylius_meilisearch.ui.indexes',
+                            'form_options' => [
+                                'placeholder' => 'sylius.ui.all',
+                            ],
+                        ],
+                        'locale' => [
+                            'type' => 'entity',
+                            'label' => 'sylius.ui.locale',
+                            'form_options' => [
+                                'class' => '%sylius.model.locale.class%',
+                            ],
+                        ],
+                        'channel' => [
+                            'type' => 'entities',
+                            'label' => 'sylius.ui.channel',
+                            'form_options' => [
+                                'class' => '%sylius.model.channel.class%',
+                            ],
+                            'options' => [
+                                'field' => 'channels.id',
                             ],
                         ],
                     ],
@@ -136,6 +187,12 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                             'update' => [
                                 'type' => 'update',
                             ],
+                            'delete' => [
+                                'type' => 'delete',
+                            ],
+                        ],
+                        // todo in the future it might be a good user experience if we had bulk actions for adding indexes and channels to synonyms
+                        'bulk' => [
                             'delete' => [
                                 'type' => 'delete',
                             ],

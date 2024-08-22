@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Model;
 
-use Sylius\Component\Channel\Model\ChannelAwareInterface;
-use Sylius\Component\Channel\Model\ChannelInterface;
+use Sylius\Component\Channel\Model\ChannelsAwareInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
+use Sylius\Component\Resource\Model\TimestampableInterface;
+use Sylius\Component\Resource\Model\ToggleableInterface;
 
-interface SynonymInterface extends ResourceInterface, ChannelAwareInterface
+interface SynonymInterface extends ResourceInterface, ChannelsAwareInterface, ToggleableInterface, TimestampableInterface
 {
     public function getId(): ?int;
 
@@ -25,8 +26,14 @@ interface SynonymInterface extends ResourceInterface, ChannelAwareInterface
 
     public function setLocale(?LocaleInterface $locale): void;
 
-    // todo can we think of a scenario where we _really_ need the channel?
-    public function getChannel(): ?ChannelInterface;
+    /**
+     * @return list<string>
+     */
+    public function getIndexes(): array;
 
-    public function setChannel(?ChannelInterface $channel): void;
+    public function addIndex(string $index): void;
+
+    public function removeIndex(string $index): void;
+
+    public function hasIndex(string $index): bool;
 }

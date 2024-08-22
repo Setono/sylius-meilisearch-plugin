@@ -5,22 +5,29 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Repository;
 
 use Setono\SyliusMeilisearchPlugin\Model\SynonymInterface;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
 use Webmozart\Assert\Assert;
 
 class SynonymRepository extends EntityRepository implements SynonymRepositoryInterface
 {
-    public function findByLocaleAndChannel(string $localeCode, string $channelCode = null): array
+    public function findEnabledByIndexScope(IndexScope $indexScope): array
     {
         $qb = $this->createQueryBuilder('o')
-            ->join('o.locale', 'locale', 'WITH', 'locale.code = :localeCode')
-            ->setParameter('localeCode', $localeCode)
+            ->andWhere('o.enabled = true')
+            ->andWhere('o.indexes LIKE :index')
+            ->setParameter('index', '%"' . $indexScope->index->name . '"%')
         ;
 
-        if (null !== $channelCode) {
-            $qb->leftJoin('o.channel', 'c')
-                ->andWhere('o.channel IS NULL OR c.code = :channelCode')
-                ->setParameter('channelCode', $channelCode)
+        if (null !== $indexScope->localeCode) {
+            $qb->join('o.locale', 'locale', 'WITH', 'locale.code = :localeCode')
+                ->setParameter('localeCode', $indexScope->localeCode)
+            ;
+        }
+
+        if (null !== $indexScope->channelCode) {
+            $qb->join('o.channels', 'c', 'WITH', 'c.code = :channelCode')
+                ->setParameter('channelCode', $indexScope->channelCode)
             ;
         }
 

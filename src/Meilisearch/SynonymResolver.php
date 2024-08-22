@@ -16,16 +16,11 @@ final class SynonymResolver implements SynonymResolverInterface
 
     public function resolve(IndexScope $indexScope): array
     {
-        // it doesn't make sense to resolve synonyms if the locale is not set
-        if (null === $indexScope->localeCode) {
-            return [];
-        }
-
         /** @var list<array{term: non-empty-string, synonym: non-empty-string}> $synonyms */
         $synonyms = array_map(static fn (SynonymInterface $synonym): array => [
             'term' => (string) $synonym->getTerm(),
             'synonym' => (string) $synonym->getSynonym(),
-        ], $this->synonymRepository->findByLocaleAndChannel($indexScope->localeCode, $indexScope->channelCode));
+        ], $this->synonymRepository->findEnabledByIndexScope($indexScope));
 
         $resolvedSynonyms = [];
         foreach ($synonyms as $synonym) {

@@ -1,0 +1,13 @@
+{# @var data \Setono\SyliusMeilisearchPlugin\Model\SynonymInterface #}
+{% if data.indexes is empty %}
+    <span class="ui red label">
+        <i class="remove icon"></i>
+        {{ 'setono_sylius_meilisearch.ui.no_indexes'|trans }}
+    </span>
+{% else %}
+    <ul class="ui list">
+        {% for index in data.indexes %}
+            <li>{{ index|title }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}

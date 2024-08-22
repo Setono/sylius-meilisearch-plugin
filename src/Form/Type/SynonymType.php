@@ -9,6 +9,7 @@ use Sylius\Bundle\ChannelBundle\Form\Type\ChannelChoiceType;
 use Sylius\Bundle\LocaleBundle\Form\Type\LocaleChoiceType;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -42,8 +43,20 @@ final class SynonymType extends AbstractResourceType
             ->add('locale', LocaleChoiceType::class, [
                 'label' => 'sylius.ui.locale',
             ])
-            ->add('channel', ChannelChoiceType::class, [
-                'label' => 'sylius.ui.channel',
+            ->add('channels', ChannelChoiceType::class, [
+                'multiple' => true,
+                'expanded' => true,
+                'label' => 'sylius.ui.channels',
+                'required' => false,
+            ])
+            ->add('indexes', IndexChoiceType::class, [
+                'multiple' => true,
+                'expanded' => true,
+                'label' => 'setono_sylius_meilisearch.form.synonym.indexes',
+                'required' => false,
+            ])
+            ->add('enabled', CheckboxType::class, [
+                'label' => 'sylius.ui.enabled',
                 'required' => false,
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
