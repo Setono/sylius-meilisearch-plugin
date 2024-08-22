@@ -67,6 +67,7 @@
         "psalm/plugin-phpunit": "^0.18.4",
         "setono/code-quality-pack": "^2.8.2",
         "sylius/sylius": "~1.12.18",
+        "symfony/browser-kit": "^5.4 || ^6.4 || ^7.0",
         "symfony/debug-bundle": "^5.4 || ^6.4 || ^7.0",
         "symfony/dotenv": "^5.4 || ^6.4 || ^7.0",
         "symfony/http-client": "^5.4 || ^6.4 || ^7.0",
@@ -107,7 +108,7 @@
         "analyse": "psalm",
         "check-style": "ecs check",
         "fix-style": "ecs check --fix",
-        "phpunit": "phpunit",
+        "phpunit": "phpunit --exclude-group=functional",
         "rector": "rector"
     }
 }

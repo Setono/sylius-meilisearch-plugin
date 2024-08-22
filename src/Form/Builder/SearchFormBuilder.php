@@ -79,8 +79,10 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
 
         $searchFormBuilder->add('sort', ChoiceType::class, [
             'choices' => [
-                'Price: Low to High' => 'price:asc',
-                'Price: High to Low' => 'price:desc',
+                'Cheapest first' => 'price:asc',
+                'Biggest discount' => 'discount:desc',
+                'Newest first' => 'createdAt:desc',
+                'Relevance' => '',
             ],
             'required' => false,
             'placeholder' => 'Sort by',
