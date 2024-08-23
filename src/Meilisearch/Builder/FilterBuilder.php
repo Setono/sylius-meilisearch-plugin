@@ -18,10 +18,23 @@ final class FilterBuilder implements FilterBuilderInterface
         }
 
         if (isset($query['brand'])) {
+            $brandQuery = [];
             /** @var string $brand */
             foreach ($query['brand'] as $brand) {
-                $filters[] = sprintf('brand = "%s"', $brand);
+                $brandQuery[] = sprintf('brand = "%s"', $brand);
             }
+
+            $filters[] = '(' . implode(' OR ', $brandQuery) . ')';
+        }
+
+        if (isset($query['size'])) {
+            $sizeQuery = [];
+            /** @var string $size */
+            foreach ($query['size'] as $size) {
+                $sizeQuery[] = sprintf('size = "%s"', $size);
+            }
+
+            $filters[] = '(' . implode(' OR ', $sizeQuery) . ')';
         }
 
         return $filters;
