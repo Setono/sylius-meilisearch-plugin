@@ -4,9 +4,11 @@
     <services>
         <!-- Builder -->
         <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilderInterface"
-                 alias="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilder"/>
+                 alias="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\CompositeFilterBuilder"/>
 
-        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilder"/>
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\CompositeFilterBuilder">
+            <argument type="tagged_iterator" tag="setono_sylius_meilisearch.filter_builder"/>
+        </service>
 
         <!-- Synonym resolver -->
         <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolverInterface"

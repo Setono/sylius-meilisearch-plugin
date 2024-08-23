@@ -29,12 +29,13 @@ final class SearchEngine implements SearchEngineInterface
     {
         $page = max(1, (int) ($parameters['p'] ?? 1));
         $sort = (string) ($parameters['sort'] ?? '');
+        $facetsFilter = $parameters['facets'] ?? [];
 
         $metadata = $this->metadataFactory->getMetadataFor($this->index->document);
         $indexUid = $this->indexNameResolver->resolve($this->index);
         $query = $query ?? '';
         $facets = array_map(static fn (Facet $facet) => $facet->name, $metadata->getFacets());
-        $filter = $this->filterBuilder->build($parameters);
+        $filter = $this->filterBuilder->build($facetsFilter);
 
         $mainQuery = $this->buildSearchQuery($indexUid, $query, $facets, $filter)
             ->setHitsPerPage($this->hitsPerPage)
