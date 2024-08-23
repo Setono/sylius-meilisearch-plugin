@@ -84,6 +84,6 @@ final class SearchTest extends WebTestCase
         );
 
         $this->assertSame(1, $result->getHitsCount());
-        $this->assertSame(4, count($result->getFacetDistribution()['brand']));
+        $this->assertCount(4, $result->getFacetDistribution()['brand']);
     }
 }

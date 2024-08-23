@@ -59,6 +59,7 @@ final class SearchEngine implements SearchEngineInterface
 
     /**
      * @param array<string> $facets
+     *
      * @return array<SearchQuery>
      */
     private function createSearchQueries(string $indexUid, array $facets, ?string $query): array
@@ -69,7 +70,8 @@ final class SearchEngine implements SearchEngineInterface
             $facets = [$facet];
             $filteredFacets = array_filter(
                 $parameters['facets'] ?? [],
-                static fn ($value) => $value !== $facet, ARRAY_FILTER_USE_KEY,
+                static fn ($value) => $value !== $facet,
+                \ARRAY_FILTER_USE_KEY,
             );
             $filter = $this->filterBuilder->build($filteredFacets);
 
