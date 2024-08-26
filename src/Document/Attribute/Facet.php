@@ -6,8 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin\Document\Attribute;
 
 use Attribute;
 
-// todo should this extend from Filterable?
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_METHOD)]
-final class Facet
+final class Facet extends Filterable
 {
 }

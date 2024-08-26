@@ -39,7 +39,6 @@ class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInter
     public ?string $currency = null;
 
     #[Facet]
-    #[Filterable]
     #[Sortable(direction: Sortable::ASC)]
     public ?float $price = null;
 
@@ -48,7 +47,6 @@ class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInter
     /**
      * This attribute will allow you to create a filter like 'Only show products on sale'
      */
-    #[Filterable]
     #[Facet]
     public function isOnSale(): bool
     {
