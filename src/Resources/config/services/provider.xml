@@ -36,6 +36,7 @@
 
         <service id="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProvider">
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolverInterface"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface"/>
         </service>
     </services>
 </container>

@@ -14,7 +14,58 @@ interface MetadataInterface
     public function getDocument(): string;
 
     /**
-     * @return list<Facet>
+     * Filterable attributes indexed by the name
+     *
+     * @return array<string, Filterable>
      */
-    public function getFacets(): array;
+    public function getFilterableAttributes(): array;
+
+    /**
+     * Returns the names of the filterable attributes
+     *
+     * @return list<string>
+     */
+    public function getFilterableAttributeNames(): array;
+
+    /**
+     * Facetable attributes indexed by the name
+     *
+     * @return array<string, Facet>
+     */
+    public function getFacetableAttributes(): array;
+
+    /**
+     * Returns the names of the facetable attributes
+     *
+     * @return list<string>
+     */
+    public function getFacetableAttributeNames(): array;
+
+    /**
+     * Searchable attributes indexed by the name
+     *
+     * @return array<string, Searchable>
+     */
+    public function getSearchableAttributes(): array;
+
+    /**
+     * Returns the names of the searchable attributes (sorted by priority)
+     *
+     * @return list<string>
+     */
+    public function getSearchableAttributeNames(): array;
+
+    /**
+     * Sortable attributes indexed by the name
+     *
+     * @return array<string, Sortable>
+     */
+    public function getSortableAttributes(): array;
+
+    /**
+     * Returns the names of the sortable attributes
+     *
+     * @return list<string>
+     */
+    public function getSortableAttributeNames(): array;
 }

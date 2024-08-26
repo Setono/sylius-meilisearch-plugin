@@ -13,60 +13,43 @@ class Settings
 {
     /**
      * Fields displayed in the returned documents
-     *
-     * @var UniqueList<string>
      */
     public UniqueList $displayedAttributes;
 
     /**
      * Fields in which to search for matching query words sorted by order of importance
-     *
-     * @var UniqueList<string>
      */
     public UniqueList $searchableAttributes;
 
     /**
      * Attributes to use as filters and facets
-     *
-     * @var UniqueList<string>
      */
     public UniqueList $filterableAttributes;
 
     /**
      * Attributes to use when sorting search results
-     *
-     * @var UniqueList<string>
      */
     public UniqueList $sortableAttributes;
 
-    /** @var UniqueList<string> */
     public UniqueList $rankingRules;
 
     /**
      * List of words ignored by Meilisearch when present in search queries
-     *
-     * @var UniqueList<string>
      */
     public UniqueList $stopWords;
 
     /**
      * List of characters not delimiting where one term begins and ends
-     *
-     * @var UniqueList<string>
      */
     public UniqueList $nonSeparatorTokens;
 
     /**
      * List of characters delimiting where one term begins and ends
-     *
-     * @var UniqueList<string>
      */
     public UniqueList $separatorTokens;
 
     /**
      * List of strings Meilisearch should parse as a single term
-     *
-     * @var UniqueList<string>
      */
     public UniqueList $dictionary;
 

@@ -5,20 +5,27 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Settings;
 
 /**
- * @template T of scalar
+ * Notice that the uniqueness of the items is only guaranteed when serializing the object to JSON
  *
- * @implements \ArrayAccess<int, T>
+ * @implements \ArrayAccess<int, string>
  */
 final class UniqueList implements \JsonSerializable, \ArrayAccess
 {
-    /** @var list<T> */
+    /** @var list<string> */
     private array $items = [];
 
     /**
-     * @param list<T> $default
+     * @param list<string> $default
      */
     public function __construct(private readonly array $default = [])
     {
+    }
+
+    public function add(string ...$items): void
+    {
+        foreach ($items as $item) {
+            $this->items[] = $item;
+        }
     }
 
     public function offsetExists(mixed $offset): bool
