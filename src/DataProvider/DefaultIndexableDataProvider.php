@@ -27,7 +27,7 @@ final class DefaultIndexableDataProvider implements IndexableDataProviderInterfa
         $qb = $this
             ->getManager($entity)
             ->createQueryBuilder()
-            ->select('o.id')
+            ->select('DISTINCT o.id')
             ->from($entity, 'o')
         ;
 

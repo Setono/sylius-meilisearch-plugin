@@ -6,12 +6,15 @@ namespace Setono\SyliusMeilisearchPlugin\DependencyInjection;
 
 use Setono\SyliusMeilisearchPlugin\DataProvider\DefaultIndexableDataProvider;
 use Setono\SyliusMeilisearchPlugin\Document\Product;
+use Setono\SyliusMeilisearchPlugin\Event\QueryBuilderForDataProvisionCreated;
+use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Form\Type\SynonymType;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Setono\SyliusMeilisearchPlugin\Model\Synonym;
 use Setono\SyliusMeilisearchPlugin\Repository\SynonymRepository;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
 use Sylius\Component\Resource\Factory\Factory;
+use Sylius\Component\Resource\Model\ToggleableInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -61,6 +64,16 @@ final class Configuration implements ConfigurationInterface
                                 ->defaultNull()
                                 ->info('If you want to prepend a string to the index name, you can set it here. This can be useful in a development setup where each developer has their own prefix. Notice that the environment is already prefixed by default, so you do not have to prefix that.')
                                 ->cannotBeEmpty()
+                            ->end()
+                            ->arrayNode('default_filters')
+                                ->info(
+                                    sprintf(<<<INFO
+The plugin comes with a few filters out of the box based on the entities you configure. E.g. there is an "enabled" filter if your entity implements the %s.
+You can disable/enable them here. If you want to create your own filters, you can do so by implementing the %s or by listening to the %s event
+INFO, ToggleableInterface::class, EntityFilterInterface::class, QueryBuilderForDataProvisionCreated::class),
+                                )
+                                ->useAttributeAsKey('name')
+                                ->scalarPrototype()->end()
                             ->end()
                         ->end()
                     ->end()

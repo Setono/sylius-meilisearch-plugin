@@ -9,6 +9,10 @@ use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\DataProvider\IndexableDataProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
+use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableDataFilter\ChannelsAwareFilter;
+use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableDataFilter\EnabledFilter;
+use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableDataFilter\StockAvailableFilter;
+use Setono\SyliusMeilisearchPlugin\Filter\Entity\ChannelsAwareEntityFilter;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
@@ -16,6 +20,9 @@ use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterfa
 use Setono\SyliusMeilisearchPlugin\UrlGenerator\EntityUrlGeneratorInterface;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
+use Sylius\Component\Channel\Model\ChannelsAwareInterface;
+use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Component\Resource\Model\ToggleableInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
@@ -34,7 +41,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
          * @psalm-suppress PossiblyNullArgument
          *
          * @var array{
-         *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null}>,
+         *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}>,
          *      server: array{ host: string, master_key: string },
          *      search: array{ enabled: bool, path: string, index: string, hits_per_page: integer },
          *      resources: array,
@@ -213,7 +220,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     }
 
     /**
-     *  @param array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null}> $config
+     *  @param array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}> $config
      */
     private static function registerIndexesConfiguration(array $config, ContainerBuilder $container): void
     {
@@ -243,6 +250,8 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
 
             $container->setAlias(sprintf(Index::class . ' $%s', u($indexName)->camel()), $indexServiceId);
             $container->setAlias(sprintf(IndexerInterface::class . ' $%sIndexer', u($indexName)->camel()), $indexServiceId);
+
+            self::registerFilters($container, $indexName, $index['entities'], $index['default_filters'] ?? []);
         }
     }
 
@@ -301,5 +310,82 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     private static function getIndexServiceId(string $indexName): string
     {
         return sprintf('setono_sylius_meilisearch.index.%s', $indexName);
+    }
+
+    /**
+     * @param list<class-string> $entities
+     * @param array<string, bool> $defaultFilters
+     */
+    private static function registerFilters(ContainerBuilder $container, string $indexName, array $entities, array $defaultFilters): void
+    {
+        $defaultFilters = array_merge([
+            'enabled' => true,
+            'channels_aware' => true,
+            'stock_available' => false,
+        ], $defaultFilters);
+
+        foreach ($entities as $entity) {
+            if ($defaultFilters['enabled']) {
+                self::registerEnabledFilter($container, $indexName, $entity);
+            }
+
+            if ($defaultFilters['channels_aware']) {
+                self::registerChannelsAwareFilter($container, $indexName, $entity);
+            }
+
+            if ($defaultFilters['stock_available']) {
+                self::registerStockAvailableFilter($container, $indexName, $entity);
+            }
+        }
+    }
+
+    /**
+     * @param class-string $entity
+     */
+    private static function registerEnabledFilter(ContainerBuilder $container, string $indexName, string $entity): void
+    {
+        if (!is_a($entity, ToggleableInterface::class, true)) {
+            return;
+        }
+
+        $container->register(sprintf('setono_sylius_meilisearch.event_subscriber.indexable_data_filter.enabled.%s', $indexName), EnabledFilter::class)
+            ->setArgument('$index', $indexName)
+            ->addTag('kernel.event_subscriber')
+        ;
+    }
+
+    /**
+     * @param class-string $entity
+     */
+    private static function registerChannelsAwareFilter(ContainerBuilder $container, string $indexName, string $entity): void
+    {
+        if (!is_a($entity, ChannelsAwareInterface::class, true)) {
+            return;
+        }
+
+        $container->register(sprintf('setono_sylius_meilisearch.event_subscriber.indexable_data_filter.channels_aware.%s', $indexName), ChannelsAwareFilter::class)
+            ->setArgument('$index', $indexName)
+            ->addTag('kernel.event_subscriber')
+        ;
+
+        $container->register(sprintf('setono_sylius_meilisearch.filter.entity.channels_aware.%s', $indexName), ChannelsAwareEntityFilter::class)
+            ->setArgument('$index', $indexName)
+            ->addTag('setono_sylius_meilisearch.entity_filter')
+        ;
+    }
+
+    /**
+     * @param class-string $entity
+     */
+    private static function registerStockAvailableFilter(ContainerBuilder $container, string $indexName, string $entity): void
+    {
+        if (!is_a($entity, ProductInterface::class, true)) {
+            return;
+        }
+
+        $container->register(sprintf('setono_sylius_meilisearch.event_subscriber.indexable_data_filter.stock_available.%s', $indexName), StockAvailableFilter::class)
+            ->setArgument('$index', $indexName)
+            ->addTag('kernel.event_subscriber')
+        ;
     }
 }
