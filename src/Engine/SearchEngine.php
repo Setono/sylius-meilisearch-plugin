@@ -7,7 +7,6 @@ namespace Setono\SyliusMeilisearchPlugin\Engine;
 use Meilisearch\Client;
 use Meilisearch\Search\SearchResult;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
-use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
@@ -32,7 +31,7 @@ final class SearchEngine implements SearchEngineInterface
         $metadata = $this->metadataFactory->getMetadataFor($this->index->document);
 
         $searchParams = [
-            'facets' => array_map(static fn (Facet $facet) => $facet->name, $metadata->getFacets()),
+            'facets' => $metadata->getFacetableAttributeNames(),
             'filter' => $this->filterBuilder->build($parameters),
             'hitsPerPage' => $this->hitsPerPage,
             'page' => $page,
