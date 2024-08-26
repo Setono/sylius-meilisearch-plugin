@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Filter\Object;
+namespace Setono\SyliusMeilisearchPlugin\Filter\Entity;
 
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 
-final class CompositeFilter implements FilterInterface
+final class CompositeEntityFilter implements EntityFilterInterface
 {
-    /** @var list<FilterInterface> */
+    /** @var list<EntityFilterInterface> */
     private array $filters = [];
 
-    public function add(FilterInterface $filter): void
+    public function add(EntityFilterInterface $filter): void
     {
         $this->filters[] = $filter;
     }

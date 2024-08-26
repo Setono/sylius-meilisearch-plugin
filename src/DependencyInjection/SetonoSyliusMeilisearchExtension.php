@@ -9,7 +9,7 @@ use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\DataProvider\IndexableDataProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
-use Setono\SyliusMeilisearchPlugin\Filter\Object\FilterInterface as ObjectFilterInterface;
+use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
@@ -58,8 +58,8 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         $container->registerForAutoconfiguration(IndexScopeProviderInterface::class)
             ->addTag('setono_sylius_meilisearch.index_scope_provider');
 
-        $container->registerForAutoconfiguration(ObjectFilterInterface::class)
-            ->addTag('setono_sylius_meilisearch.object_filter');
+        $container->registerForAutoconfiguration(EntityFilterInterface::class)
+            ->addTag('setono_sylius_meilisearch.entity_filter');
 
         $container->registerForAutoconfiguration(EntityUrlGeneratorInterface::class)
             ->addTag('setono_sylius_meilisearch.url_generator');
@@ -258,7 +258,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
             new Reference(DataMapperInterface::class),
             new Reference('serializer'),
             new Reference(Client::class),
-            new Reference('setono_sylius_meilisearch.filter.object.composite'),
+            new Reference(EntityFilterInterface::class),
             new Reference('event_dispatcher'),
             new Reference('setono_sylius_meilisearch.command_bus'),
         ]));

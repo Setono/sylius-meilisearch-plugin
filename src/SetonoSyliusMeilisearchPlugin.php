@@ -6,6 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin;
 
 use Setono\CompositeCompilerPass\CompositeCompilerPass;
 use Setono\SyliusMeilisearchPlugin\DataMapper\CompositeDataMapper;
+use Setono\SyliusMeilisearchPlugin\Filter\Entity\CompositeEntityFilter;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFacetFormBuilder;
 use Sylius\Bundle\CoreBundle\Application\SyliusPluginTrait;
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
@@ -49,8 +50,8 @@ final class SetonoSyliusMeilisearchPlugin extends AbstractResourceBundle
         ));
 
         $container->addCompilerPass(new CompositeCompilerPass(
-            'setono_sylius_meilisearch.filter.object.composite',
-            'setono_sylius_meilisearch.object_filter',
+            CompositeEntityFilter::class,
+            'setono_sylius_meilisearch.entity_filter',
         ));
     }
 }
