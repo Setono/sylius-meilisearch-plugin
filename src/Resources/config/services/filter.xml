@@ -2,18 +2,6 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <!-- Doctrine filters -->
-        <service id="Setono\SyliusMeilisearchPlugin\Filter\Doctrine\FilterInterface"
-                 alias="setono_sylius_meilisearch.filter.doctrine.composite"/>
-
-        <service id="setono_sylius_meilisearch.filter.doctrine.composite"
-                 class="Setono\SyliusMeilisearchPlugin\Filter\Doctrine\CompositeFilter"/>
-
-        <service id="setono_sylius_meilisearch.filter.doctrine.enabled"
-                 class="Setono\SyliusMeilisearchPlugin\Filter\Doctrine\EnabledFilter">
-            <tag name="setono_sylius_meilisearch.doctrine_filter"/>
-        </service>
-
         <!-- Object filters -->
         <service id="Setono\SyliusMeilisearchPlugin\Filter\Object\FilterInterface"
                  alias="setono_sylius_meilisearch.filter.object.composite"/>

@@ -9,7 +9,6 @@ use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\DataProvider\IndexableDataProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
-use Setono\SyliusMeilisearchPlugin\Filter\Doctrine\FilterInterface as DoctrineFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Filter\Object\FilterInterface as ObjectFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
@@ -55,9 +54,6 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         // auto configuration
         $container->registerForAutoconfiguration(DataMapperInterface::class)
             ->addTag('setono_sylius_meilisearch.data_mapper');
-
-        $container->registerForAutoconfiguration(DoctrineFilterInterface::class)
-            ->addTag('setono_sylius_meilisearch.doctrine_filter');
 
         $container->registerForAutoconfiguration(IndexScopeProviderInterface::class)
             ->addTag('setono_sylius_meilisearch.index_scope_provider');

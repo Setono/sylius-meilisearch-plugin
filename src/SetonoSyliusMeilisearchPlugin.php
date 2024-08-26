@@ -49,11 +49,6 @@ final class SetonoSyliusMeilisearchPlugin extends AbstractResourceBundle
         ));
 
         $container->addCompilerPass(new CompositeCompilerPass(
-            'setono_sylius_meilisearch.filter.doctrine.composite',
-            'setono_sylius_meilisearch.doctrine_filter',
-        ));
-
-        $container->addCompilerPass(new CompositeCompilerPass(
             'setono_sylius_meilisearch.filter.object.composite',
             'setono_sylius_meilisearch.object_filter',
         ));
