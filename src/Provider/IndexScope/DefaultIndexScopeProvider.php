@@ -6,6 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin\Provider\IndexScope;
 
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 
+// todo I think the default scope should be the same as the taxon scope (i.e. based on channel and locale)
 final class DefaultIndexScopeProvider implements IndexScopeProviderInterface
 {
     public function getAll(Index $index): iterable
