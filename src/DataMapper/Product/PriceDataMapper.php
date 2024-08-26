@@ -42,11 +42,8 @@ final class PriceDataMapper implements DataMapperInterface
         $prices = $this->productPricesProvider->getPricesForChannel($source, $channel);
 
         $target->currency = $indexScope->currencyCode;
-        $target->price = formatAmount($this->currencyConverter->convert($prices->price, $baseCurrencyCode, $indexScope->currencyCode));
-
-        if (null !== $prices->originalPrice) {
-            $target->originalPrice = formatAmount($prices->originalPrice);
-        }
+        $target->price = $this->formatAndConvertAmount($prices->price, $baseCurrencyCode, $indexScope->currencyCode);
+        $target->originalPrice = $this->formatAndConvertAmount($prices->originalPrice, $baseCurrencyCode, $indexScope->currencyCode);
     }
 
     /**
@@ -69,5 +66,14 @@ final class PriceDataMapper implements DataMapperInterface
         Assert::notNull($baseCurrencyCode);
 
         return $baseCurrencyCode;
+    }
+
+    private function formatAndConvertAmount(?int $amount, string $sourceCurrencyCode, string $targetCurrencyCode): ?float
+    {
+        if (null === $amount) {
+            return null;
+        }
+
+        return formatAmount($this->currencyConverter->convert($amount, $sourceCurrencyCode, $targetCurrencyCode));
     }
 }

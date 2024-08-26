@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Tests\DataMapper\Product\Provider;
+namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\DataMapper\Product\Provider;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\Exception\ProductPricesCannotBeProvidedException;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProvider;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product;
@@ -46,19 +45,19 @@ final class ProductPricesProviderTest extends TestCase
         $this->assertEquals(2000, $productPrices->originalPrice);
     }
 
-    public function test_it_throws_an_exception_if_no_variant_is_found(): void
+    public function test_it_returns_empty_object_if_no_variant_is_found(): void
     {
         $product = new Product();
         $channel = new Channel();
 
         $this->productVariantResolver->method('getVariant')->willReturn(null);
 
-        $this->expectException(ProductPricesCannotBeProvidedException::class);
-
-        $this->getTestSubject()->getPricesForChannel($product, $channel);
+        $productPrices = $this->getTestSubject()->getPricesForChannel($product, $channel);
+        self::assertNull($productPrices->price);
+        self::assertNull($productPrices->originalPrice);
     }
 
-    public function test_it_throws_an_exception_if_no_channel_pricing_is_found(): void
+    public function test_it_returns_empty_object_if_no_channel_pricing_is_found(): void
     {
         $product = new Product();
         $channel = new Channel();
@@ -68,28 +67,9 @@ final class ProductPricesProviderTest extends TestCase
 
         $this->productVariantResolver->method('getVariant')->willReturn($productVariant);
 
-        $this->expectException(ProductPricesCannotBeProvidedException::class);
-
-        $this->getTestSubject()->getPricesForChannel($product, $channel);
-    }
-
-    public function test_it_throws_an_exception_if_no_price_is_found(): void
-    {
-        $product = new Product();
-        $channel = new Channel();
-        $channel->setCode('MY_CHANNEL');
-
-        $channelPricing = new ChannelPricing();
-        $channelPricing->setChannelCode('MY_CHANNEL');
-
-        $productVariant = new ProductVariant();
-        $productVariant->addChannelPricing($channelPricing);
-
-        $this->productVariantResolver->method('getVariant')->willReturn($productVariant);
-
-        $this->expectException(ProductPricesCannotBeProvidedException::class);
-
-        $this->getTestSubject()->getPricesForChannel($product, $channel);
+        $productPrices = $this->getTestSubject()->getPricesForChannel($product, $channel);
+        self::assertNull($productPrices->price);
+        self::assertNull($productPrices->originalPrice);
     }
 
     private function getTestSubject(): ProductPricesProviderInterface
