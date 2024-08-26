@@ -82,6 +82,83 @@ class Product extends BaseProduct implements IndexableInterface
 }
 ```
 
+## Filter entities to index
+
+When indexing entities, most likely there are some of the entities that you don't want included in the index.
+There are two ways you can do this. 1) When data is fetched from the database or 2) when data is traversed during indexing.
+Obviously, the first option is the most efficient, but let's look at both.
+
+### Filtering when fetching data from the database
+
+Here you will listen to the `\Setono\SyliusMeilisearchPlugin\Event\QueryBuilderForDataProvisionCreated` event and modify the query builder accordingly.
+Here is an example where we filter out disabled products:
+
+```php
+<?php
+    
+namespace App\EventSubscriber;
+
+use Doctrine\ORM\QueryBuilder;
+use Setono\SyliusMeilisearchPlugin\Event\QueryBuilderForDataProvisionCreated;
+use Sylius\Component\Resource\Model\ToggleableInterface;use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+class FilterDisabledEntitiesSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            QueryBuilderForDataProvisionCreated::class => 'filter',
+        ];
+    }
+    
+    public function filter(QueryBuilderForDataProvisionCreated $event): void
+    {
+        if(!is_a($event->entity, ToggleableInterface::class, true)) {
+            return;
+        }
+        
+        $queryBuilder = $event->getQueryBuilder();
+        $alias = $queryBuilder->getRootAliases()[0];
+        $queryBuilder->andWhere($alias . '.enabled = true');
+    }
+}
+```
+
+### Filtering when traversing data
+
+Here you will implement the `\Setono\SyliusMeilisearchPlugin\Model\FilterableInterface` in your entity and implement the `filter` method.
+The example below is the same as the previous example, but this time we filter out disabled products when traversing the data:
+
+```php
+
+<?php
+
+namespace App\Entity\Product;
+
+use Doctrine\ORM\Mapping as ORM;
+
+use Setono\SyliusMeilisearchPlugin\Model\FilterableInterface;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Sylius\Component\Core\Model\Product as BaseProduct;
+
+/**
+ * @ORM\Entity
+ * @ORM\Table(name="sylius_product")
+ */
+class Product extends BaseProduct implements IndexableInterface, FilterableInterface
+{
+    public function getDocumentIdentifier(): ?string
+    {
+        return (string) $this->getId();
+    }
+    
+    public function filter(): bool
+    {
+        return $this->isEnabled();
+    }
+}
+```
+
 [ico-version]: https://poser.pugx.org/setono/sylius-meilisearch-plugin/v/stable
 [ico-license]: https://poser.pugx.org/setono/sylius-meilisearch-plugin/license
 [ico-github-actions]: https://github.com/Setono/sylius-meilisearch-plugin/workflows/build/badge.svg
