@@ -6,14 +6,15 @@ namespace Setono\SyliusMeilisearchPlugin\DataMapper;
 
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
-use Setono\SyliusMeilisearchPlugin\Document\ImageUrlsAwareInterface;
+use Setono\SyliusMeilisearchPlugin\Document\ImageAwareInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
+use Sylius\Component\Core\Model\ImageInterface;
 use Sylius\Component\Core\Model\ImagesAwareInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webmozart\Assert\Assert;
 
-final class ImageUrlsDataMapper implements DataMapperInterface
+final class ImageDataMapper implements DataMapperInterface
 {
     /**
      * @param array<class-string<IndexableInterface>, string> $entityToFilterSetMapping
@@ -37,24 +38,21 @@ final class ImageUrlsDataMapper implements DataMapperInterface
             'The given $source and $target is not supported',
         );
 
-        $imageUrls = [];
-
-        foreach ($source->getImages() as $image) {
-            $imageUrls[] = $this->cacheManager->getBrowserPath(
-                (string) $image->getPath(),
-                $this->entityToFilterSetMapping[$source::class] ?? $this->defaultFilterSet,
-                [],
-                null,
-                UrlGeneratorInterface::ABSOLUTE_PATH,
-            );
+        $image = $source->getImages()->first();
+        if (!$image instanceof ImageInterface) {
+            return;
         }
 
-        $target->setImageUrls($imageUrls);
+        $target->setImage($this->cacheManager->getBrowserPath(
+            path: (string) $image->getPath(),
+            filter: $this->entityToFilterSetMapping[$source::class] ?? $this->defaultFilterSet,
+            referenceType: UrlGeneratorInterface::ABSOLUTE_PATH,
+        ));
     }
 
     /**
      * @psalm-assert-if-true ImagesAwareInterface $source
-     * @psalm-assert-if-true ImageUrlsAwareInterface $target
+     * @psalm-assert-if-true ImageAwareInterface $target
      */
     public function supports(
         IndexableInterface $source,
@@ -62,6 +60,6 @@ final class ImageUrlsDataMapper implements DataMapperInterface
         IndexScope $indexScope,
         array $context = [],
     ): bool {
-        return $source instanceof ImagesAwareInterface && $target instanceof ImageUrlsAwareInterface;
+        return $source instanceof ImagesAwareInterface && $target instanceof ImageAwareInterface;
     }
 }

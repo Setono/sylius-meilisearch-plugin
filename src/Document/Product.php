@@ -9,7 +9,7 @@ use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Searchable;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable;
 
-class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInterface
+class Product extends Document implements UrlAwareInterface, ImageAwareInterface
 {
     #[Searchable]
     public ?string $name = null;
@@ -19,14 +19,7 @@ class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInter
 
     public ?string $url = null;
 
-    public ?string $primaryImageUrl = null;
-
-    /**
-     * All images (including the primary image url)
-     *
-     * @var list<string>
-     */
-    public array $imageUrls = [];
+    public ?string $image = null;
 
     /**
      * Holds a list of taxon codes. This makes it easy to filter by a taxon.
@@ -68,19 +61,8 @@ class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInter
         $this->url = $url;
     }
 
-    public function setImageUrls(array $imageUrls): void
+    public function setImage(string $image): void
     {
-        $this->imageUrls = $imageUrls;
-        $this->primaryImageUrl = null;
-
-        if (count($imageUrls) > 0) {
-            $this->primaryImageUrl = $imageUrls[0];
-        }
-    }
-
-    public function addImageUrl(string $imageUrl): void
-    {
-        $this->imageUrls[] = $imageUrl;
-        $this->primaryImageUrl = $this->imageUrls[0];
+        $this->image = $image;
     }
 }
