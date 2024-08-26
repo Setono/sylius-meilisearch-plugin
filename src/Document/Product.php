@@ -53,16 +53,6 @@ class Product extends Document implements UrlAwareInterface, ImageUrlsAwareInter
         return null !== $this->originalPrice && null !== $this->price && $this->price < $this->originalPrice;
     }
 
-    /**
-     * This attribute will allow you to create a replica index sorted by biggest discount just like this:
-     *
-     * public static function getSortableAttributes(): array
-     * {
-     *     return [
-     *         'discount' => 'desc',
-     *     ];
-     * }
-     */
     #[Sortable(direction: Sortable::DESC)]
     public function getDiscount(): float
     {
