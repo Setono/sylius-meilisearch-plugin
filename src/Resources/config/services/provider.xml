@@ -23,7 +23,8 @@
 
         <service id="setono_sylius_meilisearch.provider.index_scope.taxon"
                  class="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\TaxonIndexScopeProvider">
-            <argument type="service" id="sylius.repository.locale"/>
+            <argument type="service" id="sylius.repository.channel"/>
+            <argument type="service" id="sylius.context.channel"/>
             <argument type="service" id="sylius.context.locale"/>
 
             <tag name="setono_sylius_meilisearch.index_scope_provider"/>
