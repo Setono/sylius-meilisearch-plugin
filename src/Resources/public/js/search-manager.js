@@ -13,6 +13,10 @@ class SearchManager {
     /**
      * @param {string|HTMLFormElement} form
      * @param {Object} options
+     * @param {Object} options.loader
+     * @param {string} options.loader.selector - Selector of the loader element
+     * @param {Function} options.loader.show - Function to call to show the loader. The first argument is the loader selector and 'this' is bound to the search manager
+     * @param {Function} options.loader.hide - Function to call to hide the loader. The first argument is the loader selector and 'this' is bound to the search manager
      * @param {Function} options.onFacetChange - Callback function to call when a facet input changes. The first argument is the search form, the second argument is the facet field that triggered the event, and 'this' is bound to the search manager. The default function will submit the form
      * @param {Function} options.onPageChange - Callback function to call when a page input changes. The first argument is the search form, the second argument is the page field that triggered the event, and 'this' is bound to the search manager. The default function will submit the form
      * @param {Function} options.onSortChange - Callback function to call when a sort input changes. The first argument is the search form, the second argument is the sort field that triggered the event, and 'this' is bound to the search manager. The default function will submit the form
@@ -30,10 +34,15 @@ class SearchManager {
         this.#form = form;
 
         this.#options = Object.assign({
+                loader: {
+                    selector: '#ssm-overlay',
+                    show: function(selector) { document.querySelector(selector).style.display = 'block'; },
+                    hide: function(selector) { document.querySelector(selector).style.display = 'none'; },
+                },
                 onFacetChange: function (form) { form.requestSubmit(); },
                 onPageChange: function (form) { form.requestSubmit(); },
                 onSortChange: function (form) { form.requestSubmit(); },
-                onSubmit: function (form) { this.disableEmptyFields(); },
+                onSubmit: function () { this.#options.loader.show.bind(this, this.#options.loader.selector)(); this.disableEmptyFields(); },
             },
             options
         );

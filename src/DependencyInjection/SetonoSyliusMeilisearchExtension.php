@@ -215,6 +215,13 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                         ],
                     ],
                 ],
+                'sylius.shop.layout.after_body' => [
+                    'blocks' => [
+                        'setono_sylius_meilisearch_loader' => [
+                            'template' => '@SetonoSyliusMeilisearchPlugin/loader.html.twig',
+                        ],
+                    ],
+                ],
             ],
         ]);
     }
