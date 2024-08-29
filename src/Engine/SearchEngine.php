@@ -29,12 +29,14 @@ final class SearchEngine implements SearchEngineInterface
     {
         $page = max(1, (int) ($parameters['p'] ?? 1));
         $sort = (string) ($parameters['sort'] ?? '');
-        $facetsFilter = $parameters['facets'] ?? [];
+        $facetsFilter = (array) ($parameters['facets'] ?? []);
 
         $metadata = $this->metadataFactory->getMetadataFor($this->index->document);
         $indexUid = $this->indexNameResolver->resolve($this->index);
         $query = $query ?? '';
-        $facets = array_map(static fn (Facet $facet) => $facet->name, $metadata->getFacets());
+        /** @var array<string> $facets */
+        $facets = $metadata->getFacetableAttributeNames();
+        /** @var array<string, mixed> $filter */
         $filter = $this->filterBuilder->build($facetsFilter);
 
         $mainQuery = $this->buildSearchQuery($indexUid, $query, $facets, $filter)
@@ -46,10 +48,10 @@ final class SearchEngine implements SearchEngineInterface
             $mainQuery->setSort([$sort]);
         }
 
-        $results = $this->client->multiSearch([
-            $mainQuery,
-            ...$this->createSearchQueries($indexUid, $facets, $query),
-        ])['results'] ?? [];
+        /** @var list<SearchQuery> $queries */
+        $queries = array_merge([$mainQuery], $this->createSearchQueries($indexUid, $facets, $parameters, $query));
+        /** @var array<SearchResult> $results */
+        $results = $this->client->multiSearch($queries)['results'] ?? [];
         /** @var array{facetDistribution: array<string, int>} $firstResult */
         $firstResult = current($results);
         $firstResult['facetDistribution'] = array_merge(...array_column($results, 'facetDistribution'));
@@ -62,17 +64,18 @@ final class SearchEngine implements SearchEngineInterface
      *
      * @return array<SearchQuery>
      */
-    private function createSearchQueries(string $indexUid, array $facets, ?string $query): array
+    private function createSearchQueries(string $indexUid, array $facets, array $parameters, ?string $query): array
     {
         $searchQueries = [];
 
         foreach ($facets as $facet) {
             $facets = [$facet];
             $filteredFacets = array_filter(
-                $parameters['facets'] ?? [],
+                isset($parameters['facets']) ? (array) $parameters['facets'] : [],
                 static fn ($value) => $value !== $facet,
                 \ARRAY_FILTER_USE_KEY,
             );
+            /** @var array<string, mixed> $filter */
             $filter = $this->filterBuilder->build($filteredFacets);
 
             $searchQueries[] = $this->buildSearchQuery($indexUid, $query, $facets, $filter)->setLimit(1);

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Tests\Application\src\FilterBuilder;
+namespace Setono\SyliusMeilisearchPlugin\Tests\Application\FilterBuilder;
 
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilderInterface;
 
