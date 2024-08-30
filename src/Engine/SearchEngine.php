@@ -29,6 +29,7 @@ final class SearchEngine implements SearchEngineInterface
     {
         $page = max(1, (int) ($parameters['p'] ?? 1));
         $sort = (string) ($parameters['sort'] ?? '');
+        /** @var array<string, mixed> $facetsFilter */
         $facetsFilter = (array) ($parameters['facets'] ?? []);
 
         $metadata = $this->metadataFactory->getMetadataFor($this->index->document);
@@ -54,13 +55,14 @@ final class SearchEngine implements SearchEngineInterface
         $results = $this->client->multiSearch($queries)['results'] ?? [];
         /** @var array{facetDistribution: array<string, int>} $firstResult */
         $firstResult = current($results);
+        /** @psalm-suppress MixedArgument (just for now) */
         $firstResult['facetDistribution'] = array_merge(...array_column($results, 'facetDistribution'));
 
         return new SearchResult($firstResult);
     }
 
     /**
-     * @param array<Facet> $facets
+     * @param array<string, Facet> $facets
      * @param array<string> $facetsNames
      *
      * @return array<SearchQuery>
@@ -70,12 +72,13 @@ final class SearchEngine implements SearchEngineInterface
         array $facets,
         array $facetsNames,
         array $parameters,
-        ?string $query
+        ?string $query,
     ): array {
         $searchQueries = [];
 
         foreach ($facetsNames as $facet) {
             $facetsNames = [$facet];
+            /** @var array<string, mixed> $filteredFacets */
             $filteredFacets = array_filter(
                 isset($parameters['facets']) ? (array) $parameters['facets'] : [],
                 static fn ($value) => $value !== $facet,

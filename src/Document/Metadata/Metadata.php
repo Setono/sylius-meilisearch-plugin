@@ -74,9 +74,9 @@ final class Metadata implements MetadataInterface
 
             if ($attribute instanceof FacetAttribute) {
                 if ($attributesAware instanceof \ReflectionProperty) {
-                    $type = $attributesAware->getType()->getName();
+                    $type = (string) $attributesAware->getType();
                 } else {
-                    $type = $attributesAware->getReturnType()->getName();
+                    $type = (string) $attributesAware->getReturnType();
                 }
 
                 $this->facetableAttributes[$name] = new Facet($name, $type);

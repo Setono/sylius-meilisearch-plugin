@@ -7,7 +7,3 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-
-    Setono\SyliusMeilisearchPlugin\Tests\Application\:
-        resource: '../src/*'
-        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'

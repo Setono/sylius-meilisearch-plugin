@@ -28,7 +28,7 @@ final class CompositeFilterBuilderTest extends TestCase
         $sizeFacet = new Facet('size', 'string');
 
         $filters = $compositeFilterBuilder->build(
-            [$onSaleFacet, $brandFacet, $sizeFacet],
+            ['onSale' => $onSaleFacet, 'brand' => $brandFacet, 'size' => $sizeFacet],
             ['onSale' => true, 'brand' => ['brand1'], 'size' => ['size1', 'size2']],
         );
 
@@ -54,8 +54,8 @@ final class CompositeFilterBuilderTest extends TestCase
         $sizeFacet = new Facet('size', 'string');
 
         $filters = $compositeFilterBuilder->build(
-            [$onSaleFacet, $sizeFacet],
-            ['onSale' => true, 'size' => ['size1', 'size2']]
+            ['onSale' => $onSaleFacet, 'size' => $sizeFacet],
+            ['onSale' => true, 'size' => ['size1', 'size2']],
         );
 
         $this->assertSame([

@@ -12,6 +12,7 @@ final class ArrayFilterBuilder implements FilterBuilderInterface
 
         foreach ($facets as $facet) {
             if ($facet->type === 'array' && isset($facetsValues[$facet->name])) {
+                /** @var string $value */
                 foreach ($facetsValues[$facet->name] as $value) {
                     $query[] = sprintf('%s = "%s"', $facet->name, $value);
                 }
