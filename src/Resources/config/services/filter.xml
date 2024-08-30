@@ -11,5 +11,13 @@
         <service id="Setono\SyliusMeilisearchPlugin\Filter\Entity\FilterableEntityFilter">
             <tag name="setono_sylius_meilisearch.entity_filter"/>
         </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\ArrayFilterBuilder">
+            <tag name="setono_sylius_meilisearch.filter_builder" />
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\BooleanFilterBuilder">
+            <tag name="setono_sylius_meilisearch.filter_builder" />
+        </service>
     </services>
 </container>

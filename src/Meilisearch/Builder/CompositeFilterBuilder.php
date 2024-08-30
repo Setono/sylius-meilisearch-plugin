@@ -14,13 +14,13 @@ final class CompositeFilterBuilder implements FilterBuilderInterface
     ) {
     }
 
-    public function build(array $facets): string|array
+    public function build(array $facets, array $facetsValues): array
     {
         $filters = [];
 
         foreach ($this->filterBuilders as $filterBuilder) {
             if ($filterBuilder->supports($facets)) {
-                $filters[] = $filterBuilder->build($facets);
+                $filters = array_merge($filters, $filterBuilder->build($facets, $facetsValues));
             }
         }
 

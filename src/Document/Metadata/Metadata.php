@@ -57,8 +57,9 @@ final class Metadata implements MetadataInterface
         }
     }
 
-    private function loadAttributes(\ReflectionProperty|\ReflectionMethod $attributesAware): void
-    {
+    private function loadAttributes(
+        \ReflectionProperty|\ReflectionMethod $attributesAware,
+    ): void {
         $name = self::resolveName($attributesAware);
         if (null === $name) {
             return;
@@ -72,7 +73,13 @@ final class Metadata implements MetadataInterface
             }
 
             if ($attribute instanceof FacetAttribute) {
-                $this->facetableAttributes[$name] = new Facet($name);
+                if ($attributesAware instanceof \ReflectionProperty) {
+                    $type = $attributesAware->getType()->getName();
+                } else {
+                    $type = $attributesAware->getReturnType()->getName();
+                }
+
+                $this->facetableAttributes[$name] = new Facet($name, $type);
             }
 
             if ($attribute instanceof SearchableAttribute) {
