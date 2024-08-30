@@ -28,6 +28,8 @@
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilder">
             <argument type="service" id="form.factory"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Form\Builder\FacetFormBuilderInterface"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface"/>
+            <argument type="service" id="setono_sylius_meilisearch.index.search"/>
 
             <tag name="form.type"/>
         </service>
