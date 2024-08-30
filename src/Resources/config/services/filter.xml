@@ -19,5 +19,9 @@
         <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\BooleanFilterBuilder">
             <tag name="setono_sylius_meilisearch.filter_builder" />
         </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FloatFilterBuilder">
+            <tag name="setono_sylius_meilisearch.filter_builder" />
+        </service>
     </services>
 </container>

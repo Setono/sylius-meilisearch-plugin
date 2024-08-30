@@ -52,17 +52,21 @@ final class SearchEngine implements SearchEngineInterface
         return $this->provideSearchResult($results);
     }
 
+    /**
+     * @param array<string> $facetsNames
+     * @param array<string, mixed> $filters
+     */
     private function buildMainQuery(
         string $indexUid,
         string $query,
         array $facetsNames,
-        array $filter,
-        array $parameters
+        array $filters,
+        array $parameters,
     ): SearchQuery {
         $mainQuery = $this
-            ->buildSearchQuery($indexUid, $query, $facetsNames, $filter)
+            ->buildSearchQuery($indexUid, $query, $facetsNames, $filters)
             ->setHitsPerPage($this->hitsPerPage)
-            ->setPage(max(1, (int)($parameters['p'] ?? 1)))
+            ->setPage(max(1, (int) ($parameters['p'] ?? 1)))
         ;
 
         $sort = (string) ($parameters['sort'] ?? '');
