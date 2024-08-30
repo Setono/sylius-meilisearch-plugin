@@ -19,16 +19,9 @@ final class CompositeFilterBuilder implements FilterBuilderInterface
         $filters = [];
 
         foreach ($this->filterBuilders as $filterBuilder) {
-            if ($filterBuilder->supports($facets)) {
-                $filters = array_merge($filters, $filterBuilder->build($facets, $facetsValues));
-            }
+            $filters = array_merge($filters, $filterBuilder->build($facets, $facetsValues));
         }
 
         return $filters;
-    }
-
-    public function supports(array $facets): bool
-    {
-        return true;
     }
 }

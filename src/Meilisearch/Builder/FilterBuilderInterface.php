@@ -15,6 +15,4 @@ interface FilterBuilderInterface
      * @return array<string>
      */
     public function build(array $facets, array $facetsValues): array;
-
-    public function supports(array $facets): bool;
 }

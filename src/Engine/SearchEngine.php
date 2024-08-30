@@ -27,38 +27,50 @@ final class SearchEngine implements SearchEngineInterface
 
     public function execute(?string $query, array $parameters = []): SearchResult
     {
-        $page = max(1, (int) ($parameters['p'] ?? 1));
-        $sort = (string) ($parameters['sort'] ?? '');
-        /** @var array<string, mixed> $facetsFilter */
-        $facetsFilter = (array) ($parameters['facets'] ?? []);
-
         $metadata = $this->metadataFactory->getMetadataFor($this->index->document);
         $indexUid = $this->indexNameResolver->resolve($this->index);
-        $query = $query ?? '';
         /** @var array<string> $facetsNames */
         $facetsNames = $metadata->getFacetableAttributeNames();
-        /** @var array<string, mixed> $filter */
-        $filter = $this->filterBuilder->build($metadata->getFacetableAttributes(), $facetsFilter);
+        $facets = $metadata->getFacetableAttributes();
 
-        $mainQuery = $this->buildSearchQuery($indexUid, $query, $facetsNames, $filter)
+        /** @var array<string, mixed> $facetsFilter */
+        $facetsFilter = (array) ($parameters['facets'] ?? []);
+        /** @var array<string, mixed> $filters */
+        $filters = $this->filterBuilder->build($facets, $facetsFilter);
+
+        $mainQuery = $this->buildMainQuery($indexUid, $query ?? '', $facetsNames, $filters, $parameters);
+
+        /** @var list<SearchQuery> $queries */
+        $queries = array_merge(
+            [$mainQuery],
+            $this->createSearchQueries($indexUid, $facets, $facetsNames, $facetsFilter, $query ?? ''),
+        );
+
+        /** @var array<SearchResult> $results */
+        $results = $this->client->multiSearch($queries)['results'] ?? [];
+
+        return $this->provideSearchResult($results);
+    }
+
+    private function buildMainQuery(
+        string $indexUid,
+        string $query,
+        array $facetsNames,
+        array $filter,
+        array $parameters
+    ): SearchQuery {
+        $mainQuery = $this
+            ->buildSearchQuery($indexUid, $query, $facetsNames, $filter)
             ->setHitsPerPage($this->hitsPerPage)
-            ->setPage($page)
+            ->setPage(max(1, (int)($parameters['p'] ?? 1)))
         ;
 
+        $sort = (string) ($parameters['sort'] ?? '');
         if ('' !== $sort) {
             $mainQuery->setSort([$sort]);
         }
 
-        /** @var list<SearchQuery> $queries */
-        $queries = array_merge([$mainQuery], $this->createSearchQueries($indexUid, $metadata->getFacetableAttributes(), $facetsNames, $parameters, $query));
-        /** @var array<SearchResult> $results */
-        $results = $this->client->multiSearch($queries)['results'] ?? [];
-        /** @var array{facetDistribution: array<string, int>} $firstResult */
-        $firstResult = current($results);
-        /** @psalm-suppress MixedArgument (just for now) */
-        $firstResult['facetDistribution'] = array_merge(...array_column($results, 'facetDistribution'));
-
-        return new SearchResult($firstResult);
+        return $mainQuery;
     }
 
     /**
@@ -71,7 +83,7 @@ final class SearchEngine implements SearchEngineInterface
         string $indexUid,
         array $facets,
         array $facetsNames,
-        array $parameters,
+        array $facetsFilter,
         ?string $query,
     ): array {
         $searchQueries = [];
@@ -79,11 +91,7 @@ final class SearchEngine implements SearchEngineInterface
         foreach ($facetsNames as $facet) {
             $facetsNames = [$facet];
             /** @var array<string, mixed> $filteredFacets */
-            $filteredFacets = array_filter(
-                isset($parameters['facets']) ? (array) $parameters['facets'] : [],
-                static fn ($value) => $value !== $facet,
-                \ARRAY_FILTER_USE_KEY,
-            );
+            $filteredFacets = array_filter($facetsFilter, static fn ($value) => $value !== $facet, \ARRAY_FILTER_USE_KEY);
             /** @var array<string, mixed> $filter */
             $filter = $this->filterBuilder->build($facets, $filteredFacets);
 
@@ -105,5 +113,15 @@ final class SearchEngine implements SearchEngineInterface
             ->setFacets($facets)
             ->setFilter($filter)
         ;
+    }
+
+    private function provideSearchResult(array $results): SearchResult
+    {
+        /** @var array{facetDistribution: array<string, int>} $firstResult */
+        $firstResult = current($results);
+        /** @psalm-suppress MixedArgument (just for now) */
+        $firstResult['facetDistribution'] = array_merge(...array_column($results, 'facetDistribution'));
+
+        return new SearchResult($firstResult);
     }
 }

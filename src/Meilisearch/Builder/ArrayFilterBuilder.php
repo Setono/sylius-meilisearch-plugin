@@ -25,9 +25,4 @@ final class ArrayFilterBuilder implements FilterBuilderInterface
 
         return ['(' . implode(' OR ', $query) . ')'];
     }
-
-    public function supports(array $facets): bool
-    {
-        return true;
-    }
 }

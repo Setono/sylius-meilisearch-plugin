@@ -19,9 +19,4 @@ final class BooleanFilterBuilder implements FilterBuilderInterface
 
         return $filters;
     }
-
-    public function supports(array $facets): bool
-    {
-        return true;
-    }
 }
