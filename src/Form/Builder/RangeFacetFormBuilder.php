@@ -18,7 +18,7 @@ final class RangeFacetFormBuilder implements FacetFormBuilderInterface
         }
 
         $builder->add($name, RangeType::class, [
-            'label' => u($name)->snake(),
+            'label' => sprintf('setono_sylius_meilisearch.form.search.facet.%s', u($name)->snake()),
             'required' => false,
         ]);
     }

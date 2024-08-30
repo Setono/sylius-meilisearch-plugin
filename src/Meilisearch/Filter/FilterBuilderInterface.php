@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Meilisearch\Builder;
+namespace Setono\SyliusMeilisearchPlugin\Meilisearch\Filter;
 
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
 

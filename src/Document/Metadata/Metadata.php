@@ -72,13 +72,7 @@ final class Metadata implements MetadataInterface
             }
 
             if ($attribute instanceof FacetAttribute) {
-                if ($attributesAware instanceof \ReflectionProperty) {
-                    $type = str_replace('?', '', (string) $attributesAware->getType());
-                } else {
-                    $type = str_replace('?', '', (string) $attributesAware->getReturnType());
-                }
-
-                $this->facetableAttributes[$name] = new Facet($name, $type);
+                $this->facetableAttributes[$name] = new Facet($name, $this->getFacetType($attributesAware));
             }
 
             if ($attribute instanceof SearchableAttribute) {
@@ -172,5 +166,14 @@ final class Metadata implements MetadataInterface
         }
 
         return null;
+    }
+
+    private function getFacetType(\ReflectionProperty|\ReflectionMethod $attributesAware): string
+    {
+        if ($attributesAware instanceof \ReflectionProperty) {
+            return str_replace('?', '', (string) $attributesAware->getType());
+        }
+
+        return str_replace('?', '', (string) $attributesAware->getReturnType());
     }
 }

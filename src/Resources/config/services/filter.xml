@@ -12,15 +12,15 @@
             <tag name="setono_sylius_meilisearch.entity_filter"/>
         </service>
 
-        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\ArrayFilterBuilder">
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\ArrayFilterBuilder">
             <tag name="setono_sylius_meilisearch.filter_builder" />
         </service>
 
-        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\BooleanFilterBuilder">
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\BooleanFilterBuilder">
             <tag name="setono_sylius_meilisearch.filter_builder" />
         </service>
 
-        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FloatFilterBuilder">
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FloatFilterBuilder">
             <tag name="setono_sylius_meilisearch.filter_builder" />
         </service>
     </services>

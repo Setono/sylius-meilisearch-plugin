@@ -6,8 +6,8 @@ namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Meilisearch\Builder;
 
 use PHPUnit\Framework\TestCase;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
-use Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\CompositeFilterBuilder;
-use Setono\SyliusMeilisearchPlugin\Meilisearch\Builder\FilterBuilderInterface;
+use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder;
+use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FilterBuilderInterface;
 
 final class CompositeFilterBuilderTest extends TestCase
 {

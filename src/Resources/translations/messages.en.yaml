@@ -3,6 +3,7 @@ setono_sylius_meilisearch:
         search:
             facet:
                 on_sale: On sale (%count%)
+                price: Price
                 size: Size
             pagination:
                 previous: Previous

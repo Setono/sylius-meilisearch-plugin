@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Meilisearch\Builder;
+namespace Setono\SyliusMeilisearchPlugin\Meilisearch\Filter;
 
 final class FloatFilterBuilder implements FilterBuilderInterface
 {
