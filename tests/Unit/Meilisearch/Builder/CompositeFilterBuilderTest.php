@@ -19,7 +19,9 @@ final class CompositeFilterBuilderTest extends TestCase
         $sizeFilterBuilder = $this->createMock(FilterBuilderInterface::class);
         $sizeFilterBuilder->method('build')->willReturn(['(size = "size1" OR size = "size2")']);
 
-        $compositeFilterBuilder = new CompositeFilterBuilder([$brandFilterBuilder, $sizeFilterBuilder]);
+        $compositeFilterBuilder = new CompositeFilterBuilder();
+        $compositeFilterBuilder->add($brandFilterBuilder);
+        $compositeFilterBuilder->add($sizeFilterBuilder);
 
         $onSaleFacet = new Facet('onSale', 'bool');
         $brandFacet = new Facet('brand', 'string');

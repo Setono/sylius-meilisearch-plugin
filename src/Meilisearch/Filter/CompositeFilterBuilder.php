@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Meilisearch\Filter;
 
-final class CompositeFilterBuilder implements FilterBuilderInterface
-{
-    /** @param iterable<FilterBuilderInterface> $filterBuilders */
-    public function __construct(private readonly iterable $filterBuilders)
-    {
-    }
+use Setono\CompositeCompilerPass\CompositeService;
 
+/** @extends CompositeService<FilterBuilderInterface> */
+final class CompositeFilterBuilder extends CompositeService implements FilterBuilderInterface
+{
     public function build(array $facets, array $facetsValues): array
     {
         $filters = [];
 
-        foreach ($this->filterBuilders as $filterBuilder) {
+        foreach ($this->services as $filterBuilder) {
             $filters = array_merge($filters, $filterBuilder->build($facets, $facetsValues));
         }
 

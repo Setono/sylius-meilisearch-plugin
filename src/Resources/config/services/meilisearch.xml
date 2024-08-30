@@ -8,9 +8,7 @@
             alias="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder"
         />
 
-        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder">
-            <argument type="tagged_iterator" tag="setono_sylius_meilisearch.filter_builder"/>
-        </service>
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder" />
 
         <service
             id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\SearchQueryBuilderInterface"
@@ -29,7 +27,7 @@
             id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\SubQueriesBuilderInterface"
             class="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\SubQueriesBuilder"
         >
-            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder" />
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FilterBuilderInterface" />
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\SearchQueryBuilderInterface" />
         </service>
 
