@@ -25,21 +25,6 @@ final class RangeFacetFormBuilder implements FacetFormBuilderInterface
 
     public function supports(string $name, array $values, Facet $facet, array $stats = null): bool
     {
-        if ($facet->type !== 'float') {
-            return false;
-        }
-
-//        $keys = array_keys($values);
-//        if (count($keys) < 2) {
-//            return false;
-//        }
-//
-//        foreach ($keys as $key) {
-//            if (is_numeric($key)) {
-//                return false;
-//            }
-//        }
-
-        return true;
+        return $facet->type === 'float';
     }
 }

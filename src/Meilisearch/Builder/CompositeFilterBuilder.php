@@ -6,12 +6,9 @@ namespace Setono\SyliusMeilisearchPlugin\Meilisearch\Builder;
 
 final class CompositeFilterBuilder implements FilterBuilderInterface
 {
-    /**
-     * @param iterable<FilterBuilderInterface> $filterBuilders
-     */
-    public function __construct(
-        private readonly iterable $filterBuilders,
-    ) {
+    /** @param iterable<FilterBuilderInterface> $filterBuilders */
+    public function __construct(private readonly iterable $filterBuilders)
+    {
     }
 
     public function build(array $facets, array $facetsValues): array

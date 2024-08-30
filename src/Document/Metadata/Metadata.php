@@ -57,9 +57,8 @@ final class Metadata implements MetadataInterface
         }
     }
 
-    private function loadAttributes(
-        \ReflectionProperty|\ReflectionMethod $attributesAware,
-    ): void {
+    private function loadAttributes(\ReflectionProperty|\ReflectionMethod $attributesAware): void
+    {
         $name = self::resolveName($attributesAware);
         if (null === $name) {
             return;
