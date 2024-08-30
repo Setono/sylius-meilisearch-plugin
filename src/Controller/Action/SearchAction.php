@@ -8,6 +8,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchEngineInterface;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
+use Setono\SyliusMeilisearchPlugin\Meilisearch\Provider\SearchResultDataProvider;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,6 +55,8 @@ final class SearchAction
 
         return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/search/index.html.twig', [
             'searchResult' => $searchResult,
+            'pageStartHit' => SearchResultDataProvider::getPageStartHit($searchResult),
+            'pageEndHit' => SearchResultDataProvider::getPageEndHit($searchResult),
             'searchForm' => $searchForm->createView(),
             'items' => $items,
         ]));
