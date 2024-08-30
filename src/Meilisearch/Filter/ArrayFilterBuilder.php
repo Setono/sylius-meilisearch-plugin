@@ -19,7 +19,7 @@ final class ArrayFilterBuilder implements FilterBuilderInterface
             }
         }
 
-        if (empty($query)) {
+        if ([] === $query) {
             return [];
         }
 

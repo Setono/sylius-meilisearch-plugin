@@ -31,7 +31,6 @@ final class SearchEngine implements SearchEngineInterface
     {
         $indexName = $this->indexNameResolver->resolve($this->index);
         $metadata = $this->metadataFactory->getMetadataFor($this->index->document);
-        /** @var array<string> $facetsNames */
         $facetsNames = $metadata->getFacetableAttributeNames();
         $facets = $metadata->getFacetableAttributes();
 

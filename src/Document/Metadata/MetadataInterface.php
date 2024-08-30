@@ -23,7 +23,7 @@ interface MetadataInterface
     /**
      * Returns the names of the filterable attributes
      *
-     * @return list<string>
+     * @return array<string>
      */
     public function getFilterableAttributeNames(): array;
 
@@ -37,7 +37,7 @@ interface MetadataInterface
     /**
      * Returns the names of the facetable attributes
      *
-     * @return list<string>
+     * @return array<string>
      */
     public function getFacetableAttributeNames(): array;
 

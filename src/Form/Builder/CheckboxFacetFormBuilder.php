@@ -11,10 +11,10 @@ use function Symfony\Component\String\u;
 
 final class CheckboxFacetFormBuilder implements FacetFormBuilderInterface
 {
-    public function build(FormBuilderInterface $builder, string $name, array $values, Facet $facet, array $stats = null): void
+    public function build(FormBuilderInterface $builder, array $values, Facet $facet, array $stats = null): void
     {
-        $builder->add($name, CheckboxType::class, [
-            'label' => sprintf('setono_sylius_meilisearch.form.search.facet.%s', u($name)->snake()),
+        $builder->add($facet->name, CheckboxType::class, [
+            'label' => sprintf('setono_sylius_meilisearch.form.search.facet.%s', u($facet->name)->snake()),
             'label_translation_parameters' => [
                 '%count%' => $values['true'],
             ],
@@ -23,7 +23,7 @@ final class CheckboxFacetFormBuilder implements FacetFormBuilderInterface
         ]);
     }
 
-    public function supports(string $name, array $values, Facet $facet, array $stats = null): bool
+    public function supports(array $values, Facet $facet, array $stats = null): bool
     {
         return $facet->type === 'bool' && match (count($values)) {
             1 => isset($values['true']),

@@ -11,13 +11,13 @@ use function Symfony\Component\String\u;
 
 final class ChoiceFacetFormBuilder implements FacetFormBuilderInterface
 {
-    public function build(FormBuilderInterface $builder, string $name, array $values, Facet $facet, array $stats = null): void
+    public function build(FormBuilderInterface $builder, array $values, Facet $facet, array $stats = null): void
     {
         $keys = array_keys($values);
         $choices = array_combine($keys, $keys);
 
-        $builder->add($name, ChoiceType::class, [
-            'label' => sprintf('setono_sylius_meilisearch.form.search.facet.%s', u($name)->snake()),
+        $builder->add($facet->name, ChoiceType::class, [
+            'label' => sprintf('setono_sylius_meilisearch.form.search.facet.%s', u($facet->name)->snake()),
             'choices' => $choices,
             'choice_label' => fn (string $key) => sprintf('%s (%d)', $key, $values[$key]),
             'expanded' => true,
@@ -27,7 +27,7 @@ final class ChoiceFacetFormBuilder implements FacetFormBuilderInterface
         ]);
     }
 
-    public function supports(string $name, array $values, Facet $facet, array $stats = null): bool
+    public function supports(array $values, Facet $facet, array $stats = null): bool
     {
         if ($facet->type !== 'array') {
             return false;

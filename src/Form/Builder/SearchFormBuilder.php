@@ -78,8 +78,8 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
          * @var array<string, int> $values
          */
         foreach ($searchResult->getFacetDistribution() as $name => $values) {
-            if ($this->facetFormBuilder->supports($name, $values, $facets[$name], $facetStats[$name] ?? null)) {
-                $this->facetFormBuilder->build($facetsFormBuilder, $name, $values, $facets[$name], $facetStats[$name] ?? null);
+            if ($this->facetFormBuilder->supports($values, $facets[$name], $facetStats[$name] ?? null)) {
+                $this->facetFormBuilder->build($facetsFormBuilder, $values, $facets[$name], $facetStats[$name] ?? null);
             }
         }
 

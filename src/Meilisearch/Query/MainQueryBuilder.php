@@ -14,6 +14,10 @@ final class MainQueryBuilder implements MainQueryBuilderInterface
     ) {
     }
 
+    /**
+     * @param array<string> $facetsNames
+     * @param array<string, mixed> $filters
+     */
     public function build(
         string $indexName,
         string $query,
