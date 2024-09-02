@@ -11,7 +11,7 @@ use function Symfony\Component\String\u;
 
 final class RangeFacetFormBuilder implements FacetFormBuilderInterface
 {
-    public function build(FormBuilderInterface $builder, array $values, Facet $facet, array $stats = null): void
+    public function build(FormBuilderInterface $builder, Facet $facet, array $values, array $stats = null): void
     {
         if ($stats === null || !isset($stats['min']) && !isset($stats['max'])) {
             return;
@@ -24,7 +24,7 @@ final class RangeFacetFormBuilder implements FacetFormBuilderInterface
         ]);
     }
 
-    public function supports(array $values, Facet $facet, array $stats = null): bool
+    public function supports(Facet $facet, array $values, array $stats = null): bool
     {
         return $facet->type === 'float';
     }

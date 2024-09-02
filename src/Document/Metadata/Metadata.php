@@ -72,7 +72,7 @@ final class Metadata implements MetadataInterface
             }
 
             if ($attribute instanceof FacetAttribute) {
-                $this->facetableAttributes[$name] = new Facet($name, $this->getFacetType($attributesAware));
+                $this->facetableAttributes[$name] = new Facet($name, self::getFacetType($attributesAware));
             }
 
             if ($attribute instanceof SearchableAttribute) {
@@ -168,7 +168,7 @@ final class Metadata implements MetadataInterface
         return null;
     }
 
-    private function getFacetType(\ReflectionProperty|\ReflectionMethod $attributesAware): string
+    private static function getFacetType(\ReflectionProperty|\ReflectionMethod $attributesAware): string
     {
         if ($attributesAware instanceof \ReflectionProperty) {
             return str_replace('?', '', (string) $attributesAware->getType());

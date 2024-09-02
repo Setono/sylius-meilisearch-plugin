@@ -11,7 +11,6 @@ interface SubQueriesBuilderInterface
 {
     /**
      * @param array<string, Facet> $facets
-     * @param array<string> $facetsNames
      *
      * @return array<SearchQuery>
      */
@@ -19,7 +18,6 @@ interface SubQueriesBuilderInterface
         string $indexName,
         string $query,
         array $facets,
-        array $facetsNames,
         array $filters,
     ): array;
 }

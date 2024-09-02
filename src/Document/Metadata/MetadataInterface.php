@@ -23,7 +23,7 @@ interface MetadataInterface
     /**
      * Returns the names of the filterable attributes
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getFilterableAttributeNames(): array;
 

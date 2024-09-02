@@ -51,7 +51,7 @@ final class SearchEngine implements SearchEngineInterface
         /** @var list<SearchQuery> $queries */
         $queries = array_merge(
             [$mainQuery],
-            $this->subQueriesBuilder->build($indexName, $query ?? '', $facets, $facetsNames, $facetsFilter),
+            $this->subQueriesBuilder->build($indexName, $query ?? '', $facets, $facetsFilter),
         );
 
         /** @var array<SearchResult> $results */

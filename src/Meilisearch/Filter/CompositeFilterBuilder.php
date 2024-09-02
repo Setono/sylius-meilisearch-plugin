@@ -14,9 +14,9 @@ final class CompositeFilterBuilder extends CompositeService implements FilterBui
         $filters = [];
 
         foreach ($this->services as $filterBuilder) {
-            $filters = array_merge($filters, $filterBuilder->build($facets, $facetsValues));
+            $filters[] = $filterBuilder->build($facets, $facetsValues);
         }
 
-        return $filters;
+        return array_merge(...$filters);
     }
 }

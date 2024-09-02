@@ -10,18 +10,18 @@ final class SubQueriesBuilder implements SubQueriesBuilderInterface
 {
     public function __construct(
         private readonly FilterBuilderInterface $filterBuilder,
-        private readonly SearchQueryBuilder $searchQueryBuilder,
+        private readonly SearchQueryBuilderInterface $searchQueryBuilder,
     ) {
     }
 
-    public function build(string $indexName, string $query, array $facets, array $facetsNames, array $filters): array
+    public function build(string $indexName, string $query, array $facets, array $filters): array
     {
         $searchQueries = [];
 
-        foreach ($facetsNames as $facet) {
-            $facetsNames = [$facet];
+        foreach ($facets as $facet) {
+            $facetsNames = [$facet->name];
             /** @var array<string, mixed> $filteredFacets */
-            $filteredFacets = array_filter($filters, static fn ($value) => $value !== $facet, \ARRAY_FILTER_USE_KEY);
+            $filteredFacets = array_filter($filters, static fn ($value) => $value !== $facet->name, \ARRAY_FILTER_USE_KEY);
             /** @var array<string, mixed> $filter */
             $filter = $this->filterBuilder->build($facets, $filteredFacets);
 
