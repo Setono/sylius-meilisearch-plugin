@@ -10,13 +10,16 @@
 {% block setono_sylius_meilisearch_facet_range_row %}
     <div class="facet facet-range">
         {{ form_label(form) }}
-        <div class="ui small labeled input" style="margin-bottom: 1rem;">
-            <div class="ui label">{{ form_label(form.min) }}</div>
-            {{ form_widget(form.min, {'attr': {'class': 'small'}}) }}
-        </div>
-        <div class="ui small labeled input">
-            <div class="ui label">{{ form_label(form.max) }}</div>
-            {{ form_widget(form.max, {'attr': {'class': 'small'}}) }}
+        {# todo these input fields should be prefilled with min and max values, but should not be submitted if those values are equal to the default value #}
+        <div class="facet-range-widget">
+            <div>
+                {{ form_label(form.min) }}
+                {{ form_widget(form.min) }}
+            </div>
+            <div>
+                {{ form_label(form.max) }}
+                {{ form_widget(form.max) }}
+            </div>
         </div>
     </div>
 {% endblock %}
