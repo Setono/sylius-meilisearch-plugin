@@ -37,7 +37,7 @@ interface MetadataInterface
     /**
      * Returns the names of the facetable attributes
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function getFacetableAttributeNames(): array;
 
