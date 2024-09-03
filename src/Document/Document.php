@@ -8,8 +8,6 @@ use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 
 /**
  * ALL documents MUST extend this class
- *
- * todo we need a metadata factory like \Symfony\Component\Validator\Mapping\Factory\LazyLoadingMetadataFactory to be able to easily extract the metadata from the document, e.g. facets, sortable attributes etc.
  */
 abstract class Document
 {
