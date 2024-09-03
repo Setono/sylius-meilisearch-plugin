@@ -43,7 +43,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
          * @var array{
          *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}>,
          *      server: array{ host: string, master_key: string },
-         *      search: array{ enabled: bool, path: string, index: string, hits_per_page: integer },
+         *      search: array{ enabled: bool, path: string, index: string, hits_per_page: int },
          *      resources: array,
          * } $config
          */
@@ -285,7 +285,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     /**
      * todo the search controller should only be available when search is enabled
      *
-     * @param array{ enabled: bool, path: string, index: string, hits_per_page: integer } $config the search configuration
+     * @param array{ enabled: bool, path: string, index: string, hits_per_page: int } $config the search configuration
      * @param list<string> $indexes a list of index names
      */
     private static function registerSearchConfiguration(array $config, array $indexes, ContainerBuilder $container, LoaderInterface $loader): void
