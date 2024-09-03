@@ -3,31 +3,26 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <!-- Index scope providers -->
-        <service id="setono_sylius_meilisearch.provider.index_scope.composite"
-                 class="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\CompositeIndexScopeProvider"/>
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\CompositeIndexScopeProvider"/>
 
-        <service id="setono_sylius_meilisearch.provider.index_scope.default"
-                 class="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\DefaultIndexScopeProvider">
-            <tag name="setono_sylius_meilisearch.index_scope_provider" priority="-64"/>
-        </service>
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\CompositeIndexScopeProvider"/>
 
-        <service id="setono_sylius_meilisearch.provider.index_scope.product"
-                 class="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\ProductIndexScopeProvider">
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\ProductIndexScopeProvider">
             <argument type="service" id="sylius.context.channel"/>
             <argument type="service" id="sylius.context.locale"/>
             <argument type="service" id="sylius.context.currency"/>
             <argument type="service" id="sylius.repository.channel"/>
 
-            <tag name="setono_sylius_meilisearch.index_scope_provider"/>
+            <tag name="setono_sylius_meilisearch.index_scope_provider" priority="-50"/>
         </service>
 
-        <service id="setono_sylius_meilisearch.provider.index_scope.taxon"
-                 class="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\TaxonIndexScopeProvider">
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\DefaultIndexScopeProvider">
             <argument type="service" id="sylius.repository.channel"/>
             <argument type="service" id="sylius.context.channel"/>
             <argument type="service" id="sylius.context.locale"/>
 
-            <tag name="setono_sylius_meilisearch.index_scope_provider"/>
+            <tag name="setono_sylius_meilisearch.index_scope_provider" priority="-60"/>
         </service>
 
         <!-- Settings providers -->

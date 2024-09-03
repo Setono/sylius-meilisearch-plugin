@@ -269,7 +269,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         $container->setDefinition($indexerServiceId, new Definition(DefaultIndexer::class, [
             new Reference($indexServiceId),
             new Reference('doctrine'),
-            new Reference('setono_sylius_meilisearch.provider.index_scope.composite'),
+            new Reference('Setono\SyliusMeilisearchPlugin\Provider\IndexScope\CompositeIndexScopeProvider'),
             new Reference('setono_sylius_meilisearch.resolver.index_name'),
             new Reference(DataMapperInterface::class),
             new Reference('serializer'),

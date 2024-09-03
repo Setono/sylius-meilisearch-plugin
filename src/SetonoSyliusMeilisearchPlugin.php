@@ -13,6 +13,7 @@ use Sylius\Bundle\CoreBundle\Application\SyliusPluginTrait;
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\CompositeIndexScopeProvider;
 
 final class SetonoSyliusMeilisearchPlugin extends AbstractResourceBundle
 {
@@ -46,7 +47,7 @@ final class SetonoSyliusMeilisearchPlugin extends AbstractResourceBundle
         ));
 
         $container->addCompilerPass(new CompositeCompilerPass(
-            'setono_sylius_meilisearch.provider.index_scope.composite',
+            CompositeIndexScopeProvider::class,
             'setono_sylius_meilisearch.index_scope_provider',
         ));
 
