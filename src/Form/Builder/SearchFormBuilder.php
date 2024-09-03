@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Form\Builder;
 
 use Meilisearch\Search\SearchResult;
+use Setono\SyliusMeilisearchPlugin\Config\Index;
+use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -16,11 +18,15 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
     public function __construct(
         private readonly FormFactoryInterface $formFactory,
         private readonly FacetFormBuilderInterface $facetFormBuilder,
+        private readonly MetadataFactoryInterface $metadataFactory,
+        private readonly Index $index,
     ) {
     }
 
     public function build(SearchResult $searchResult): FormInterface
     {
+        $metadata = $this->metadataFactory->getMetadataFor($this->index->document);
+
         $searchFormBuilder = $this
             ->formFactory
             ->createNamedBuilder('', options: [
@@ -49,6 +55,8 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
          */
         $facetStats = $searchResult->getFacetStats();
 
+        $facets = $metadata->getFacetableAttributes();
+
         /**
          * Here is an example of the facet distribution array
          *
@@ -70,8 +78,8 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
          * @var array<string, int> $values
          */
         foreach ($searchResult->getFacetDistribution() as $name => $values) {
-            if ($this->facetFormBuilder->supports($name, $values, $facetStats[$name] ?? null)) {
-                $this->facetFormBuilder->build($facetsFormBuilder, $name, $values, $facetStats[$name] ?? null);
+            if ($this->facetFormBuilder->supports($facets[$name], $values, $facetStats[$name] ?? null)) {
+                $this->facetFormBuilder->build($facetsFormBuilder, $facets[$name], $values, $facetStats[$name] ?? null);
             }
         }
 
