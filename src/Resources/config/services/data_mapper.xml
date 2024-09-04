@@ -58,6 +58,14 @@
             <tag name="setono_sylius_meilisearch.data_mapper" priority="160"/>
         </service>
 
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\PopularityDataMapper">
+            <argument type="service" id="doctrine"/>
+            <argument>%sylius.model.order.class%</argument>
+            <argument>%sylius.model.order_item.class%</argument>
+
+            <tag name="setono_sylius_meilisearch.data_mapper" priority="160"/>
+        </service>
+
         <!-- Taxon data mappers -->
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Taxon\TaxonDataMapper">
             <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>

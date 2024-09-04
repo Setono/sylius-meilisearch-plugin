@@ -10,4 +10,6 @@ use Setono\SyliusMeilisearchPlugin\Settings\Settings;
 interface SettingsProviderInterface
 {
     public function getSettings(IndexScope $indexScope): Settings;
+
+    public function supports(IndexScope $indexScope): bool;
 }

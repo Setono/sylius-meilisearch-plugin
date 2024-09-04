@@ -37,6 +37,8 @@ class Product extends Document implements UrlAwareInterface, ImageAwareInterface
 
     public ?float $originalPrice = null;
 
+    public float $popularity = 0.0;
+
     /**
      * This attribute will allow you to create a filter like 'Only show products on sale'
      */
