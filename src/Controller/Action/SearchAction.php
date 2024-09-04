@@ -37,6 +37,10 @@ final class SearchAction
         $searchForm = $this->searchFormBuilder->build($searchResult);
         $searchForm->handleRequest($request);
 
+        if ($searchForm->isSubmitted() && !$searchForm->isValid()) {
+            // todo handle this scenario
+        }
+
         $items = [];
         /** @var array{entityClass: class-string<IndexableInterface>, entityId: mixed} $hit */
         foreach ($searchResult->getHits() as $hit) {
