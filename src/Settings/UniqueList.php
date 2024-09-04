@@ -5,25 +5,30 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Settings;
 
 /**
- * Notice that the uniqueness of the items is only guaranteed when serializing the object to JSON
- *
  * @implements \ArrayAccess<int, string>
+ * @implements \IteratorAggregate<int, string>
  */
-final class UniqueList implements \JsonSerializable, \ArrayAccess
+final class UniqueList implements \JsonSerializable, \ArrayAccess, \IteratorAggregate, \Countable
 {
-    /** @var list<string> */
-    private array $items = [];
-
-    /**
-     * @param list<string> $default
-     */
-    public function __construct(private readonly array $default = [])
-    {
+    public function __construct(
+        /** @var list<string> $items */
+        private array $items = [],
+        /**
+         * If the list is empty, this is the value that will be returned when serializing to JSON
+         *
+         * @var list<string> $ifEmpty
+         */
+        private readonly array $ifEmpty = [],
+    ) {
     }
 
     public function add(string ...$items): void
     {
         foreach ($items as $item) {
+            if (in_array($item, $this->items, true)) {
+                continue;
+            }
+
             $this->items[] = $item;
         }
     }
@@ -33,7 +38,7 @@ final class UniqueList implements \JsonSerializable, \ArrayAccess
         return isset($this->items[$offset]);
     }
 
-    public function offsetGet(mixed $offset): mixed
+    public function offsetGet(mixed $offset): string
     {
         return $this->items[$offset];
     }
@@ -44,20 +49,40 @@ final class UniqueList implements \JsonSerializable, \ArrayAccess
             throw new \LogicException('You cannot set an offset');
         }
 
-        $this->items[] = $value;
+        $this->add($value);
     }
 
     public function offsetUnset(mixed $offset): void
     {
         unset($this->items[$offset]);
+
+        $this->items = array_values($this->items);
     }
 
+    /**
+     * @return list<string>
+     */
     public function jsonSerialize(): array
     {
         if ([] === $this->items) {
-            return $this->default;
+            return $this->ifEmpty;
         }
 
-        return array_values(array_unique($this->items));
+        return $this->items;
+    }
+
+    public function getIterator(): \ArrayIterator
+    {
+        return new \ArrayIterator($this->items);
+    }
+
+    public function isEmpty(): bool
+    {
+        return [] === $this->items;
+    }
+
+    public function count(): int
+    {
+        return count($this->items);
     }
 }

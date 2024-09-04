@@ -73,8 +73,8 @@ class Settings
 
     public function __construct()
     {
-        $this->displayedAttributes = new UniqueList(['*']);
-        $this->searchableAttributes = new UniqueList(['*']);
+        $this->displayedAttributes = new UniqueList(ifEmpty: ['*']);
+        $this->searchableAttributes = new UniqueList(ifEmpty: ['*']);
         $this->filterableAttributes = new UniqueList();
         $this->sortableAttributes = new UniqueList();
         $this->rankingRules = new UniqueList([
