@@ -10,7 +10,7 @@ use Attribute;
 final class MapProductOption
 {
     /** @var list<string> */
-    public array $codes = [];
+    public readonly array $codes;
 
     /**
      * todo should be nullable to just use the property name as the code
