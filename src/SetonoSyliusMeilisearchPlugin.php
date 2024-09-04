@@ -9,11 +9,11 @@ use Setono\SyliusMeilisearchPlugin\DataMapper\CompositeDataMapper;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\CompositeEntityFilter;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFacetFormBuilder;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\CompositeIndexScopeProvider;
 use Sylius\Bundle\CoreBundle\Application\SyliusPluginTrait;
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\CompositeIndexScopeProvider;
 
 final class SetonoSyliusMeilisearchPlugin extends AbstractResourceBundle
 {
