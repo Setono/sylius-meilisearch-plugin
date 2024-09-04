@@ -3,11 +3,13 @@ setono_sylius_meilisearch:
         products:
             document: 'Setono\SyliusMeilisearchPlugin\Tests\Application\Document\Product'
             entities: [ 'Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product' ]
+            prefix: '%env(MEILISEARCH_PREFIX)%'
             default_filters:
                 stock_available: true
         taxons:
             document: 'Setono\SyliusMeilisearchPlugin\Document\Taxon'
             entities: [ 'Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Taxon' ]
+            prefix: '%env(MEILISEARCH_PREFIX)%'
     search:
         index: products
         hits_per_page: 30
