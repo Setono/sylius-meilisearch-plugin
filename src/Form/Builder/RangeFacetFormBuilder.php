@@ -13,7 +13,7 @@ final class RangeFacetFormBuilder implements FacetFormBuilderInterface
 {
     public function build(FormBuilderInterface $builder, Facet $facet, array $values, array $stats = null): void
     {
-        if ($stats === null || !isset($stats['min']) && !isset($stats['max'])) {
+        if ($stats === null || (!isset($stats['min']) && !isset($stats['max']))) {
             return;
         }
 
