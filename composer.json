@@ -19,7 +19,7 @@
         "knplabs/knp-menu": "^3.4",
         "liip/imagine-bundle": "^2.10",
         "meilisearch/meilisearch-php": "^1.8",
-        "ocramius/doctrine-batch-utils": "^2.6",
+        "ocramius/doctrine-batch-utils": "^2.4",
         "psr/cache": "^1.0 || ^2.0 || ^3.0",
         "psr/container": "^1.0 || ^2.0",
         "psr/event-dispatcher": "^1.0",
