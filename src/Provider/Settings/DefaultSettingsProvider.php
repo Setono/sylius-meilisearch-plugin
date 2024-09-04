@@ -9,7 +9,7 @@ use Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Settings\Settings;
 
-final class SettingsProvider implements SettingsProviderInterface
+final class DefaultSettingsProvider implements SettingsProviderInterface
 {
     public function __construct(
         private readonly SynonymResolverInterface $synonymResolver,
@@ -30,5 +30,10 @@ final class SettingsProvider implements SettingsProviderInterface
         $settings->synonyms = $this->synonymResolver->resolve($indexScope);
 
         return $settings;
+    }
+
+    public function supports(IndexScope $indexScope): bool
+    {
+        return true;
     }
 }

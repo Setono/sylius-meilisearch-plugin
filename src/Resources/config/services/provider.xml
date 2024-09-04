@@ -27,11 +27,21 @@
 
         <!-- Settings providers -->
         <service id="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProviderInterface"
-                 alias="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProvider"/>
+                 alias="Setono\SyliusMeilisearchPlugin\Provider\Settings\CompositeSettingsProvider"/>
 
-        <service id="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProvider">
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\Settings\CompositeSettingsProvider"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\Settings\ProductSettingsProvider">
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Provider\Settings\DefaultSettingsProvider"/>
+
+            <tag name="setono_sylius_meilisearch.settings_provider" priority="-40"/>
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\Settings\DefaultSettingsProvider">
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolverInterface"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface"/>
+
+            <tag name="setono_sylius_meilisearch.settings_provider" priority="-50"/>
         </service>
     </services>
 </container>
