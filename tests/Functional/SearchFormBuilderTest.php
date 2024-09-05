@@ -8,6 +8,7 @@ use Setono\SyliusMeilisearchPlugin\Engine\SearchEngine;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Form\ChoiceList\ChoiceListInterface;
 
 /** @group functional */
 final class SearchFormBuilderTest extends WebTestCase
@@ -32,10 +33,12 @@ final class SearchFormBuilderTest extends WebTestCase
         $searchFormBuilder = self::getContainer()->get(SearchFormBuilderInterface::class);
 
         $form = $searchFormBuilder->build($result);
+        /** @var ChoiceListInterface $choiceList */
+        $choiceList = $form->get('facets')->get('size')->getConfig()->getAttributes()['choice_list'];
 
         self::assertSame(
             ['S' => 'S', 'M' => 'M', 'L' => 'L', 'XL' => 'XL', 'XXL' => 'XXL'],
-            $form->get('facets')->get('size')->getConfig()->getAttributes()['choice_list']->getChoices(),
+            $choiceList->getChoices(),
         );
     }
 }

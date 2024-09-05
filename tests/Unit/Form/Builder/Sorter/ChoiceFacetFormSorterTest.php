@@ -16,7 +16,7 @@ final class ChoiceFacetFormSorterTest extends TestCase
 
         self::assertSame(
             ['S' => 'S', 'M' => 'M', 'L' => 'L', 'XL' => 'XL', 'XXL' => 'XXL'],
-            ChoiceFacetFormSorter::sort($choices, $template)
+            ChoiceFacetFormSorter::sort($choices, $template),
         );
     }
 
@@ -27,7 +27,7 @@ final class ChoiceFacetFormSorterTest extends TestCase
 
         self::assertSame(
             ['S' => 'S', 'M' => 'M', 'L' => 'L', 'XL' => 'XL', 'XXL' => 'XXL', 'XXXL' => 'XXXL'],
-            ChoiceFacetFormSorter::sort($choices, $template)
+            ChoiceFacetFormSorter::sort($choices, $template),
         );
     }
 
@@ -38,7 +38,7 @@ final class ChoiceFacetFormSorterTest extends TestCase
 
         self::assertSame(
             ['S' => 'S', 'M' => 'M', 'L' => 'L'],
-            ChoiceFacetFormSorter::sort($choices, $template)
+            ChoiceFacetFormSorter::sort($choices, $template),
         );
     }
 }

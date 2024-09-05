@@ -8,6 +8,6 @@ final class ChoiceFacetFormSorter
 {
     public static function sort(array $choices, array $template): array
     {
-        return array_merge(array_flip(array_values(array_intersect($template, $choices))), $choices);;
+        return array_merge(array_flip(array_values(array_intersect($template, $choices))), $choices);
     }
 }
