@@ -17,8 +17,9 @@ final class MetadataFactory implements MetadataFactoryInterface
      */
     private array $loadedClasses = [];
 
-    public function __construct(private readonly CacheItemPoolInterface $cache)
-    {
+    public function __construct(
+        private readonly CacheItemPoolInterface $cache,
+    ) {
     }
 
     public function getMetadataFor(string|Document $document): MetadataInterface
