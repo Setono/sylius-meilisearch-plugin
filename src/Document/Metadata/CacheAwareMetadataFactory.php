@@ -1,0 +1,67 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Setono\SyliusMeilisearchPlugin\Document\Metadata;
+
+use Psr\Cache\CacheItemPoolInterface;
+use Setono\SyliusMeilisearchPlugin\Document\Document;
+use Webmozart\Assert\Assert;
+
+final class CacheAwareMetadataFactory implements MetadataFactoryInterface
+{
+    /**
+     * The loaded metadata, indexed by class name
+     *
+     * @var array<class-string<Document>, MetadataInterface>
+     */
+    private array $loadedClasses = [];
+
+    public function __construct(
+        private readonly MetadataFactoryInterface $baseMetadataFactory,
+        private readonly CacheItemPoolInterface $cache,
+        private readonly bool $cacheEnabled = false,
+    ) {
+    }
+
+    public function getMetadataFor(string|Document $document): MetadataInterface
+    {
+        if (!$this->cacheEnabled) {
+            return $this->baseMetadataFactory->getMetadataFor($document);
+        }
+
+        if ($document instanceof Document) {
+            $document = $document::class;
+        }
+
+        if (isset($this->loadedClasses[$document])) {
+            return $this->loadedClasses[$document];
+        }
+
+        $cacheItem = $this->cache->getItem($this->escapeClassName($document));
+        if ($cacheItem->isHit()) {
+            $metadata = $cacheItem->get();
+            Assert::isInstanceOf($metadata, MetadataInterface::class);
+
+            $this->loadedClasses[$document] = $metadata;
+
+            return $this->loadedClasses[$document];
+        }
+
+        $metadata = new Metadata($document);
+
+        $this->cache->save($cacheItem->set($metadata));
+
+        return $this->loadedClasses[$document] = $metadata;
+    }
+
+    private function escapeClassName(string $class): string
+    {
+        if (str_contains($class, '@')) {
+            // anonymous class: replace all PSR6-reserved characters
+            return str_replace(["\0", '\\', '/', '@', ':', '{', '}', '(', ')'], '.', $class);
+        }
+
+        return str_replace('\\', '.', $class);
+    }
+}

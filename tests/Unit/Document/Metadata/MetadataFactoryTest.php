@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Metadata;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactory;
-use Symfony\Component\Cache\Adapter\NullAdapter;
 
 final class MetadataFactoryTest extends TestCase
 {
@@ -16,7 +15,7 @@ final class MetadataFactoryTest extends TestCase
 
     public function testItCreatesMetadataWithDocument(): void
     {
-        $factory = new MetadataFactory(new NullAdapter());
+        $factory = new MetadataFactory();
 
         self::assertEquals(new Metadata(Document::class), $factory->getMetadataFor(Document::class));
     }
