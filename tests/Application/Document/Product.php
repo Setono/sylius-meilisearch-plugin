@@ -12,7 +12,7 @@ use Setono\SyliusMeilisearchPlugin\Document\Product as BaseProduct;
 final class Product extends BaseProduct
 {
     /** @var list<string> */
-    #[Facet]
+    #[Facet(valuesOrder: ['S', 'M', 'L', 'XL', 'XXL'])]
     #[MapProductOption(['t_shirt_size', 'dress_size', 'jeans_size'])]
     public array $size = [];
 

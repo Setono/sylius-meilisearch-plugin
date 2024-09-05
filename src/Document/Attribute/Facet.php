@@ -10,4 +10,7 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_METHOD)]
 final class Facet extends Filterable
 {
+    public function __construct(public readonly array $valuesOrder = [])
+    {
+    }
 }
