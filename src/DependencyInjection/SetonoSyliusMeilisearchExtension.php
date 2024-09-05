@@ -59,6 +59,12 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         $container->setParameter('setono_sylius_meilisearch.server.master_key', $config['server']['master_key']);
         $container->setParameter('setono_sylius_meilisearch.server.search_key', $config['server']['search_key']);
 
+        // cache
+        $container->setParameter(
+            'setono_sylius_meilisearch.cache',
+            $container->hasParameter('kernel.environment') && $container->getParameter('kernel.environment') === 'prod',
+        );
+
         $loader->load('services.xml');
 
         // auto configuration

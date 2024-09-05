@@ -15,7 +15,7 @@
         >
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\CacheAwareMetadataFactory.inner" />
             <argument type="service" id="setono_sylius_meilisearch.cache.metadata"/>
-            <argument>true</argument>
+            <argument>%setono_sylius_meilisearch.cache%</argument>
         </service>
     </services>
 </container>
