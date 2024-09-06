@@ -81,6 +81,9 @@
         "symfony/webpack-encore-bundle": "^1.17.2",
         "willdurand/negotiation": "^3.1"
     },
+    "conflict": {
+        "illuminate/contracts": "<8.68.0"
+    },
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
