@@ -15,10 +15,10 @@ final class FloatFilterBuilder implements FilterBuilderInterface
                 /** @var array<string, float> $values */
                 $values = $facetsValues[$facet->name];
 
-                if (!empty($values['min'])) {
+                if (isset($values['min'])) {
                     $filters[] = $facet->name . '>=' . $values['min'];
                 }
-                if (!empty($values['max'])) {
+                if (isset($values['max'])) {
                     $filters[] = $facet->name . '<=' . $values['max'];
                 }
             }

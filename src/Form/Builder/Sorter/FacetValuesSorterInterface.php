@@ -6,5 +6,5 @@ namespace Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter;
 
 interface FacetValuesSorterInterface
 {
-    public function sort(array $choices): array;
+    public function sort(array $values): array;
 }

@@ -8,8 +8,8 @@ use DragonCode\SizeSorter\Sorter;
 
 final class SizeSorter implements FacetValuesSorterInterface
 {
-    public function sort(array $choices): array
+    public function sort(array $values): array
     {
-        return Sorter::sort($choices)->toArray();
+        return Sorter::sort($values)->toArray();
     }
 }
