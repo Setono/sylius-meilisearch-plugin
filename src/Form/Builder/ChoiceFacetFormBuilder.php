@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Form\Builder;
 
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
-use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\ChoiceFacetFormSorter;
+use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\ChoiceValuesSorterInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use function Symfony\Component\String\u;
@@ -17,8 +17,11 @@ final class ChoiceFacetFormBuilder implements FacetFormBuilderInterface
         $keys = array_keys($values);
         $choices = array_combine($keys, $keys);
 
-        if ($facet->valuesOrder !== []) {
-            $choices = ChoiceFacetFormSorter::sort($choices, $facet->valuesOrder);
+        /** @var class-string<ChoiceValuesSorterInterface> $sorter */
+        $sorter = $facet->sorter;
+        if ($facet->sorter !== null) {
+            /** @var array $choices */
+            $choices = (new $sorter())->sort($choices);
         }
 
         $builder->add($facet->name, ChoiceType::class, [
