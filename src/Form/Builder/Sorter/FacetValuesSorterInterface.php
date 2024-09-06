@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter;
 
-interface ChoiceValuesSorterInterface
+interface FacetValuesSorterInterface
 {
     public function sort(array $choices): array;
 }

@@ -6,7 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter;
 
 use DragonCode\SizeSorter\Sorter;
 
-final class SizeSorter implements ChoiceValuesSorterInterface
+final class SizeSorter implements FacetValuesSorterInterface
 {
     public function sort(array $choices): array
     {
