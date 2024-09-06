@@ -1,1 +1,7 @@
-{{ render(path('setono_sylius_meilisearch_shop_search_widget')) }}
+{% if ssm_autocomplete_enabled() %}
+    <div class="ui center aligned column">
+        <div id="autocomplete"></div>
+    </div>
+{% elseif ssm_search_enabled() %}
+    {{ render(path('setono_sylius_meilisearch_shop_search_widget')) }}
+{% endif %}

@@ -28,6 +28,7 @@ setono_sylius_meilisearch:
         indexes: Indexes
         no_indexes: No indexes
         search: Search
+        search_placeholder: Search...
         search_results_for: 'Search results for'
         search_term_and_synonym: 'Search term and synonym'
         synonym: Synonym

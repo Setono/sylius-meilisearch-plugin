@@ -1,0 +1,69 @@
+{% if ssm_autocomplete_enabled() %}
+    {# @var configuration \Setono\SyliusMeilisearchPlugin\Meilisearch\Autocomplete\Configuration\Configuration #}
+    {% set configuration = ssm_autocomplete_configuration() %}
+
+    {# todo should be saved on the individual sources #}
+    {% set templates = {
+        item: include('@SetonoSyliusMeilisearchPlugin/autocomplete/templates/item.html.twig'),
+    } %}
+    <script src="{{ asset('bundles/setonosyliusmeilisearchplugin/js/algolia.autocomplete.js') }}"></script>
+    <script src="{{ asset('bundles/setonosyliusmeilisearchplugin/js/meilisearch.autocomplete.js') }}"></script>
+    <script>
+        const { autocomplete } = window['@algolia/autocomplete-js'];
+        const { meilisearchAutocompleteClient, getMeilisearchResults } = window['@meilisearch/autocomplete-client'];
+
+        const searchClient = meilisearchAutocompleteClient({
+            url: '{{ configuration.host }}',
+            apiKey: '{{ configuration.searchKey }}'
+        });
+
+        autocomplete({
+            {% if app.debug -%}
+            debug: true,
+            {% endif -%}
+            container: '{{ configuration.container }}',
+            placeholder: '{{ configuration.placeholder }}',
+            {% if ssm_search_enabled() -%}
+            onSubmit({ event, state }) {
+                location.href = '{{ path('setono_sylius_meilisearch_shop_search') }}?q=' + state.query;
+            },
+            initialState: {
+                query: new URL(window.location).searchParams.get('q'),
+            },
+            {% endif -%}
+            getSources({ query }) {
+                return [
+                    {% for source in configuration.sources %}
+                    {
+                        sourceId: '{{ source.id }}',
+                        getItems() {
+                            return getMeilisearchResults({
+                                searchClient,
+                                queries: [
+                                    {
+                                        indexName: '{{ source.index }}',
+                                        query,
+                                    },
+                                ],
+                            })
+                        },
+                        templates: {
+                            item({ item, components, html }) {
+                                return html`{{ templates.item|raw }}`;
+                            },
+                        },
+                        {% if source.urlAttribute -%}
+                        onSelect({ item }) {
+                            location.href = item.{{ source.urlAttribute }};
+                        },
+                        getItemUrl({ item }) {
+                            return item.{{ source.urlAttribute }};
+                        },
+                        {% endif -%}
+                    },
+                    {% endfor %}
+                ]
+            },
+        });
+    </script>
+{% endif %}
