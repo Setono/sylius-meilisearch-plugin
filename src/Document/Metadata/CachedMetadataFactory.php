@@ -8,7 +8,7 @@ use Psr\Cache\CacheItemPoolInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Webmozart\Assert\Assert;
 
-final class CacheAwareMetadataFactory implements MetadataFactoryInterface
+final class CachedMetadataFactory implements MetadataFactoryInterface
 {
     /**
      * The loaded metadata, indexed by class name
@@ -20,16 +20,11 @@ final class CacheAwareMetadataFactory implements MetadataFactoryInterface
     public function __construct(
         private readonly MetadataFactoryInterface $baseMetadataFactory,
         private readonly CacheItemPoolInterface $cache,
-        private readonly bool $cacheEnabled = false,
     ) {
     }
 
     public function getMetadataFor(string|Document $document): MetadataInterface
     {
-        if (!$this->cacheEnabled) {
-            return $this->baseMetadataFactory->getMetadataFor($document);
-        }
-
         if ($document instanceof Document) {
             $document = $document::class;
         }
@@ -48,7 +43,7 @@ final class CacheAwareMetadataFactory implements MetadataFactoryInterface
             return $this->loadedClasses[$document];
         }
 
-        $metadata = new Metadata($document);
+        $metadata = $this->baseMetadataFactory->getMetadataFor($document);
 
         $this->cache->save($cacheItem->set($metadata));
 

@@ -4,18 +4,9 @@
     <services>
         <service
             id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface"
-            alias="Setono\SyliusMeilisearchPlugin\Document\Metadata\CacheAwareMetadataFactory"
+            alias="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactory"
         />
 
         <service id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactory" />
-
-        <service
-            id="Setono\SyliusMeilisearchPlugin\Document\Metadata\CacheAwareMetadataFactory"
-            decorates="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactory"
-        >
-            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\CacheAwareMetadataFactory.inner" />
-            <argument type="service" id="setono_sylius_meilisearch.cache.metadata"/>
-            <argument>%setono_sylius_meilisearch.cache%</argument>
-        </service>
     </services>
 </container>
