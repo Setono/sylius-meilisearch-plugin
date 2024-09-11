@@ -8,11 +8,12 @@ use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facet;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductOption;
 use Setono\SyliusMeilisearchPlugin\Document\Product as BaseProduct;
+use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\SizeSorter;
 
 final class Product extends BaseProduct
 {
     /** @var list<string> */
-    #[Facet]
+    #[Facet(sorter: SizeSorter::class)]
     #[MapProductOption(['t_shirt_size', 'dress_size', 'jeans_size'])]
     public array $size = [];
 

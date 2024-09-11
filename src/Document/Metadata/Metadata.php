@@ -72,7 +72,11 @@ final class Metadata implements MetadataInterface
             }
 
             if ($attribute instanceof FacetAttribute) {
-                $this->facetableAttributes[$name] = new Facet($name, self::getFacetType($attributesAware));
+                $this->facetableAttributes[$name] = new Facet(
+                    $name,
+                    self::getFacetType($attributesAware),
+                    $attribute->sorter ?? null,
+                );
             }
 
             if ($attribute instanceof SearchableAttribute) {
