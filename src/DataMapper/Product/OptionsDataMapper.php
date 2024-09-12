@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product;
 
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
+use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\DataMapperValuesProviderInterface;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Setter\DocumentPropertyValuesSetterInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
@@ -16,6 +17,7 @@ use Webmozart\Assert\Assert;
 final class OptionsDataMapper implements DataMapperInterface
 {
     public function __construct(
+        private readonly DataMapperValuesProviderInterface $dataMapperValuesProvider,
         private readonly DocumentPropertyValuesSetterInterface $documentPropertyValuesSetter,
     ) {
     }
@@ -24,24 +26,7 @@ final class OptionsDataMapper implements DataMapperInterface
     {
         Assert::true($this->supports($source, $target, $indexScope, $context));
 
-        /** @var array<string, list<string>> $options */
-        $options = [];
-
-        foreach ($source->getEnabledVariants() as $variant) {
-            foreach ($variant->getOptionValues() as $optionValue) {
-                $option = $optionValue->getOptionCode();
-                if ($option === null) {
-                    continue;
-                }
-
-                $options[$option][] = (string) $optionValue->getValue();
-            }
-        }
-
-        foreach ($options as $option => $values) {
-            $options[$option] = array_values(array_unique($values));
-        }
-
+        $options = $this->dataMapperValuesProvider->provide($source, array_merge($context));
         $this->documentPropertyValuesSetter->setFor($target, $options);
     }
 

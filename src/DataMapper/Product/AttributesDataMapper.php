@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product;
 
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
+use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\DataMapperValuesProviderInterface;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Setter\DocumentPropertyValuesSetterInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
@@ -16,6 +17,7 @@ use Webmozart\Assert\Assert;
 final class AttributesDataMapper implements DataMapperInterface
 {
     public function __construct(
+        private readonly DataMapperValuesProviderInterface $dataMapperValuesProvider,
         private readonly DocumentPropertyValuesSetterInterface $documentPropertyValuesSetter,
     ) {
     }
@@ -24,13 +26,7 @@ final class AttributesDataMapper implements DataMapperInterface
     {
         Assert::true($this->supports($source, $target, $indexScope, $context));
 
-        /** @var array<string, string> $attributes */
-        $attributes = [];
-
-        foreach ($source->getAttributesByLocale($indexScope->localeCode, $indexScope->localeCode, $indexScope->localeCode) as $attribute) {
-            $attributes[(string) $attribute->getAttribute()?->getCode()] = (string) $attribute->getValue();
-        }
-
+        $attributes = $this->dataMapperValuesProvider->provide($source, array_merge($context, ['locale_code' => $indexScope->localeCode]));
         $this->documentPropertyValuesSetter->setFor($target, $attributes);
     }
 
