@@ -67,15 +67,29 @@
             <tag name="setono_sylius_meilisearch.data_mapper" priority="180"/>
         </service>
 
-        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\AttributesDataMapper">
+        <service
+            id="setono.sylius_meilisearch_plugin.data_mapper.product.setter.document_property_values_setter.attribute"
+            class="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Setter\DocumentPropertyValuesSetter"
+        >
             <argument type="service" id="setono.sylius_meilisearch_plugin.data_mapper.product.provider.reflection_attribute_values_provider.attribute" />
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Formatter\NoFormatTargetPropertyValuesFormatter" />
+        </service>
+
+        <service
+            id="setono.sylius_meilisearch_plugin.data_mapper.product.setter.document_property_values_setter.option"
+            class="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Setter\DocumentPropertyValuesSetter"
+        >
+            <argument type="service" id="setono.sylius_meilisearch_plugin.data_mapper.product.provider.reflection_attribute_values_provider.option" />
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Formatter\FlatArrayTargetPropertyValuesFormatter" />
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\AttributesDataMapper">
+            <argument type="service" id="setono.sylius_meilisearch_plugin.data_mapper.product.setter.document_property_values_setter.attribute" />
             <tag name="setono_sylius_meilisearch.data_mapper" priority="170"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\OptionsDataMapper">
-            <argument type="service" id="setono.sylius_meilisearch_plugin.data_mapper.product.provider.reflection_attribute_values_provider.option" />
-            <argument type="service" id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Formatter\FlatArrayTargetPropertyValuesFormatter" />
+            <argument type="service" id="setono.sylius_meilisearch_plugin.data_mapper.product.setter.document_property_values_setter.option" />
             <tag name="setono_sylius_meilisearch.data_mapper" priority="160"/>
         </service>
 

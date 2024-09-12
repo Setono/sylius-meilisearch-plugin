@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product;
 
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
-use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Formatter\TargetPropertyValuesFormatterInterface;
-use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ReflectionAttributeValuesProviderInterface;
+use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Setter\DocumentPropertyValuesSetterInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
@@ -17,8 +16,7 @@ use Webmozart\Assert\Assert;
 final class OptionsDataMapper implements DataMapperInterface
 {
     public function __construct(
-        private readonly ReflectionAttributeValuesProviderInterface $reflectionAttributeValuesProvider,
-        private readonly TargetPropertyValuesFormatterInterface $targetPropertyValuesFormatter,
+        private readonly DocumentPropertyValuesSetterInterface $documentPropertyValuesSetter,
     ) {
     }
 
@@ -44,25 +42,7 @@ final class OptionsDataMapper implements DataMapperInterface
             $options[$option] = array_values(array_unique($values));
         }
 
-        $documentReflection = new \ReflectionClass($target);
-        foreach ($documentReflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
-            $propertyName = $reflectionProperty->getName();
-
-            foreach ($reflectionProperty->getAttributes() as $reflectionAttribute) {
-                try {
-                    $values = $this->reflectionAttributeValuesProvider->provide(
-                        $reflectionAttribute, $target, $propertyName, $options,
-                    );
-                } catch (\InvalidArgumentException) {
-                    continue;
-                }
-
-                $values = $this->targetPropertyValuesFormatter->format($values);
-
-                /** @psalm-suppress MixedArgument */
-                $target->{$propertyName} = array_merge($target->{$propertyName}, $values);
-            }
-        }
+        $this->documentPropertyValuesSetter->setFor($target, $options);
     }
 
     /**
