@@ -44,6 +44,20 @@
             <argument type="service" id="sylius.product_variant_resolver.default" />
         </service>
 
+        <service
+            id="setono.sylius_meilisearch_plugin.data_mapper.product.provider.reflection_attribute_values_provider.attribute"
+            class="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ReflectionAttributeValuesProvider"
+        >
+            <argument>\Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductAttribute</argument>
+        </service>
+
+        <service
+            id="setono.sylius_meilisearch_plugin.data_mapper.product.provider.reflection_attribute_values_provider.option"
+            class="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ReflectionAttributeValuesProvider"
+        >
+            <argument>\Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductOption</argument>
+        </service>
+
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\TaxonCodesDataMapper">
             <argument>%sylius_shop.product_grid.include_all_descendants%</argument>
 
@@ -51,10 +65,12 @@
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\AttributesDataMapper">
+            <argument type="service" id="setono.sylius_meilisearch_plugin.data_mapper.product.provider.reflection_attribute_values_provider.attribute" />
             <tag name="setono_sylius_meilisearch.data_mapper" priority="170"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\OptionsDataMapper">
+            <argument type="service" id="setono.sylius_meilisearch_plugin.data_mapper.product.provider.reflection_attribute_values_provider.option" />
             <tag name="setono_sylius_meilisearch.data_mapper" priority="160"/>
         </service>
 

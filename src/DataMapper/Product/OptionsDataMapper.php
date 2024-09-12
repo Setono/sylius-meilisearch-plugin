@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product;
 
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
-use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductOption;
+use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ReflectionAttributeValuesProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
@@ -13,11 +13,12 @@ use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Sylius\Component\Core\Model\ProductInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * todo make this prettier
- */
 final class OptionsDataMapper implements DataMapperInterface
 {
+    public function __construct(private readonly ReflectionAttributeValuesProviderInterface $reflectionAttributeValuesProvider)
+    {
+    }
+
     public function map(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): void
     {
         Assert::true($this->supports($source, $target, $indexScope, $context));
@@ -45,24 +46,12 @@ final class OptionsDataMapper implements DataMapperInterface
             $propertyName = $reflectionProperty->getName();
 
             foreach ($reflectionProperty->getAttributes() as $reflectionAttribute) {
-                $attribute = $reflectionAttribute->newInstance();
-
-                if (!$attribute instanceof MapProductOption) {
+                try {
+                    $values = $this->reflectionAttributeValuesProvider->provide(
+                        $reflectionAttribute, $target, $propertyName, $options,
+                    );
+                } catch (\InvalidArgumentException) {
                     continue;
-                }
-
-                if (!isset($target->{$propertyName}) || !is_array($target->{$propertyName})) {
-                    continue;
-                }
-
-                $values = [];
-
-                foreach ($attribute->codes as $code) {
-                    if (!isset($options[$code])) {
-                        continue;
-                    }
-
-                    $values[] = $options[$code];
                 }
 
                 $values = array_values(array_unique(array_merge(...$values)));
