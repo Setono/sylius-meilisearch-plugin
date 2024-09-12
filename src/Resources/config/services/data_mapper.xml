@@ -37,6 +37,9 @@
             <tag name="setono_sylius_meilisearch.data_mapper" priority="190"/>
         </service>
 
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Formatter\NoFormatTargetPropertyValuesFormatter" />
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Formatter\FlatArrayTargetPropertyValuesFormatter"/>
+
         <service
             id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProviderInterface"
             class="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProvider"
@@ -66,11 +69,13 @@
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\AttributesDataMapper">
             <argument type="service" id="setono.sylius_meilisearch_plugin.data_mapper.product.provider.reflection_attribute_values_provider.attribute" />
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Formatter\NoFormatTargetPropertyValuesFormatter" />
             <tag name="setono_sylius_meilisearch.data_mapper" priority="170"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\OptionsDataMapper">
             <argument type="service" id="setono.sylius_meilisearch_plugin.data_mapper.product.provider.reflection_attribute_values_provider.option" />
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Formatter\FlatArrayTargetPropertyValuesFormatter" />
             <tag name="setono_sylius_meilisearch.data_mapper" priority="160"/>
         </service>
 

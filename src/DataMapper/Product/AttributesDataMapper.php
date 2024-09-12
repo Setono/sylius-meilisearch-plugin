@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product;
 
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
+use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Formatter\TargetPropertyValuesFormatterInterface;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ReflectionAttributeValuesProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
@@ -15,8 +16,10 @@ use Webmozart\Assert\Assert;
 
 final class AttributesDataMapper implements DataMapperInterface
 {
-    public function __construct(private readonly ReflectionAttributeValuesProviderInterface $reflectionAttributeValuesProvider)
-    {
+    public function __construct(
+        private readonly ReflectionAttributeValuesProviderInterface $reflectionAttributeValuesProvider,
+        private readonly TargetPropertyValuesFormatterInterface $targetPropertyValuesFormatter,
+    ) {
     }
 
     public function map(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): void
@@ -42,6 +45,8 @@ final class AttributesDataMapper implements DataMapperInterface
                 } catch (\InvalidArgumentException) {
                     continue;
                 }
+
+                $values = $this->targetPropertyValuesFormatter->format($values);
 
                 /** @psalm-suppress MixedArgument */
                 $target->{$propertyName} = array_merge($target->{$propertyName}, $values);
