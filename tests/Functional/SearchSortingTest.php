@@ -2,25 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Functional;
+namespace Setono\SyliusMeilisearchPlugin\Tests\Functional;
 
 use Setono\SyliusMeilisearchPlugin\Engine\SearchEngine;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /** @group functional */
-final class SearchSortingTest extends WebTestCase
+final class SearchSortingTest extends FunctionalTestCase
 {
-    private static KernelBrowser $client;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        self::ensureKernelShutdown();
-        self::$client = static::createClient(['environment' => 'test', 'debug' => true]);
-    }
-
     public function testItSortsSearchResultsByLowestPrice(): void
     {
         /** @var SearchEngine $searchEngine */

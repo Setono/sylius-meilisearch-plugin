@@ -2,27 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Functional;
+namespace Setono\SyliusMeilisearchPlugin\Tests\Functional;
 
 use Setono\SyliusMeilisearchPlugin\Engine\SearchEngine;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Form\ChoiceList\ChoiceListInterface;
 
 /** @group functional */
-final class SearchFormBuilderTest extends WebTestCase
+final class SearchFormBuilderTest extends FunctionalTestCase
 {
-    private static KernelBrowser $client;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        self::ensureKernelShutdown();
-        self::$client = static::createClient(['environment' => 'test', 'debug' => true]);
-    }
-
     public function testItCreatesFormForSearchResultsWithProperlySortedFacetValues(): void
     {
         /** @var SearchEngine $searchEngine */
