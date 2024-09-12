@@ -26,7 +26,7 @@ final class AttributesDataMapperValuesProviderTest extends TestCase
                 'brand' => 'Best brand',
                 'collection' => 'Best collection',
             ],
-            $provider->provide($product, ['locale_code' => 'en_US'])
+            $provider->provide($product, ['locale_code' => 'en_US']),
         );
     }
 

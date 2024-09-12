@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider;
 
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Sylius\Component\Core\Model\ProductInterface;
 use Webmozart\Assert\Assert;
 
 final class AttributesDataMapperValuesProvider implements DataMapperValuesProviderInterface
@@ -13,6 +14,7 @@ final class AttributesDataMapperValuesProvider implements DataMapperValuesProvid
     {
         Assert::keyExists($context, 'locale_code');
         Assert::string($context['locale_code']);
+        Assert::isInstanceOf($source, ProductInterface::class);
 
         $attributes = [];
 

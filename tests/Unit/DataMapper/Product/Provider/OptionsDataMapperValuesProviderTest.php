@@ -24,7 +24,7 @@ final class OptionsDataMapperValuesProviderTest extends TestCase
                 'jeans_size' => ['S', 'M'],
                 'jeans_color' => ['Black', 'White'],
             ],
-            $provider->provide($product)
+            $provider->provide($product),
         );
     }
 

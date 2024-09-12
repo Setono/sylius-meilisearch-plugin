@@ -9,6 +9,7 @@ use Webmozart\Assert\Assert;
 
 final class ReflectionAttributeValuesProvider implements ReflectionAttributeValuesProviderInterface
 {
+    /** @param class-string $attributeType */
     public function __construct(private readonly string $attributeType)
     {
     }
@@ -26,12 +27,13 @@ final class ReflectionAttributeValuesProvider implements ReflectionAttributeValu
 
         $values = [];
 
+        /** @var string $code */
         foreach ($attribute->codes as $code) {
             if (!isset($attributes[$code])) {
                 continue;
             }
 
-            $values[] = $attributes[$code];
+            $values[] = (string) $attributes[$code];
         }
 
         return $values;

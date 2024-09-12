@@ -25,7 +25,10 @@ final class DocumentPropertyValuesSetter implements DocumentPropertyValuesSetter
             foreach ($reflectionProperty->getAttributes() as $reflectionAttribute) {
                 try {
                     $values = $this->reflectionAttributeValuesProvider->provide(
-                        $reflectionAttribute, $target, $propertyName, $attributes,
+                        $reflectionAttribute,
+                        $target,
+                        $propertyName,
+                        $attributes,
                     );
                 } catch (\InvalidArgumentException) {
                     continue;

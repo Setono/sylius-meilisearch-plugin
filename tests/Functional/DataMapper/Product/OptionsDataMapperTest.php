@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Functional\DataMapper\Product;
 
+use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\OptionsDataMapper;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Document\Product as ProductDocument;
@@ -24,6 +25,7 @@ final class OptionsDataMapperTest extends FunctionalTestCase
         /** @var OptionsDataMapper $dataMapper */
         $dataMapper = self::getContainer()->get(OptionsDataMapper::class);
 
+        /** @var Index $index */
         $index = self::getContainer()->get('setono_sylius_meilisearch.index.products');
         $indexScope = new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD');
 

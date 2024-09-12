@@ -29,7 +29,7 @@ final class ReflectionAttributeValuesProviderTest extends TestCase
                 new Product(),
                 'brand',
                 ['dress_brand' => 'Celsius Small', 'collection' => 'Spring/Summer'],
-            )
+            ),
         );
     }
 
