@@ -6,6 +6,8 @@ namespace Setono\SyliusMeilisearchPlugin\Document\Metadata;
 
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facet as FacetAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable as FilterableAttribute;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductAttribute;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductOption;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Searchable as SearchableAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable as SortableAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
@@ -26,6 +28,12 @@ final class Metadata implements MetadataInterface
 
     /** @var array<string, Sortable> */
     private array $sortableAttributes = [];
+
+    /** @var array<string, list<string>> */
+    private array $mapProductOptions = [];
+
+    /** @var array<string, list<string>> */
+    private array $mapProductAttributes = [];
 
     /**
      * @param class-string<Document>|Document $document
@@ -86,6 +94,14 @@ final class Metadata implements MetadataInterface
             if ($attribute instanceof SortableAttribute) {
                 $this->sortableAttributes[$name] = new Sortable($name, $attribute->direction);
             }
+
+            if ($attribute instanceof MapProductOption) {
+                $this->mapProductOptions[$name] = $attribute->codes;
+            }
+
+            if ($attribute instanceof MapProductAttribute) {
+                $this->mapProductAttributes[$name] = $attribute->codes;
+            }
         }
     }
 
@@ -138,6 +154,16 @@ final class Metadata implements MetadataInterface
     public function getSortableAttributeNames(): array
     {
         return array_keys($this->sortableAttributes);
+    }
+
+    public function getMapProductOptions(): array
+    {
+        return $this->mapProductOptions;
+    }
+
+    public function getMapProductAttributes(): array
+    {
+        return $this->mapProductAttributes;
     }
 
     private static function isGetter(\ReflectionMethod $reflection): bool

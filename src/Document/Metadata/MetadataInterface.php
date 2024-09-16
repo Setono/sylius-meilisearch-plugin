@@ -68,4 +68,14 @@ interface MetadataInterface
      * @return list<string>
      */
     public function getSortableAttributeNames(): array;
+
+    /**
+     * @return array<string, list<string>>
+     */
+    public function getMapProductOptions(): array;
+
+    /**
+     * @return array<string, list<string>>
+     */
+    public function getMapProductAttributes(): array;
 }
