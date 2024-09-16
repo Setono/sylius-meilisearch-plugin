@@ -5,19 +5,11 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Document\Metadata;
 
 use PHPUnit\Framework\TestCase;
-use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facet;
-use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable;
-use Setono\SyliusMeilisearchPlugin\Document\Attribute\Searchable;
-use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable;
-use Setono\SyliusMeilisearchPlugin\Document\Document as BaseDocument;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Metadata;
 
 final class MetadataTest extends TestCase
 {
-    /**
-     * @test
-     */
-    public function it_resolves_attributes(): void
+    public function testItResolvesAttributes(): void
     {
         $metadata = new Metadata(Document::class);
 
@@ -36,20 +28,4 @@ final class MetadataTest extends TestCase
         self::assertCount(1, $metadata->getSortableAttributes());
         self::assertArrayHasKey('price', $metadata->getSortableAttributes());
     }
-}
-
-final class Document extends BaseDocument
-{
-    #[Searchable]
-    public ?string $name = null;
-
-    #[Facet]
-    public ?string $size = null;
-
-    #[Facet]
-    #[Sortable]
-    public ?int $price = null;
-
-    #[Filterable]
-    public array $taxons = [];
 }

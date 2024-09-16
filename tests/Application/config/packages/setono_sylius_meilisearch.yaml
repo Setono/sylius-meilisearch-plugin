@@ -16,3 +16,8 @@ setono_sylius_meilisearch:
     autocomplete:
         indexes:
             - products
+
+when@prod:
+    setono_sylius_meilisearch:
+        metadata:
+            cache: true
