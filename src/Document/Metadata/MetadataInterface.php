@@ -70,12 +70,16 @@ interface MetadataInterface
     public function getSortableAttributeNames(): array;
 
     /**
+     * Return product options codes mapped by document property
+     *
      * @return array<string, list<string>>
      */
-    public function getMapProductOptions(): array;
+    public function getMappedProductOptions(): array;
 
     /**
+     * Return product attributes codes mapped by document property
+     *
      * @return array<string, list<string>>
      */
-    public function getMapProductAttributes(): array;
+    public function getMappedProductAttributes(): array;
 }

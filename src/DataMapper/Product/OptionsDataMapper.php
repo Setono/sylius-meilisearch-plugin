@@ -26,7 +26,7 @@ final class OptionsDataMapper implements DataMapperInterface
     {
         Assert::true($this->supports($source, $target, $indexScope, $context));
 
-        $options = $this->dataMapperValuesProvider->provide($source, $context);
+        $options = $this->dataMapperValuesProvider->provide($source, $indexScope);
         $this->documentPropertyValuesSetter->setFor($target, $options);
     }
 

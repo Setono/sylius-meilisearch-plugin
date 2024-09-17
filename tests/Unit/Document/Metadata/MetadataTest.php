@@ -28,19 +28,19 @@ final class MetadataTest extends TestCase
         self::assertCount(1, $metadata->getSortableAttributes());
         self::assertArrayHasKey('price', $metadata->getSortableAttributes());
 
-        self::assertCount(2, $metadata->getMapProductAttributes());
+        self::assertCount(2, $metadata->getMappedProductAttributes());
         self::assertSame(
             [
                 'collection' => ['t_shirt_collection', 'dress_collection'],
                 'brand' => ['t_shirt_brand', 'dress_brand'],
             ],
-            $metadata->getMapProductAttributes(),
+            $metadata->getMappedProductAttributes(),
         );
 
-        self::assertCount(1, $metadata->getMapProductOptions());
+        self::assertCount(1, $metadata->getMappedProductOptions());
         self::assertSame(
             ['size' => ['t_shirt_size', 'dress_size']],
-            $metadata->getMapProductOptions(),
+            $metadata->getMappedProductOptions(),
         );
     }
 }

@@ -26,7 +26,7 @@ final class AttributesDataMapper implements DataMapperInterface
     {
         Assert::true($this->supports($source, $target, $indexScope, $context));
 
-        $attributes = $this->dataMapperValuesProvider->provide($source, array_merge($context, ['locale_code' => $indexScope->localeCode]));
+        $attributes = $this->dataMapperValuesProvider->provide($source, $indexScope);
         $this->documentPropertyValuesSetter->setFor($target, $attributes);
     }
 

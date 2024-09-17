@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider;
 
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Sylius\Component\Core\Model\ProductInterface;
 use Webmozart\Assert\Assert;
 
 final class AttributesDataMapperValuesProvider implements DataMapperValuesProviderInterface
 {
-    public function provide(IndexableInterface $source, array $context = []): array
+    public function provide(IndexableInterface $source, IndexScope $indexScope): array
     {
-        Assert::keyExists($context, 'locale_code');
-        Assert::string($context['locale_code']);
         Assert::isInstanceOf($source, ProductInterface::class);
+        Assert::notNull($indexScope->localeCode);
 
         $attributes = [];
 
-        foreach ($source->getAttributesByLocale($context['locale_code'], $context['locale_code'], $context['locale_code']) as $attribute) {
+        foreach ($source->getAttributesByLocale($indexScope->localeCode, $indexScope->localeCode, $indexScope->localeCode) as $attribute) {
             $attributes[(string) $attribute->getAttribute()?->getCode()] = (string) $attribute->getValue();
         }
 

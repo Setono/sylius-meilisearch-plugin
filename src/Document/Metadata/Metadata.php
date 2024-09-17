@@ -11,6 +11,7 @@ use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductOption;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Searchable as SearchableAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable as SortableAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
+use Webmozart\Assert\Assert;
 
 final class Metadata implements MetadataInterface
 {
@@ -30,10 +31,10 @@ final class Metadata implements MetadataInterface
     private array $sortableAttributes = [];
 
     /** @var array<string, list<string>> */
-    private array $mapProductOptions = [];
+    private array $mappedProductOptions = [];
 
     /** @var array<string, list<string>> */
-    private array $mapProductAttributes = [];
+    private array $mappedProductAttributes = [];
 
     /**
      * @param class-string<Document>|Document $document
@@ -96,11 +97,15 @@ final class Metadata implements MetadataInterface
             }
 
             if ($attribute instanceof MapProductOption) {
-                $this->mapProductOptions[$name] = $attribute->codes;
+                Assert::isInstanceOf($attributesAware, \ReflectionProperty::class);
+                Assert::same('array', (string) $attributesAware->getType());
+                $this->mappedProductOptions[$name] = $attribute->codes;
             }
 
             if ($attribute instanceof MapProductAttribute) {
-                $this->mapProductAttributes[$name] = $attribute->codes;
+                Assert::isInstanceOf($attributesAware, \ReflectionProperty::class);
+                Assert::same('array', (string) $attributesAware->getType());
+                $this->mappedProductAttributes[$name] = $attribute->codes;
             }
         }
     }
@@ -156,14 +161,14 @@ final class Metadata implements MetadataInterface
         return array_keys($this->sortableAttributes);
     }
 
-    public function getMapProductOptions(): array
+    public function getMappedProductOptions(): array
     {
-        return $this->mapProductOptions;
+        return $this->mappedProductOptions;
     }
 
-    public function getMapProductAttributes(): array
+    public function getMappedProductAttributes(): array
     {
-        return $this->mapProductAttributes;
+        return $this->mappedProductAttributes;
     }
 
     private static function isGetter(\ReflectionMethod $reflection): bool

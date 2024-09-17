@@ -6,10 +6,14 @@ namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\DataMapper\Product\Provider;
 
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
+use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\AttributesDataMapperValuesProvider;
+use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product;
 use Sylius\Component\Product\Model\ProductAttribute;
 use Sylius\Component\Product\Model\ProductAttributeValue;
+use Symfony\Component\DependencyInjection\Container;
 
 final class AttributesDataMapperValuesProviderTest extends TestCase
 {
@@ -21,12 +25,17 @@ final class AttributesDataMapperValuesProviderTest extends TestCase
 
         $product = $this->configureProduct();
 
+        $indexScope = new IndexScope(
+            new Index('products', ProductDocument::class, [], new Container(), 'prefix'),
+            localeCode: 'en_US',
+        );
+
         self::assertSame(
             [
                 'brand' => 'Best brand',
                 'collection' => 'Best collection',
             ],
-            $provider->provide($product, ['locale_code' => 'en_US']),
+            $provider->provide($product, $indexScope),
         );
     }
 

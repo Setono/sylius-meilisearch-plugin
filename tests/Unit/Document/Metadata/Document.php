@@ -19,7 +19,7 @@ final class Document extends BaseDocument
 
     #[Facet]
     #[MapProductOption(['t_shirt_size', 'dress_size'])]
-    public ?string $size = null;
+    public array $size = [];
 
     #[Facet]
     #[Sortable]

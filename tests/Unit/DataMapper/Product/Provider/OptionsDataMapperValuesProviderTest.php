@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\DataMapper\Product\Provider;
 
 use PHPUnit\Framework\TestCase;
+use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\OptionsDataMapperValuesProvider;
+use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product;
 use Sylius\Component\Core\Model\ProductVariant;
 use Sylius\Component\Product\Model\ProductOption;
 use Sylius\Component\Product\Model\ProductOptionValue;
+use Symfony\Component\DependencyInjection\Container;
 
 final class OptionsDataMapperValuesProviderTest extends TestCase
 {
@@ -19,12 +23,17 @@ final class OptionsDataMapperValuesProviderTest extends TestCase
 
         $product = $this->configureProduct();
 
+        $indexScope = new IndexScope(
+            new Index('products', ProductDocument::class, [], new Container(), 'prefix'),
+            localeCode: 'en_US',
+        );
+
         self::assertSame(
             [
                 'jeans_size' => ['S', 'M'],
                 'jeans_color' => ['Black', 'White'],
             ],
-            $provider->provide($product),
+            $provider->provide($product, $indexScope),
         );
     }
 
