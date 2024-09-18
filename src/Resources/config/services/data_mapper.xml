@@ -37,6 +37,9 @@
             <tag name="setono_sylius_meilisearch.data_mapper" priority="190"/>
         </service>
 
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\AttributesDataMapperValuesProvider" />
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\OptionsDataMapperValuesProvider" />
+
         <service
             id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProviderInterface"
             class="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\ProductPricesProvider"
@@ -50,11 +53,23 @@
             <tag name="setono_sylius_meilisearch.data_mapper" priority="180"/>
         </service>
 
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Setter\DocumentAttributesValuesSetter">
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface" />
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Setter\DocumentOptionsValuesSetter">
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface" />
+        </service>
+
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\AttributesDataMapper">
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\AttributesDataMapperValuesProvider" />
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Setter\DocumentAttributesValuesSetter" />
             <tag name="setono_sylius_meilisearch.data_mapper" priority="170"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\OptionsDataMapper">
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\OptionsDataMapperValuesProvider" />
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\Setter\DocumentOptionsValuesSetter" />
             <tag name="setono_sylius_meilisearch.data_mapper" priority="160"/>
         </service>
 

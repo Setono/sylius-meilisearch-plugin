@@ -6,9 +6,12 @@ namespace Setono\SyliusMeilisearchPlugin\Document\Metadata;
 
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facet as FacetAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable as FilterableAttribute;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductAttribute;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductOption;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Searchable as SearchableAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable as SortableAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
+use Webmozart\Assert\Assert;
 
 final class Metadata implements MetadataInterface
 {
@@ -26,6 +29,12 @@ final class Metadata implements MetadataInterface
 
     /** @var array<string, Sortable> */
     private array $sortableAttributes = [];
+
+    /** @var array<string, list<string>> */
+    private array $mappedProductOptions = [];
+
+    /** @var array<string, list<string>> */
+    private array $mappedProductAttributes = [];
 
     /**
      * @param class-string<Document>|Document $document
@@ -86,6 +95,18 @@ final class Metadata implements MetadataInterface
             if ($attribute instanceof SortableAttribute) {
                 $this->sortableAttributes[$name] = new Sortable($name, $attribute->direction);
             }
+
+            if ($attribute instanceof MapProductOption) {
+                Assert::isInstanceOf($attributesAware, \ReflectionProperty::class);
+                Assert::same('array', (string) $attributesAware->getType());
+                $this->mappedProductOptions[$name] = $attribute->codes;
+            }
+
+            if ($attribute instanceof MapProductAttribute) {
+                Assert::isInstanceOf($attributesAware, \ReflectionProperty::class);
+                Assert::same('array', (string) $attributesAware->getType());
+                $this->mappedProductAttributes[$name] = $attribute->codes;
+            }
         }
     }
 
@@ -138,6 +159,16 @@ final class Metadata implements MetadataInterface
     public function getSortableAttributeNames(): array
     {
         return array_keys($this->sortableAttributes);
+    }
+
+    public function getMappedProductOptions(): array
+    {
+        return $this->mappedProductOptions;
+    }
+
+    public function getMappedProductAttributes(): array
+    {
+        return $this->mappedProductAttributes;
     }
 
     private static function isGetter(\ReflectionMethod $reflection): bool

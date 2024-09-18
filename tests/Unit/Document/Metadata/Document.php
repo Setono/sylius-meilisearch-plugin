@@ -6,6 +6,8 @@ namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Document\Metadata;
 
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facet;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductAttribute;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductOption;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Searchable;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable;
 use Setono\SyliusMeilisearchPlugin\Document\Document as BaseDocument;
@@ -16,7 +18,8 @@ final class Document extends BaseDocument
     public ?string $name = null;
 
     #[Facet]
-    public ?string $size = null;
+    #[MapProductOption(['t_shirt_size', 'dress_size'])]
+    public array $size = [];
 
     #[Facet]
     #[Sortable]
@@ -24,4 +27,14 @@ final class Document extends BaseDocument
 
     #[Filterable]
     public array $taxons = [];
+
+    /** @var list<string> */
+    #[Facet]
+    #[MapProductAttribute(['t_shirt_collection', 'dress_collection'])]
+    public array $collection = [];
+
+    /** @var list<string> */
+    #[Facet]
+    #[MapProductAttribute(['t_shirt_brand', 'dress_brand'])]
+    public array $brand = [];
 }
