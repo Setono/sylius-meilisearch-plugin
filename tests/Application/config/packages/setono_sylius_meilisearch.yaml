@@ -12,7 +12,7 @@ setono_sylius_meilisearch:
             prefix: '%env(MEILISEARCH_PREFIX)%'
     search:
         index: products
-        hits_per_page: 30
+        hits_per_page: 3
     autocomplete:
         indexes:
             - products
