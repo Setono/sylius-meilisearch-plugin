@@ -8,5 +8,5 @@ use Meilisearch\Search\SearchResult;
 
 interface SearchEngineInterface
 {
-    public function execute(?string $query, array $parameters = []): SearchResult;
+    public function execute(SearchRequest $searchRequest): SearchResult;
 }

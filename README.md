@@ -159,6 +159,30 @@ class Product extends BaseProduct implements IndexableInterface, FilterableInter
 }
 ```
 
+## Testing
+
+To run tests in the plugin, here are the steps:
+
+1. Ensure you have Meilisearch running and that you've set the required environment variables in `.env.test.local`.
+
+2. Create the test database
+   
+    ```shell
+    php bin/console doctrine:database:create --env=test
+    ```
+
+3. Update the test database schema
+
+    ```shell
+    php bin/console doctrine:schema:update --env=test --force
+    ```
+
+4. Load fixtures
+
+    ```shell
+    php bin/console sylius:fixtures:load -n --env=test
+    ```
+
 [ico-version]: https://poser.pugx.org/setono/sylius-meilisearch-plugin/v/stable
 [ico-license]: https://poser.pugx.org/setono/sylius-meilisearch-plugin/license
 [ico-github-actions]: https://github.com/Setono/sylius-meilisearch-plugin/workflows/build/badge.svg

@@ -27,31 +27,29 @@ final class SearchEngine implements SearchEngineInterface
     ) {
     }
 
-    public function execute(?string $query, array $parameters = []): SearchResult
+    public function execute(SearchRequest $searchRequest): SearchResult
     {
         $indexName = $this->indexNameResolver->resolve($this->index);
         $metadata = $this->metadataFactory->getMetadataFor($this->index->document);
         $facetsNames = $metadata->getFacetableAttributeNames();
         $facets = $metadata->getFacetableAttributes();
 
-        /** @var array<string, mixed> $facetsFilter */
-        $facetsFilter = (array) ($parameters['facets'] ?? []);
         /** @var array<string, mixed> $filters */
-        $filters = $this->filterBuilder->build($facets, $facetsFilter);
+        $filters = $this->filterBuilder->build($facets, $searchRequest->filters);
 
         $mainQuery = $this->mainQueryBuilder->build(
             $indexName,
-            $query ?? '',
+            $searchRequest->query ?? '',
             $facetsNames,
             $filters,
-            max(1, (int) ($parameters['p'] ?? 1)),
-            (string) ($parameters['sort'] ?? ''),
+            $searchRequest->page,
+            $searchRequest->sort ?? '',
         );
 
         /** @var list<SearchQuery> $queries */
         $queries = array_merge(
             [$mainQuery],
-            $this->subQueriesBuilder->build($indexName, $query ?? '', $facets, $facetsFilter),
+            $this->subQueriesBuilder->build($indexName, $searchRequest->query ?? '', $facets, $searchRequest->filters),
         );
 
         /** @var array<SearchResult> $results */

@@ -7,12 +7,12 @@ namespace Setono\SyliusMeilisearchPlugin\Controller\Action;
 use Doctrine\Persistence\ManagerRegistry;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchEngineInterface;
+use Setono\SyliusMeilisearchPlugin\Engine\SearchRequest;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
-use Webmozart\Assert\Assert;
 
 final class SearchAction
 {
@@ -29,10 +29,7 @@ final class SearchAction
 
     public function __invoke(Request $request): Response
     {
-        $query = $request->query->get('q');
-        Assert::nullOrString($query);
-
-        $searchResult = $this->searchEngine->execute($query, $request->query->all());
+        $searchResult = $this->searchEngine->execute(SearchRequest::fromRequest($request));
 
         $searchForm = $this->searchFormBuilder->build($searchResult);
         $searchForm->handleRequest($request);
