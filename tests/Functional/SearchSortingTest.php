@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Tests\Functional;
 
-use function Amp\Promise\wait;
 use Doctrine\ORM\EntityManagerInterface;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchEngine;
+use Setono\SyliusMeilisearchPlugin\Engine\SearchRequest;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
 use Sylius\Component\Core\Model\ChannelPricingInterface;
 use Sylius\Component\Core\Model\ProductInterface;
@@ -21,7 +21,7 @@ final class SearchSortingTest extends FunctionalTestCase
     {
         /** @var SearchEngine $searchEngine */
         $searchEngine = self::getContainer()->get(SearchEngine::class);
-        $result = $searchEngine->execute('jeans', ['sort' => 'price:asc']);
+        $result = $searchEngine->execute(new SearchRequest('jeans', sort: 'price:asc'));
 
         self::assertSame(8, $result->getHitsCount());
 
@@ -43,7 +43,7 @@ final class SearchSortingTest extends FunctionalTestCase
     {
         /** @var SearchEngine $searchEngine */
         $searchEngine = self::getContainer()->get(SearchEngine::class);
-        $result = $searchEngine->execute('jeans', ['sort' => 'createdAt:desc']);
+        $result = $searchEngine->execute(new SearchRequest('jeans', sort: 'createdAt:desc'));
 
         self::assertSame(8, $result->getHitsCount());
 
@@ -67,7 +67,7 @@ final class SearchSortingTest extends FunctionalTestCase
 
         /** @var SearchEngine $searchEngine */
         $searchEngine = self::getContainer()->get(SearchEngine::class);
-        $result = $searchEngine->execute('jeans', ['sort' => 'discount:desc']);
+        $result = $searchEngine->execute(new SearchRequest('jeans', sort: 'discount:desc'));
 
         /** @var array $firstHit */
         $firstHit = $result->getHit(0);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Tests\Functional;
 
 use Setono\SyliusMeilisearchPlugin\Engine\SearchEngine;
+use Setono\SyliusMeilisearchPlugin\Engine\SearchRequest;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
 use Symfony\Component\Form\ChoiceList\ChoiceListInterface;
 
@@ -15,7 +16,7 @@ final class SearchFormBuilderTest extends FunctionalTestCase
     {
         /** @var SearchEngine $searchEngine */
         $searchEngine = self::getContainer()->get(SearchEngine::class);
-        $result = $searchEngine->execute('jeans');
+        $result = $searchEngine->execute(new SearchRequest('jeans'));
 
         /** @var SearchFormBuilderInterface $searchFormBuilder */
         $searchFormBuilder = self::getContainer()->get(SearchFormBuilderInterface::class);

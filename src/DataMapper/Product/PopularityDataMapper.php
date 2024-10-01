@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product;
 
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
@@ -79,17 +80,20 @@ final class PopularityDataMapper implements DataMapperInterface
 
     private function getOrderIdLowerBound(): int
     {
-        return (int) $this->getManager($this->orderClass)
-            ->createQueryBuilder()
-            ->select('o.id')
-            ->from($this->orderClass, 'o')
-            ->andwhere('o.createdAt >= :date')
-            ->setMaxResults(1)
-            ->addOrderBy('o.id', 'ASC')
-            ->setParameter('date', new \DateTimeImmutable('-' . $this->popularityLookBackPeriod))
-            ->getQuery()
-            ->enableResultCache(3600) // todo should this be cached and should it be configurable?
-            ->getSingleScalarResult()
-        ;
+        try {
+            return (int) $this->getManager($this->orderClass)
+                ->createQueryBuilder()
+                ->select('o.id')
+                ->from($this->orderClass, 'o')
+                ->andwhere('o.createdAt >= :date')
+                ->setMaxResults(1)
+                ->addOrderBy('o.id', 'ASC')
+                ->setParameter('date', new \DateTimeImmutable('-' . $this->popularityLookBackPeriod))
+                ->getQuery()
+                ->enableResultCache(3600) // todo should this be cached and should it be configurable?
+                ->getSingleScalarResult();
+        } catch (NoResultException) {
+            return 0;
+        }
     }
 }

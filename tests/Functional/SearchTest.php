@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Tests\Functional;
 
 use Setono\SyliusMeilisearchPlugin\Engine\SearchEngine;
+use Setono\SyliusMeilisearchPlugin\Engine\SearchRequest;
 
 /** @group functional */
 final class SearchTest extends FunctionalTestCase
@@ -13,7 +14,7 @@ final class SearchTest extends FunctionalTestCase
     {
         /** @var SearchEngine $searchEngine */
         $searchEngine = self::getContainer()->get(SearchEngine::class);
-        $result = $searchEngine->execute('jeans');
+        $result = $searchEngine->execute(new SearchRequest('jeans'));
 
         self::assertSame(8, $result->getHitsCount());
     }
@@ -23,13 +24,10 @@ final class SearchTest extends FunctionalTestCase
         /** @var SearchEngine $searchEngine */
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $result = $searchEngine->execute(
-            'jeans',
-            [
-                'facets' => [
-                    'brand' => ['Celsius small', 'You are breathtaking'],
-                    'price' => ['min' => '30', 'max' => '45'],
-                ],
-            ],
+            new SearchRequest('jeans', [
+                'brand' => ['Celsius small', 'You are breathtaking'],
+                'price' => ['min' => '30', 'max' => '45'],
+            ]),
         );
 
         /** @var array $hit */
@@ -37,7 +35,7 @@ final class SearchTest extends FunctionalTestCase
 
         self::assertLessThan(45, (int) $hit['price']);
         self::assertGreaterThan(30, (int) $hit['price']);
-        self::assertTrue(in_array(((array) $hit['brand'])[0], ['Celsius small', 'You are breathtaking'], true));
+        self::assertContains(((array) $hit['brand'])[0], ['Celsius small', 'You are breathtaking']);
     }
 
     public function testItAlwaysDisplaysFullFacetDistribution(): void
@@ -45,8 +43,9 @@ final class SearchTest extends FunctionalTestCase
         /** @var SearchEngine $searchEngine */
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $result = $searchEngine->execute(
-            'jeans',
-            ['facets' => ['brand' => ['Celsius small']]],
+            new SearchRequest('jeans', [
+                'brand' => ['Celsius small'],
+            ]),
         );
 
         $this->assertSame(1, $result->getHitsCount());
