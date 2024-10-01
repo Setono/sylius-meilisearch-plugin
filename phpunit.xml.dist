@@ -8,8 +8,11 @@
         </include>
     </coverage>
     <testsuites>
-        <testsuite name="SetonoSyliusMeilisearchPlugin Test Suite">
-            <directory>tests</directory>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Functional">
+            <directory>tests/Functional</directory>
         </testsuite>
     </testsuites>
     <php>

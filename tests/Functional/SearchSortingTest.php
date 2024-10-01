@@ -14,7 +14,6 @@ use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Repository\ProductRepositoryInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-/** @group functional */
 final class SearchSortingTest extends FunctionalTestCase
 {
     public function testItSortsSearchResultsByLowestPrice(): void

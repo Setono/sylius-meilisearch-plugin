@@ -9,7 +9,6 @@ use Setono\SyliusMeilisearchPlugin\Engine\SearchRequest;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
 use Symfony\Component\Form\ChoiceList\ChoiceListInterface;
 
-/** @group functional */
 final class SearchFormBuilderTest extends FunctionalTestCase
 {
     public function testItCreatesFormForSearchResultsWithProperlySortedFacetValues(): void

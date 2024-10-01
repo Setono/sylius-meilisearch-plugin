@@ -8,7 +8,6 @@ use Setono\SyliusMeilisearchPlugin\Engine\SearchEngine;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchRequest;
 use Setono\SyliusMeilisearchPlugin\Tests\Functional\FunctionalTestCase;
 
-/** @group functional */
 final class SearchPaginationTest extends FunctionalTestCase
 {
     public function testItPaginatesSearchResults(): void

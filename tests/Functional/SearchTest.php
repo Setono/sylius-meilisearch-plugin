@@ -7,7 +7,6 @@ namespace Setono\SyliusMeilisearchPlugin\Tests\Functional;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchEngine;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchRequest;
 
-/** @group functional */
 final class SearchTest extends FunctionalTestCase
 {
     public function testItProvidesSearchResults(): void

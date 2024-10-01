@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Tests\Functional;
+namespace Setono\SyliusMeilisearchPlugin\Tests\Functional\DataMapper\Product;
 
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\AttributesDataMapper;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product;
+use Setono\SyliusMeilisearchPlugin\Tests\Functional\FunctionalTestCase;
 use Sylius\Component\Core\Repository\ProductRepositoryInterface;
 
-/** @group functional */
 final class AttributesDataMapperTest extends FunctionalTestCase
 {
     public function testItMapsProductAttributesToDocumentProperties(): void
