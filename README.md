@@ -161,7 +161,7 @@ class Product extends BaseProduct implements IndexableInterface, FilterableInter
 
 ## Testing
 
-To run tests in the plugin, here are the steps:
+To run the functional tests in the plugin, here are the steps:
 
 1. Ensure you have Meilisearch running and that you've set the required environment variables in `.env.test.local`.
 
@@ -181,6 +181,18 @@ To run tests in the plugin, here are the steps:
 
     ```shell
     php bin/console sylius:fixtures:load -n --env=test
+    ```
+
+5. Populate the index
+
+    ```shell
+    php bin/console setono:sylius-meilisearch:index --env=test
+    ```
+
+6. Run the tests
+
+    ```shell
+    vendor/bin/phpunit
     ```
 
 [ico-version]: https://poser.pugx.org/setono/sylius-meilisearch-plugin/v/stable

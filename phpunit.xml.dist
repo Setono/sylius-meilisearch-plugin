@@ -15,9 +15,5 @@
     <php>
         <env name="APP_ENV" value="test"/>
         <env name="SHELL_VERBOSITY" value="-1"/>
-
-        <!-- Input these values to test the Meilisearch implementation on a live application -->
-        <env name="MEILISEARCH_LIVE" value="0"/> <!-- Set to 1 to enable live testing -->
-        <env name="MEILISEARCH_MASTER_KEY" value="aSampleMasterKey"/>
     </php>
 </phpunit>
