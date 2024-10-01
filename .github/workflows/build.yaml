@@ -229,9 +229,6 @@ jobs:
             -   name: "Start MySQL"
                 run: "sudo /etc/init.d/mysql start"
                 
-            -   name: "Run Meilisearch"
-                uses: "actions/checkout@v4"
-
             -   name: "Checkout"
                 uses: "actions/checkout@v4"
 
