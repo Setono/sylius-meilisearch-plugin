@@ -192,7 +192,7 @@ To run the functional tests in the plugin, here are the steps:
 6. Run the tests
 
     ```shell
-    vendor/bin/phpunit
+    vendor/bin/phpunit --testsuite Functional
     ```
 
 [ico-version]: https://poser.pugx.org/setono/sylius-meilisearch-plugin/v/stable
