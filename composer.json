@@ -60,6 +60,7 @@
         "api-platform/core": "^2.7.16",
         "babdev/pagerfanta-bundle": "^3.8",
         "behat/behat": "^3.14",
+        "doctrine/annotations": "^2.0.2",
         "doctrine/data-fixtures": "^1.7",
         "doctrine/doctrine-bundle": "^2.11",
         "infection/infection": "^0.27.10",
