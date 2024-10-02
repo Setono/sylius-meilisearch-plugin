@@ -25,3 +25,12 @@ sylius_taxonomy:
         taxon:
             classes:
                 model: Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Taxon
+
+sylius_fixtures:
+    suites:
+        default:
+            listeners:
+                product_discounter:
+                    options:
+                        amount: 5
+                        discount: 0.1
