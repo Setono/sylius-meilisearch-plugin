@@ -6,24 +6,18 @@ namespace Setono\SyliusMeilisearchPlugin\DataMapper;
 
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
-use Setono\SyliusMeilisearchPlugin\Document\ImageAwareInterface;
+use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
-use Sylius\Component\Core\Model\ImageInterface;
 use Sylius\Component\Core\Model\ImagesAwareInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Webmozart\Assert\Assert;
 
 final class ImageDataMapper implements DataMapperInterface
 {
-    /**
-     * @param array<class-string<IndexableInterface>, string> $entityToFilterSetMapping
-     */
     public function __construct(
         private readonly CacheManager $cacheManager,
-        private readonly array $entityToFilterSetMapping = [],
-        // todo add this to the plugin configuration
-        private readonly string $defaultFilterSet = 'sylius_large',
+        private readonly MetadataFactoryInterface $metadataFactory,
     ) {
     }
 
@@ -38,21 +32,25 @@ final class ImageDataMapper implements DataMapperInterface
             'The given $source and $target is not supported',
         );
 
-        $image = $source->getImages()->first();
-        if (!$image instanceof ImageInterface) {
-            return;
-        }
+        $metadata = $this->metadataFactory->getMetadataFor($target);
+        foreach ($metadata->getImageAttributes() as $imageAttribute) {
+            $image = $imageAttribute->type === null ? $source->getImages()->first() : $source->getImagesByType($imageAttribute->type)->first();
+            if (false === $image) {
+                continue;
+            }
 
-        $target->setImage($this->cacheManager->getBrowserPath(
-            path: (string) $image->getPath(),
-            filter: $this->entityToFilterSetMapping[$source::class] ?? $this->defaultFilterSet,
-            referenceType: UrlGeneratorInterface::ABSOLUTE_PATH,
-        ));
+            $imageUrl = $this->cacheManager->getBrowserPath(
+                path: (string) $image->getPath(),
+                filter: $imageAttribute->filterSet,
+                referenceType: UrlGeneratorInterface::ABSOLUTE_PATH,
+            );
+
+            $target->{$imageAttribute->name} = $imageUrl;
+        }
     }
 
     /**
      * @psalm-assert-if-true ImagesAwareInterface $source
-     * @psalm-assert-if-true ImageAwareInterface $target
      */
     public function supports(
         IndexableInterface $source,
@@ -60,6 +58,6 @@ final class ImageDataMapper implements DataMapperInterface
         IndexScope $indexScope,
         array $context = [],
     ): bool {
-        return $source instanceof ImagesAwareInterface && $target instanceof ImageAwareInterface;
+        return $source instanceof ImagesAwareInterface && $this->metadataFactory->getMetadataFor($target)->getImageAttributes() !== [];
     }
 }

@@ -6,10 +6,11 @@ namespace Setono\SyliusMeilisearchPlugin\Document;
 
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facetable;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\Image;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Searchable;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable;
 
-class Product extends Document implements UrlAwareInterface, ImageAwareInterface
+class Product extends Document implements UrlAwareInterface
 {
     #[Searchable]
     public ?string $name = null;
@@ -19,6 +20,7 @@ class Product extends Document implements UrlAwareInterface, ImageAwareInterface
 
     public ?string $url = null;
 
+    #[Image(filterSet: 'sylius_shop_product_thumbnail')]
     public ?string $image = null;
 
     /**
@@ -61,10 +63,5 @@ class Product extends Document implements UrlAwareInterface, ImageAwareInterface
     public function setUrl(string $url): void
     {
         $this->url = $url;
-    }
-
-    public function setImage(string $image): void
-    {
-        $this->image = $image;
     }
 }

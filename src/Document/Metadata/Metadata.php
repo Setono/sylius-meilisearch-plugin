@@ -6,6 +6,7 @@ namespace Setono\SyliusMeilisearchPlugin\Document\Metadata;
 
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facetable as FacetableAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable as FilterableAttribute;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\Image as ImageAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductOption;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Searchable as SearchableAttribute;
@@ -36,6 +37,9 @@ final class Metadata implements MetadataInterface
 
     /** @var array<string, list<string>> */
     private array $mappedProductAttributes = [];
+
+    /** @var array<string, Image> */
+    private array $imageAttributes = [];
 
     /**
      * @param class-string<Document>|Document $document
@@ -108,6 +112,10 @@ final class Metadata implements MetadataInterface
                 Assert::same('array', (string) $attributesAware->getType());
                 $this->mappedProductAttributes[$name] = $attribute->codes;
             }
+
+            if ($attribute instanceof ImageAttribute) {
+                $this->imageAttributes[$name] = new Image($name, $attribute->filterSet, $attribute->type);
+            }
         }
     }
 
@@ -170,6 +178,11 @@ final class Metadata implements MetadataInterface
     public function getMappedProductAttributes(): array
     {
         return $this->mappedProductAttributes;
+    }
+
+    public function getImageAttributes(): array
+    {
+        return $this->imageAttributes;
     }
 
     private static function isGetter(\ReflectionMethod $reflection): bool
