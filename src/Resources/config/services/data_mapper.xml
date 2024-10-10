@@ -16,6 +16,7 @@
 
         <service id="Setono\SyliusMeilisearchPlugin\DataMapper\ImageDataMapper">
             <argument type="service" id="liip_imagine.cache.manager"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface"/>
 
             <tag name="setono_sylius_meilisearch.data_mapper" priority="100"/>
         </service>

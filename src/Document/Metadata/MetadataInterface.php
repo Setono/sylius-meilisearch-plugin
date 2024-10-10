@@ -82,4 +82,9 @@ interface MetadataInterface
      * @return array<string, list<string>>
      */
     public function getMappedProductAttributes(): array;
+
+    /**
+     * @return array<string, Image>
+     */
+    public function getImageAttributes(): array;
 }
