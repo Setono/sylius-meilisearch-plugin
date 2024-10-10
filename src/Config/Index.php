@@ -7,8 +7,11 @@ namespace Setono\SyliusMeilisearchPlugin\Config;
 use Psr\Container\ContainerInterface;
 use Setono\SyliusMeilisearchPlugin\DataProvider\IndexableDataProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
+use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
+use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
 
 final class Index implements \Stringable
 {
@@ -88,6 +91,26 @@ final class Index implements \Stringable
     {
         /** @psalm-suppress MixedReturnStatement */
         return $this->locator->get(IndexableDataProviderInterface::class);
+    }
+
+    /**
+     * Will return the index uid in Meilisearch based on the current context.
+     * This means you should not call this when you're not in a request/response context
+     */
+    public function uid(): string
+    {
+        /** @var IndexNameResolverInterface $indexNameResolver */
+        $indexNameResolver = $this->locator->get(IndexNameResolverInterface::class);
+
+        return $indexNameResolver->resolve($this);
+    }
+
+    public function metadata(): MetadataInterface
+    {
+        /** @var MetadataFactoryInterface $metadataFactory */
+        $metadataFactory = $this->locator->get(MetadataFactoryInterface::class);
+
+        return $metadataFactory->getMetadataFor($this->document);
     }
 
     public function __toString(): string
