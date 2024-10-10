@@ -8,13 +8,19 @@ use Meilisearch\Contracts\SearchQuery;
 
 final class SearchQueryBuilder implements SearchQueryBuilderInterface
 {
-    public function build(string $indexName, string $query, array $facets, array $filter): SearchQuery
+    public function build(string $indexName, ?string $query, array $facets, array $filter): SearchQuery
     {
-        return (new SearchQuery())
+        $searchQuery = new SearchQuery();
+        $searchQuery
             ->setIndexUid($indexName)
-            ->setQuery($query)
             ->setFacets($facets)
             ->setFilter($filter)
         ;
+
+        if (null !== $query) {
+            $searchQuery->setQuery($query);
+        }
+
+        return $searchQuery;
     }
 }

@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class SearchRequest
 {
+    // todo we need the hits per page here
     public function __construct(
         public readonly ?string $query,
         /** @var array<string, mixed> $filters */

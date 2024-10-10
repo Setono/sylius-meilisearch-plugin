@@ -10,7 +10,7 @@ interface SearchQueryBuilderInterface
 {
     /**
      * @param array<string> $facets
-     * @param array<string, mixed> $filter
+     * @param list<string> $filter
      */
-    public function build(string $indexName, string $query, array $facets, array $filter): SearchQuery;
+    public function build(string $indexName, ?string $query, array $facets, array $filter): SearchQuery;
 }

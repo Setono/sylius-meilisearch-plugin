@@ -8,27 +8,20 @@
             alias="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder"
         />
 
-        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder" />
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder"/>
 
         <service
             id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\SearchQueryBuilderInterface"
             class="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\SearchQueryBuilder"
         />
 
-        <service
-            id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\MainQueryBuilderInterface"
-            class="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\MainQueryBuilder"
-        >
-            <argument>%setono_sylius_meilisearch.search.hits_per_page%</argument>
-            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\SearchQueryBuilderInterface" />
-        </service>
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\MultiSearchBuilderInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\MultiSearchBuilder"/>
 
-        <service
-            id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\SubQueriesBuilderInterface"
-            class="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\SubQueriesBuilder"
-        >
-            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FilterBuilderInterface" />
-            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\SearchQueryBuilderInterface" />
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\MultiSearchBuilder">
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\SearchQueryBuilderInterface"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FilterBuilderInterface"/>
+            <argument>%setono_sylius_meilisearch.search.hits_per_page%</argument>
         </service>
 
         <!-- Synonym resolver -->

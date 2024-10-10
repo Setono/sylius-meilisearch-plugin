@@ -12,7 +12,7 @@ interface FilterBuilderInterface
      * @param array<string, Facet> $facets
      * @param array<string, mixed> $facetsValues
      *
-     * @return array<string>
+     * @return list<string>
      */
     public function build(array $facets, array $facetsValues): array;
 }

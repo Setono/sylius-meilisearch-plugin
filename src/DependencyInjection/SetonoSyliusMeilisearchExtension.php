@@ -20,6 +20,7 @@ use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Twig\AutocompleteRuntime;
 use Setono\SyliusMeilisearchPlugin\UrlGenerator\EntityUrlGeneratorInterface;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
@@ -279,6 +280,8 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                 ServiceLocatorTagPass::register($container, [
                     IndexableDataProviderInterface::class => new Reference($index['data_provider']),
                     IndexerInterface::class => new Reference($indexerServiceId),
+                    IndexNameResolverInterface::class => new Reference('setono_sylius_meilisearch.resolver.index_name'),
+                    MetadataFactoryInterface::class => new Reference(MetadataFactoryInterface::class),
                 ]),
                 $index['prefix'],
             ]));
