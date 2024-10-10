@@ -37,7 +37,7 @@ final class PriceDataMapper implements DataMapperInterface
         $channel = $this->channelRepository->findOneByCode($indexScope->channelCode);
         Assert::isInstanceOf($channel, ChannelInterface::class);
 
-        $baseCurrencyCode = $this->getBaseCurrencyCode($channel);
+        $baseCurrencyCode = self::getBaseCurrencyCode($channel);
 
         $prices = $this->productPricesProvider->getPricesForChannel($source, $channel);
 
@@ -57,7 +57,7 @@ final class PriceDataMapper implements DataMapperInterface
         return $source instanceof ProductInterface && $target instanceof ProductDocument && $indexScope->channelCode !== null;
     }
 
-    private function getBaseCurrencyCode(ChannelInterface $channel): string
+    private static function getBaseCurrencyCode(ChannelInterface $channel): string
     {
         $baseCurrency = $channel->getBaseCurrency();
         Assert::notNull($baseCurrency);
