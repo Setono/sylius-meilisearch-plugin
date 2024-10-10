@@ -75,21 +75,13 @@ final class Index implements \Stringable
         return false;
     }
 
-    /**
-     * @psalm-suppress MixedInferredReturnType
-     */
     public function indexer(): IndexerInterface
     {
-        /** @psalm-suppress MixedReturnStatement */
         return $this->locator->get(IndexerInterface::class);
     }
 
-    /**
-     * @psalm-suppress MixedInferredReturnType
-     */
     public function dataProvider(): IndexableDataProviderInterface
     {
-        /** @psalm-suppress MixedReturnStatement */
         return $this->locator->get(IndexableDataProviderInterface::class);
     }
 

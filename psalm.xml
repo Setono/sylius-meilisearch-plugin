@@ -36,4 +36,7 @@
             </errorLevel>
         </TooManyTemplateParams>
     </issueHandlers>
+    <stubs>
+        <file name="stubs/Psr/Container/ContainerInterface.phpstub"/>
+    </stubs>
 </psalm>
