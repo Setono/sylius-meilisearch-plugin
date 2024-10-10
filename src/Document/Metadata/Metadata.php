@@ -13,6 +13,7 @@ use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable as SortableAttrib
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Webmozart\Assert\Assert;
 
+// TODO: Do we need an interface, why not just have public readonly properties?
 final class Metadata implements MetadataInterface
 {
     /** @var class-string<Document> */
