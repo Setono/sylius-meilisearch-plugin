@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Document\Metadata;
 
-use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facet as FacetAttribute;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facetable as FacetableAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable as FilterableAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductOption;
@@ -80,7 +80,7 @@ final class Metadata implements MetadataInterface
                 $this->filterableAttributes[$name] = new Filterable($name);
             }
 
-            if ($attribute instanceof FacetAttribute) {
+            if ($attribute instanceof FacetableAttribute) {
                 $this->facetableAttributes[$name] = new Facet(
                     $name,
                     self::getFacetType($attributesAware),

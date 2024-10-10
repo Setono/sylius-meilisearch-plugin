@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Document\Metadata;
 
-use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facet;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facetable;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\MapProductOption;
@@ -17,11 +17,11 @@ final class Document extends BaseDocument
     #[Searchable]
     public ?string $name = null;
 
-    #[Facet]
+    #[Facetable]
     #[MapProductOption(['t_shirt_size', 'dress_size'])]
     public array $size = [];
 
-    #[Facet]
+    #[Facetable]
     #[Sortable]
     public ?int $price = null;
 
@@ -29,12 +29,12 @@ final class Document extends BaseDocument
     public array $taxons = [];
 
     /** @var list<string> */
-    #[Facet]
+    #[Facetable]
     #[MapProductAttribute(['t_shirt_collection', 'dress_collection'])]
     public array $collection = [];
 
     /** @var list<string> */
-    #[Facet]
+    #[Facetable]
     #[MapProductAttribute(['t_shirt_brand', 'dress_brand'])]
     public array $brand = [];
 }
