@@ -7,7 +7,7 @@
             <argument type="service" id="Meilisearch\Client"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProviderInterface"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface"/>
-            <argument type="service" id="setono_sylius_meilisearch.resolver.index_name"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface"/>
             <argument type="service" id="serializer"/>
 
             <tag name="messenger.message_handler"/>
@@ -38,7 +38,7 @@
             <argument type="service" id="Meilisearch\Client"/>
             <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface"/>
-            <argument type="service" id="setono_sylius_meilisearch.resolver.index_name"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolverInterface"/>
 
             <tag name="messenger.message_handler"/>

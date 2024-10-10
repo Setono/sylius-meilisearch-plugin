@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Resolver\IndexName;
+namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Resolver\IndexUid;
 
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -10,13 +10,13 @@ use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Document\Product;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolver;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolver;
 use Symfony\Component\DependencyInjection\Container;
 
 /**
- * @covers \Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolver
+ * @covers \Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolver
  */
-final class IndexNameResolverTest extends TestCase
+final class IndexUidResolverTest extends TestCase
 {
     use ProphecyTrait;
 
@@ -27,7 +27,7 @@ final class IndexNameResolverTest extends TestCase
     {
         $index = new Index('products', Product::class, [], new Container(), 'prefix');
         $indexScope = new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD');
-        $resolver = new IndexNameResolver(
+        $resolver = new IndexUidResolver(
             $this->prophesize(IndexScopeProviderInterface::class)->reveal(),
             'prod',
         );

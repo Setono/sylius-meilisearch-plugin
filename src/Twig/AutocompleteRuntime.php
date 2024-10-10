@@ -7,14 +7,14 @@ namespace Setono\SyliusMeilisearchPlugin\Twig;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Autocomplete\Configuration\Configuration;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Autocomplete\Configuration\Source;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Extension\RuntimeExtensionInterface;
 
 final class AutocompleteRuntime implements RuntimeExtensionInterface
 {
     public function __construct(
-        private readonly IndexNameResolverInterface $indexNameResolver,
+        private readonly IndexUidResolverInterface $indexNameResolver,
         private readonly TranslatorInterface $translator,
         private readonly string $host,
         private readonly string $searchKey,

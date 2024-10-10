@@ -20,7 +20,7 @@ use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Twig\AutocompleteRuntime;
 use Setono\SyliusMeilisearchPlugin\UrlGenerator\EntityUrlGeneratorInterface;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
@@ -280,7 +280,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                 ServiceLocatorTagPass::register($container, [
                     IndexableDataProviderInterface::class => new Reference($index['data_provider']),
                     IndexerInterface::class => new Reference($indexerServiceId),
-                    IndexNameResolverInterface::class => new Reference('setono_sylius_meilisearch.resolver.index_name'),
+                    IndexUidResolverInterface::class => new Reference(IndexUidResolverInterface::class),
                     MetadataFactoryInterface::class => new Reference(MetadataFactoryInterface::class),
                 ]),
                 $index['prefix'],
@@ -302,8 +302,8 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         $container->setDefinition($indexerServiceId, new Definition(DefaultIndexer::class, [
             new Reference($indexServiceId),
             new Reference('doctrine'),
-            new Reference('Setono\SyliusMeilisearchPlugin\Provider\IndexScope\CompositeIndexScopeProvider'),
-            new Reference('setono_sylius_meilisearch.resolver.index_name'),
+            new Reference(IndexScopeProviderInterface::class),
+            new Reference(IndexUidResolverInterface::class),
             new Reference(DataMapperInterface::class),
             new Reference('serializer'),
             new Reference(Client::class),

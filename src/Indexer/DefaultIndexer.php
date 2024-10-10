@@ -14,7 +14,7 @@ use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface as ObjectFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Webmozart\Assert\Assert;
@@ -30,7 +30,7 @@ class DefaultIndexer extends AbstractIndexer
         protected readonly Index $index,
         ManagerRegistry $managerRegistry,
         protected readonly IndexScopeProviderInterface $indexScopeProvider,
-        protected readonly IndexNameResolverInterface $indexNameResolver,
+        protected readonly IndexUidResolverInterface $indexNameResolver,
         protected readonly DataMapperInterface $dataMapper,
         protected readonly NormalizerInterface $normalizer,
         protected readonly Client $client,

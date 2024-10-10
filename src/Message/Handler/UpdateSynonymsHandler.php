@@ -9,7 +9,7 @@ use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\UpdateSynonyms;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 
 final class UpdateSynonymsHandler
 {
@@ -17,7 +17,7 @@ final class UpdateSynonymsHandler
         private readonly Client $client,
         private readonly IndexRegistryInterface $indexRegistry,
         private readonly IndexScopeProviderInterface $indexScopeProvider,
-        private readonly IndexNameResolverInterface $indexNameResolver,
+        private readonly IndexUidResolverInterface $indexNameResolver,
         private readonly SynonymResolverInterface $synonymResolver,
     ) {
     }
