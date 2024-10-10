@@ -5,6 +5,7 @@
         <service id="setono_sylius_meilisearch.command.index" class="Setono\SyliusMeilisearchPlugin\Command\IndexCommand">
             <argument type="service" id="setono_sylius_meilisearch.command_bus"/>
             <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
+            <argument type="service" id="Meilisearch\Client"/>
 
             <tag name="console.command"/>
         </service>

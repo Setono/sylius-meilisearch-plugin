@@ -263,10 +263,7 @@ jobs:
                 run: "(cd tests/Application && bin/console sylius:fixtures:load -n -vvv)"
 
             -   name: "Populate indexes"
-                run: "(cd tests/Application && bin/console setono:sylius-meilisearch:index)"
-                
-            -   name: "Sleep 60 seconds to wait for Meilisearch to index"
-                run: "sleep 60s"
+                run: "(cd tests/Application && bin/console setono:sylius-meilisearch:index --wait)"
                 
             -   name: "Run phpunit"
                 run: "vendor/bin/phpunit --testsuite Functional"
