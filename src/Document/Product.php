@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Document;
 
-use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facet;
+use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facetable;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Searchable;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable;
@@ -31,7 +31,7 @@ class Product extends Document implements UrlAwareInterface, ImageAwareInterface
 
     public ?string $currency = null;
 
-    #[Facet]
+    #[Facetable]
     #[Sortable(direction: Sortable::ASC)]
     public ?float $price = null;
 
@@ -42,7 +42,7 @@ class Product extends Document implements UrlAwareInterface, ImageAwareInterface
     /**
      * This attribute will allow you to create a filter like 'Only show products on sale'
      */
-    #[Facet]
+    #[Facetable]
     public function isOnSale(): bool
     {
         return null !== $this->originalPrice && null !== $this->price && $this->price < $this->originalPrice;
