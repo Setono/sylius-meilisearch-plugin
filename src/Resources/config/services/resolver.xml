@@ -2,9 +2,12 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="setono_sylius_meilisearch.resolver.index_name"
-                 class="Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolver">
-            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface"/>
+        <service id="Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolver"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolver">
+            <argument type="service"
+                      id="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface"/>
             <argument>%kernel.environment%</argument>
         </service>
     </services>

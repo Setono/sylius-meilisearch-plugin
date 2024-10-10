@@ -11,7 +11,7 @@ use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 
 final class Index implements \Stringable
 {
@@ -91,8 +91,8 @@ final class Index implements \Stringable
      */
     public function uid(): string
     {
-        /** @var IndexNameResolverInterface $indexNameResolver */
-        $indexNameResolver = $this->locator->get(IndexNameResolverInterface::class);
+        /** @var IndexUidResolverInterface $indexNameResolver */
+        $indexNameResolver = $this->locator->get(IndexUidResolverInterface::class);
 
         return $indexNameResolver->resolve($this);
     }

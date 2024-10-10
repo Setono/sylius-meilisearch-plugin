@@ -9,7 +9,7 @@ use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProviderInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexName\IndexNameResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -20,7 +20,7 @@ final class IndexHandler
         private readonly Client $client,
         private readonly SettingsProviderInterface $settingsProvider,
         private readonly IndexScopeProviderInterface $indexScopeProvider,
-        private readonly IndexNameResolverInterface $indexNameResolver,
+        private readonly IndexUidResolverInterface $indexNameResolver,
         private readonly NormalizerInterface $normalizer,
     ) {
     }
