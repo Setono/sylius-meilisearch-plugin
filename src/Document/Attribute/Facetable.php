@@ -11,7 +11,11 @@ use Webmozart\Assert\Assert;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_METHOD)]
 final class Facetable extends Filterable
 {
-    /** @param class-string<FacetValuesSorterInterface>|null $sorter */
+    /**
+     * TODO: Should be a service id
+     *
+     * @param class-string<FacetValuesSorterInterface>|null $sorter
+     */
     public function __construct(public readonly ?string $sorter = null)
     {
         if ($this->sorter === null) {
