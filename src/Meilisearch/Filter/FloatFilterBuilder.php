@@ -12,13 +12,16 @@ final class FloatFilterBuilder implements FilterBuilderInterface
 
         foreach ($facets as $facet) {
             if ($facet->type === 'float' && isset($facetsValues[$facet->name])) {
-                /** @var array<string, float> $values */
+                /** @var mixed $values */
                 $values = $facetsValues[$facet->name];
+                if (!is_array($values)) {
+                    continue;
+                }
 
-                if (isset($values['min'])) {
+                if (isset($values['min']) && '' !== $values['min'] && is_numeric($values['min'])) {
                     $filters[] = $facet->name . '>=' . $values['min'];
                 }
-                if (isset($values['max'])) {
+                if (isset($values['max']) && '' !== $values['max'] && is_numeric($values['max'])) {
                     $filters[] = $facet->name . '<=' . $values['max'];
                 }
             }
