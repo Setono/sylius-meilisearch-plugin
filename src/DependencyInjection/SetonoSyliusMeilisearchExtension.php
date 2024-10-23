@@ -283,7 +283,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                     IndexUidResolverInterface::class => new Reference(IndexUidResolverInterface::class),
                     MetadataFactoryInterface::class => new Reference(MetadataFactoryInterface::class),
                 ]),
-                $index['prefix'],
+                '' === $index['prefix'] ? null : $index['prefix'],
             ]));
 
             $indexRegistry->addMethodCall('add', [new Reference($indexServiceId)]);

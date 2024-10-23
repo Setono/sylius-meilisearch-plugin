@@ -61,7 +61,7 @@ final class Configuration implements ConfigurationInterface
                                 ->defaultNull()
                             ->end()
                             ->scalarNode('prefix')
-                                ->defaultNull()
+                                ->defaultValue('%env(MEILISEARCH_PREFIX)%')
                                 ->info('If you want to prepend a string to the index name, you can set it here. This can be useful in a development setup where each developer has their own prefix. Notice that the environment is already prefixed by default, so you do not have to prefix that.')
                                 ->cannotBeEmpty()
                             ->end()

@@ -30,13 +30,15 @@ final class IndexUidResolver implements IndexUidResolverInterface
 
     public function resolveFromIndexScope(IndexScope $indexScope): string
     {
-        return strtolower(implode($this->separator, array_filter([
+        return strtolower(
+            implode($this->separator, array_filter([
             $indexScope->index->prefix,
             $this->environment,
             $indexScope->index->name,
             $indexScope->channelCode,
             $indexScope->localeCode,
             $indexScope->currencyCode,
-        ])));
+        ], static fn (?string $part): bool => ((string) $part) !== '')),
+        );
     }
 }
