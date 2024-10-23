@@ -75,10 +75,6 @@ final class IndexCommand extends Command
         if ($waitTimeout <= 0) {
             throw new RuntimeException('The wait-timeout option must be greater than 0');
         }
-
-        if (!$wait) {
-            throw new RuntimeException('The wait-timeout option is only relevant if you have enabled the "wait" option');
-        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
