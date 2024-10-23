@@ -90,6 +90,12 @@ php bin/console doctrine:migrations:diff
 php bin/console doctrine:migrations:migrate -n
 ```
 
+### Install assets
+
+```shell
+php bin/console assets:install
+```
+
 ### Populate the index
 
 To populate the index you can run the following command:
