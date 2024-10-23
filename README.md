@@ -83,6 +83,13 @@ class Product extends BaseProduct implements IndexableInterface
 }
 ```
 
+### Update your database schema
+
+```shell
+php bin/console doctrine:migrations:diff
+php bin/console doctrine:migrations:migrate -n
+```
+
 ### Populate the index
 
 To populate the index you can run the following command:
