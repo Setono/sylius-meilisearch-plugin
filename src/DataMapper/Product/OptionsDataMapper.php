@@ -8,6 +8,7 @@ use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\DataMapperValuesProviderInterface;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Setter\DocumentPropertyValuesSetterInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
+use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
@@ -19,6 +20,7 @@ final class OptionsDataMapper implements DataMapperInterface
     public function __construct(
         private readonly DataMapperValuesProviderInterface $dataMapperValuesProvider,
         private readonly DocumentPropertyValuesSetterInterface $documentPropertyValuesSetter,
+        private readonly MetadataFactoryInterface $metadataFactory,
     ) {
     }
 
@@ -36,6 +38,9 @@ final class OptionsDataMapper implements DataMapperInterface
      */
     public function supports(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
     {
-        return $source instanceof ProductInterface && $target instanceof ProductDocument;
+        return $source instanceof ProductInterface &&
+            $target instanceof ProductDocument &&
+            $this->metadataFactory->getMetadataFor($target)->getMappedProductOptions() !== []
+        ;
     }
 }
