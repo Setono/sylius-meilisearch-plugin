@@ -83,6 +83,16 @@ class Product extends BaseProduct implements IndexableInterface
 }
 ```
 
+### Populate the index
+
+To populate the index you can run the following command:
+
+```shell
+php bin/console setono:sylius-meilisearch:index
+```
+
+The plugin will detect most changes in your entities and update the index accordingly. However, it will not detect changes in associations, so you might need to reindex the whole index from time to time.
+
 ## Filter entities to index
 
 When indexing entities, most likely there are some of the entities that you don't want included in the index.
