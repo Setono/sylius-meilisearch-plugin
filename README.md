@@ -33,6 +33,7 @@ In your `.env.local` add your parameters:
 ###> setono/sylius-meilisearch-plugin ###
 MEILISEARCH_HOST=http://localhost:7700
 MEILISEARCH_MASTER_KEY=YOUR_MASTER_KEY
+MEILISEARCH_SEARCH_KEY=YOUR_SEARCH_KEY
 ###< setono/sylius-meilisearch-plugin ###
 ```
 
