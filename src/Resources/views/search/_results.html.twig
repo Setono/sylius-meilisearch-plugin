@@ -3,25 +3,21 @@
 {{ form_start(searchForm, { 'attr': { 'id': 'search-form' } }) }}
     <div class="ui stackable grid">
         <div class="four wide column">
-            {{ form_widget(searchForm.facets) }}
+            {{ include('@SetonoSyliusMeilisearchPlugin/search/_facets.html.twig') }}
         </div>
         <div class="twelve wide column">
             <div class="ui grid">
                 <div class="eight wide column">
-                    Displaying {{ (searchResult.page * searchResult.hitsPerPage) - searchResult.hitsPerPage }} - {{ searchResult.page * searchResult.hitsPerPage }} of {{ searchResult.hitsCount }}
+                    {{ include('@SetonoSyliusMeilisearchPlugin/search/_hits_count.html.twig') }}
                 </div>
                 <div class="eight wide right aligned column">
-                    {{ form_widget(searchForm.sort) }}
+                    {{ include('@SetonoSyliusMeilisearchPlugin/search/_sorting.html.twig') }}
                 </div>
             </div>
             <div class="ui three cards">
-                {% for item in items %}
-                    {{ include('@SyliusShop/Product/_box.html.twig', { product: item }) }}
-                {% endfor %}
+                {{ include('@SetonoSyliusMeilisearchPlugin/search/_items.html.twig') }}
             </div>
-            {% if searchForm.p is defined %}
-                {{ form_widget(searchForm.p) }}
-            {% endif %}
+            {{ include('@SetonoSyliusMeilisearchPlugin/search/_pagination.html.twig') }}
         </div>
     </div>
 {{ form_end(searchForm) }}
