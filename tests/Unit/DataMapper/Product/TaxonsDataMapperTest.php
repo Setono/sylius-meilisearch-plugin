@@ -55,7 +55,7 @@ final class TaxonsDataMapperTest extends TestCase
         $document = new ProductDocument();
         $indexScope = new IndexScope(new Index('products', ProductDocument::class, [Product::class], new ContainerBuilder()), null, 'en_US');
 
-        $dataMapper = new TaxonsDataMapper(levelsToInclude: 3, includeRootLevel: false);
+        $dataMapper = new TaxonsDataMapper(levelsToInclude: 3, topLevelsToExclude: 1);
         $dataMapper->map($product, $document, $indexScope);
 
         self::assertSame(['level1 > level2 > level3'], $document->taxons);

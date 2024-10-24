@@ -17,7 +17,9 @@ final class TaxonsDataMapper implements DataMapperInterface
 {
     public function __construct(
         private readonly int $levelsToInclude = 3,
-        private readonly bool $includeRootLevel = false,
+
+        /** Usually Sylius will have a root category that is not relevant for filtering, so setting this to 1 will exclude the root category */
+        private readonly int $topLevelsToExclude = 1,
     ) {
     }
 
@@ -47,7 +49,7 @@ final class TaxonsDataMapper implements DataMapperInterface
             return ((string) $taxon) !== '';
         });
 
-        $taxons = array_slice($taxons, $this->includeRootLevel ? 0 : 1, $this->levelsToInclude);
+        $taxons = array_slice($taxons, $this->topLevelsToExclude, $this->levelsToInclude);
 
         return implode(' > ', $taxons);
     }
