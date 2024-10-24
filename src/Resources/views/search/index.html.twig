@@ -4,42 +4,12 @@
 {% form_theme searchForm '@SetonoSyliusMeilisearchPlugin/form/search_theme.html.twig' %}
 
 {% block content %}
-    <h1>{{ 'setono_sylius_meilisearch.ui.search_results_for'|trans }} "{{ app.request.query.get('q') }}"</h1>
-    {% if items|length > 0 %}
-        {{ form_start(searchForm, { 'attr': { 'id': 'search-form' } }) }}
-            <div class="ui stackable grid">
-                <div class="four wide column">
-                    {{ form_widget(searchForm.facets) }}
+    {{ include('@SetonoSyliusMeilisearchPlugin/search/_header.html.twig') }}
 
-                    <button class="ui button" type="submit" form="search-form" style="margin-top: 10px">{{ 'setono_sylius_meilisearch.form.search.update_filter'|trans }}</button>
-                </div>
-                <div class="twelve wide column">
-                    <div class="ui grid">
-                        <div class="eight wide column">
-                            Displaying {{ (searchResult.page * searchResult.hitsPerPage) - searchResult.hitsPerPage }} - {{ searchResult.page * searchResult.hitsPerPage }} of {{ searchResult.hitsCount }}
-                        </div>
-                        <div class="eight wide right aligned column">
-                            {{ form_widget(searchForm.sort) }}
-                        </div>
-                    </div>
-                    <div class="ui three cards">
-                        {% for item in items %}
-                            {{ include('@SyliusShop/Product/_box.html.twig', { product: item }) }}
-                        {% endfor %}
-                    </div>
-                    {% if searchForm.p is defined %}
-                        {{ form_widget(searchForm.p) }}
-                    {% endif %}
-                </div>
-            </div>
-        {{ form_end(searchForm) }}
+    {% if items|length > 0 %}
+        {{ include('@SetonoSyliusMeilisearchPlugin/search/_results.html.twig') }}
     {% else %}
-        <div class="ui message">
-            <div class="header">
-                No results found
-            </div>
-            <p>Try to search for something else</p>
-        </div>
+        {{ include('@SetonoSyliusMeilisearchPlugin/search/_no_results.html.twig') }}
     {% endif %}
 {% endblock %}
 
