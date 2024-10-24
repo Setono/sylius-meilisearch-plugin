@@ -31,6 +31,10 @@ class Product extends Document implements UrlAwareInterface
     #[Filterable]
     public array $taxonCodes = [];
 
+    /** @var list<string> */
+    #[Facetable]
+    public array $taxons = [];
+
     public ?string $currency = null;
 
     #[Facetable]
