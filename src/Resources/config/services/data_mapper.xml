@@ -83,7 +83,11 @@
             <argument>%sylius.model.order.class%</argument>
             <argument>%sylius.model.order_item.class%</argument>
 
-            <tag name="setono_sylius_meilisearch.data_mapper" priority="160"/>
+            <tag name="setono_sylius_meilisearch.data_mapper" priority="150"/>
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\DataMapper\Product\TaxonsDataMapper">
+            <tag name="setono_sylius_meilisearch.data_mapper" priority="140"/>
         </service>
 
         <!-- Taxon data mappers -->

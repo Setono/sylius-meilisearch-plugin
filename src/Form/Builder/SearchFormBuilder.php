@@ -60,24 +60,57 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
         /**
          * Here is an example of the facet distribution array
          *
-         * [
-         *   "onSale" => [
-         *     "false" => 16
-         *     "true" => 1
-         *   ]
-         *   "size" => [
-         *     "L" => 17
-         *     "M" => 17
-         *     "S" => 17
-         *     "XL" => 17
-         *     "XXL" => 17
-         *   ]
+         * "brand" => [
+         *   "Celsius Small" => 3
+         *   "Date & Banana" => 2
+         *   "Modern Wear" => 6
+         *   "You are breathtaking" => 10
+         * ]
+         * "hierarchicalTaxons" => []
+         * "hierarchicalTaxons.level0" => [
+         *   "Category" => 21
+         * ]
+         * "hierarchicalTaxons.level1" => [
+         *   "Category > Caps" => 4
+         *   "Category > Dresses" => 3
+         *   "Category > Jeans" => 8
+         *   "Category > T-shirts" => 6
+         * ]
+         * "hierarchicalTaxons.level2" => [
+         *   "Category > Caps > Simple" => 2
+         *   "Category > Caps > With pompons" => 2
+         *   "Category > Jeans > Men" => 4
+         *   "Category > Jeans > Women" => 4
+         *   "Category > T-shirts > Men" => 3
+         *   "Category > T-shirts > Women" => 3
+         * ]
+         * "onSale" => [
+         *   "false" => 16
+         *   "true" => 5
+         * ]
+         * "price" => [
+         *   "15.12" => 1
+         *   "16.08" => 1
+         *   "18.92" => 1
+         *   "19.83" => 1
+         *   "20.78" => 1
+         * ]
+         * "size" => [
+         *   "L" => 17
+         *   "M" => 17
+         *   "S" => 17
+         *   "XL" => 17
+         *   "XXL" => 17
          * ]
          *
          * @var string $name
          * @var array<string, int> $values
          */
         foreach ($searchResult->getFacetDistribution() as $name => $values) {
+            if (!isset($facets[$name])) {
+                continue;
+            }
+
             if ($this->facetFormBuilder->supports($facets[$name], $values, $facetStats[$name] ?? null)) {
                 $this->facetFormBuilder->build($facetsFormBuilder, $facets[$name], $values, $facetStats[$name] ?? null);
             }

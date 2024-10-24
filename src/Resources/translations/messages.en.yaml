@@ -5,6 +5,7 @@ setono_sylius_meilisearch:
                 on_sale: On sale (%count%)
                 price: Price
                 size: Size
+                taxons: Category
             pagination:
                 previous: Previous
                 next: Next
