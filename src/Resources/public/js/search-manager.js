@@ -39,7 +39,17 @@ class SearchManager {
                     show: function(selector) { document.querySelector(selector).style.display = 'block'; },
                     hide: function(selector) { document.querySelector(selector).style.display = 'none'; },
                 },
-                onFacetChange: function (form) { form.requestSubmit(); },
+                onFacetChange: function (form, field) {
+                    if(this.#isTypeableInput(field)) {
+                        field.addEventListener('blur', function () {
+                            form.requestSubmit();
+                        });
+
+                        return;
+                    }
+
+                    form.requestSubmit();
+                },
                 onPageChange: function (form) { form.requestSubmit(); },
                 onSortChange: function (form) { form.requestSubmit(); },
                 onSubmit: function () { this.#options.loader.show.bind(this, this.#options.loader.selector)(); this.disableEmptyFields(); },
@@ -65,7 +75,7 @@ class SearchManager {
         this.#form.addEventListener('search:facet-changed', (event) => this.#options.onFacetChange.bind(this, this.#form, event.target)());
         this.#form.addEventListener('search:page-changed', (event) => this.#options.onSortChange.bind(this, this.#form, event.target)());
         this.#form.addEventListener('search:sort-changed', (event) => this.#options.onSortChange.bind(this, this.#form, event.target)());
-        this.#form.addEventListener('submit', (event) => this.#options.onSubmit.bind(this, this.#form)());
+        this.#form.addEventListener('submit', () => this.#options.onSubmit.bind(this, this.#form)());
     }
 
     disableEmptyFields() {
@@ -74,5 +84,17 @@ class SearchManager {
                 field.disabled = true;
             }
         }
+    }
+
+    /**
+     * @param {HTMLInputElement} field
+     * @return {boolean}
+     */
+    #isTypeableInput(field) {
+        if(field.tagName.toLowerCase() !== 'input') {
+            return false;
+        }
+
+        return ['text', 'number', 'email', 'password', 'search', 'tel', 'url'].includes(field.type.toLowerCase());
     }
 }
