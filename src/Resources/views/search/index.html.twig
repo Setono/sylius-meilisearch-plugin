@@ -1,7 +1,7 @@
 {# @var items \Sylius\Component\Core\Model\ProductInterface[] #}
 {% extends '@SyliusShop/layout.html.twig' %}
 
-{% form_theme searchForm '@SetonoSyliusMeilisearchPlugin/search_theme.html.twig' %}
+{% form_theme searchForm '@SetonoSyliusMeilisearchPlugin/form/search_theme.html.twig' %}
 
 {% block content %}
     <h1>{{ 'setono_sylius_meilisearch.ui.search_results_for'|trans }} "{{ app.request.query.get('q') }}"</h1>
