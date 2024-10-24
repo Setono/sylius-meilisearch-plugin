@@ -8,9 +8,11 @@ final class ArrayFilterBuilder implements FilterBuilderInterface
 {
     public function build(array $facets, array $facetsValues): array
     {
-        $query = [];
+        $queries = [];
 
         foreach ($facets as $facet) {
+            $query = [];
+
             if ($facet->type === 'array' && isset($facetsValues[$facet->name])) {
                 /** @var mixed $value */
                 foreach ($facetsValues[$facet->name] as $value) {
@@ -21,12 +23,14 @@ final class ArrayFilterBuilder implements FilterBuilderInterface
                     $query[] = sprintf('%s = "%s"', $facet->name, $value);
                 }
             }
+
+            if ([] === $query) {
+                continue;
+            }
+
+            $queries[] = '(' . implode(' OR ', $query) . ')';
         }
 
-        if ([] === $query) {
-            return [];
-        }
-
-        return ['(' . implode(' OR ', $query) . ')'];
+        return $queries;
     }
 }
