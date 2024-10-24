@@ -9,7 +9,6 @@ setono_sylius_meilisearch:
                 previous: Previous
                 next: Next
             q_placeholder: Search...
-            update_filter: Update filter
         synonym:
             term: Term
             synonym: Synonym

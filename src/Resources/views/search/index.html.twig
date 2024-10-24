@@ -1,8 +1,6 @@
 {# @var items \Sylius\Component\Core\Model\ProductInterface[] #}
 {% extends '@SyliusShop/layout.html.twig' %}
 
-{% form_theme searchForm '@SetonoSyliusMeilisearchPlugin/form/search_theme.html.twig' %}
-
 {% block content %}
     {{ include('@SetonoSyliusMeilisearchPlugin/search/_header.html.twig') }}
 

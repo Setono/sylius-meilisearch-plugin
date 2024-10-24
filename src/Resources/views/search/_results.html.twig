@@ -1,9 +1,9 @@
+{% form_theme searchForm '@SetonoSyliusMeilisearchPlugin/form/search_theme.html.twig' %}
+
 {{ form_start(searchForm, { 'attr': { 'id': 'search-form' } }) }}
     <div class="ui stackable grid">
         <div class="four wide column">
             {{ form_widget(searchForm.facets) }}
-
-            <button class="ui button" type="submit" form="search-form" style="margin-top: 10px">{{ 'setono_sylius_meilisearch.form.search.update_filter'|trans }}</button>
         </div>
         <div class="twelve wide column">
             <div class="ui grid">
