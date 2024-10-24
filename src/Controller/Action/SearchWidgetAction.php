@@ -22,7 +22,7 @@ final class SearchWidgetAction
 
     public function __invoke(): Response
     {
-        return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/search/widget/content.html.twig', [
+        return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/search_widget/_content.html.twig', [
             'form' => $this->formFactory->createNamed('', SearchWidgetType::class)->createView(),
         ]));
     }

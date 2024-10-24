@@ -226,7 +226,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                 'sylius.shop.layout.header.grid' => [
                     'blocks' => [
                         'setono_sylius_meilisearch_search' => [
-                            'template' => '@SetonoSyliusMeilisearchPlugin/search/widget.html.twig',
+                            'template' => '@SetonoSyliusMeilisearchPlugin/search_widget/widget.html.twig',
                             'priority' => 20,
                         ],
                     ],
