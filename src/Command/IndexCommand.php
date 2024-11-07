@@ -60,9 +60,6 @@ final class IndexCommand extends Command
             }
         }
 
-        /** @var bool $wait */
-        $wait = $input->getOption('wait');
-
         /** @var mixed|null $waitTimeout */
         $waitTimeout = $input->getOption('wait-timeout');
 
