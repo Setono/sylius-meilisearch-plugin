@@ -2,10 +2,6 @@
     {# @var configuration \Setono\SyliusMeilisearchPlugin\Meilisearch\Autocomplete\Configuration\Configuration #}
     {% set configuration = ssm_autocomplete_configuration() %}
 
-    {# todo should be saved on the individual sources #}
-    {% set templates = {
-        item: include('@SetonoSyliusMeilisearchPlugin/autocomplete/templates/item.html.twig'),
-    } %}
     <script src="{{ asset('bundles/setonosyliusmeilisearchplugin/js/algolia.autocomplete.js') }}"></script>
     <script src="{{ asset('bundles/setonosyliusmeilisearchplugin/js/meilisearch.autocomplete.js') }}"></script>
     <script>
@@ -47,11 +43,15 @@
                                 ],
                             })
                         },
+                        {% if source.hasTemplates -%}
                         templates: {
+                            {% if source.hasTemplate('item') -%}
                             item({ item, components, html }) {
-                                return html`{{ templates.item|raw }}`;
+                                return html`{{ source.template('item')|raw }}`;
                             },
+                            {% endif -%}
                         },
+                        {% endif -%}
                         {% if source.urlAttribute -%}
                         onSelect({ item }) {
                             location.href = item.{{ source.urlAttribute }};

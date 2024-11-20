@@ -9,6 +9,7 @@ use Setono\SyliusMeilisearchPlugin\Meilisearch\Autocomplete\Configuration\Config
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Autocomplete\Configuration\Source;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 use Twig\Extension\RuntimeExtensionInterface;
 
 final class AutocompleteRuntime implements RuntimeExtensionInterface
@@ -25,7 +26,7 @@ final class AutocompleteRuntime implements RuntimeExtensionInterface
     ) {
     }
 
-    public function configuration(): Configuration
+    public function configuration(Environment $twig): Configuration
     {
         $configuration = new Configuration(
             $this->host,
@@ -36,7 +37,14 @@ final class AutocompleteRuntime implements RuntimeExtensionInterface
 
         foreach ($this->indexes as $index) {
             // todo resolving the source should be extracted to a service
-            $configuration->sources[] = new Source($index->name, $this->indexNameResolver->resolve($index), 'url');
+            $configuration->sources[] = new Source(
+                $index->name,
+                $this->indexNameResolver->resolve($index),
+                'url',
+                [
+                    'item' => $twig->render('@SetonoSyliusMeilisearchPlugin/autocomplete/templates/item.html.twig'),
+                ],
+            );
         }
 
         return $configuration;
