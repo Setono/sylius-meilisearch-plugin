@@ -11,6 +11,8 @@ final class SearchQueryBuilder implements SearchQueryBuilderInterface
     public function build(string $indexName, ?string $query, array $facets, array $filter): SearchQuery
     {
         $searchQuery = new SearchQuery();
+
+        /** @psalm-suppress ArgumentTypeCoercion */
         $searchQuery
             ->setIndexUid($indexName)
             ->setFacets($facets)

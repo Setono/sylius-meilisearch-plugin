@@ -15,6 +15,7 @@ final class MultiSearchBuilder implements MultiSearchBuilderInterface
     public function __construct(
         private readonly SearchQueryBuilderInterface $searchQueryBuilder,
         private readonly FilterBuilderInterface $filterBuilder,
+        /** @var positive-int $hitsPerPage */
         private readonly int $hitsPerPage,
     ) {
     }
