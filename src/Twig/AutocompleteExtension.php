@@ -19,7 +19,7 @@ final class AutocompleteExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('ssm_autocomplete_configuration', [AutocompleteRuntime::class, 'configuration'], ['needs_environment' => true]),
+            new TwigFunction('ssm_autocomplete_configuration', [AutocompleteRuntime::class, 'configuration'], ['needs_environment' => true, 'is_safe' => ['html']]),
             new TwigFunction('ssm_autocomplete_enabled', $this->isEnabled(...)),
         ];
     }

@@ -1,15 +1,10 @@
 <div class="aa-ItemWrapper">
     <div class="aa-ItemContent">
         <div class="aa-ItemIcon aa-ItemIcon--alignTop">
-            <img src="${item.image}" alt="${item.name}" width="100">
+            <img src="${item.image}" alt="${item.name}" width="100"/>{# Notice that _ALL_ tags must have a closing tag or be self closing, so do not remove the slash (/) in this image tag #}
         </div>
         <div class="aa-ItemContentBody">
-            <div class="aa-ItemContentTitle">
-                ${components.Highlight({
-                    hit: item,
-                    attribute: 'name',
-                })}
-            </div>
+            <div class="aa-ItemContentTitle">${components.Highlight({hit: item, attribute: 'name'})}</div>
         </div>
     </div>
 </div>
