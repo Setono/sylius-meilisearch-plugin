@@ -18,6 +18,9 @@ final class Configuration
 
         /** This is the placeholder text that will be displayed in the input field */
         public readonly string $placeholder,
+        public readonly ?string $searchPath = null,
+        public readonly ?string $searchParameter = 'q',
+        public readonly bool $debug = false,
     ) {
     }
 }

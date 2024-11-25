@@ -233,6 +233,10 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                 ],
                 'sylius.shop.layout.javascripts' => [
                     'blocks' => [
+                        'setono_sylius_meilisearch_autocomplete_configuration' => [
+                            'template' => '@SetonoSyliusMeilisearchPlugin/autocomplete/configuration.html.twig',
+                            'priority' => 10,
+                        ],
                         'setono_sylius_meilisearch_autocomplete' => [
                             'template' => '@SetonoSyliusMeilisearchPlugin/autocomplete/javascript.html.twig',
                         ],
