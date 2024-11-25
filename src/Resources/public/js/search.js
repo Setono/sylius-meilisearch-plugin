@@ -11,8 +11,8 @@ class SearchManager {
     #options;
 
     /**
-     * @param {string|HTMLFormElement} form
      * @param {Object} options
+     * @param {string|HTMLFormElement} options.form
      * @param {Object} options.loader
      * @param {string} options.loader.selector - Selector of the loader element
      * @param {Function} options.loader.show - Function to call to show the loader. The first argument is the loader selector and 'this' is bound to the search manager
@@ -22,18 +22,9 @@ class SearchManager {
      * @param {Function} options.onSortChange - Callback function to call when a sort input changes. The first argument is the search form, the second argument is the sort field that triggered the event, and 'this' is bound to the search manager. The default function will submit the form
      * @param {Function} options.onSubmit - Callback function to call when the form is submitted. The first argument is the search form, and 'this' is bound to the search manager. The default function will remove empty fields from the form before submitting it
      */
-    constructor(form, options = {}) {
-        if(typeof form === 'string') {
-            form = document.querySelector(form);
-        }
-
-        if(null === form) {
-            throw new Error('Form not found');
-        }
-
-        this.#form = form;
-
+    constructor(options = {}) {
         this.#options = Object.assign({
+                form: '#search-form',
                 loader: {
                     selector: '#ssm-overlay',
                     show: function(selector) { document.querySelector(selector).style.display = 'block'; },
@@ -56,6 +47,18 @@ class SearchManager {
             },
             options
         );
+
+        let form = this.#options.form;
+
+        if(typeof form === 'string') {
+            form = document.querySelector(form);
+
+            if(null === form) {
+                throw new Error('Form not found');
+            }
+        }
+
+        this.#form = form;
 
         this.#form.addEventListener('input', function (event) {
             /** @type {HTMLInputElement} */
@@ -98,3 +101,5 @@ class SearchManager {
         return ['text', 'number', 'email', 'password', 'search', 'tel', 'url'].includes(field.type.toLowerCase());
     }
 }
+
+new SearchManager('#search-form');

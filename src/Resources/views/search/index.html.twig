@@ -15,8 +15,5 @@
 {% block javascripts %}
     {{ parent() }}
 
-    <script src="{{ asset('bundles/setonosyliusmeilisearchplugin/js/search-manager.js') }}"></script>
-    <script>
-        const searchManager = new SearchManager('#search-form');
-    </script>
+    <script src="{{ asset('bundles/setonosyliusmeilisearchplugin/js/search.js') }}" defer></script>
 {% endblock %}
