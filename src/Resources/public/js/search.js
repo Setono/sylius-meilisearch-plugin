@@ -64,7 +64,7 @@ class SearchManager {
             /** @type {HTMLInputElement} */
             const field = event.target;
 
-            field.dispatchEvent(new CustomEvent('search:form-changed'));
+            field.dispatchEvent(new CustomEvent('search:form-changed', { bubbles: true }));
 
             if(field.name.startsWith('facets')) {
                 field.dispatchEvent(new CustomEvent('search:facet-changed', { bubbles: true }));
@@ -102,4 +102,4 @@ class SearchManager {
     }
 }
 
-new SearchManager('#search-form');
+new SearchManager(window.ssmSearch || {});
