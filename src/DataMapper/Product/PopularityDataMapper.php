@@ -49,8 +49,7 @@ final class PopularityDataMapper implements DataMapperInterface
 
         $orderIdLowerBound = $this->getOrderIdLowerBound();
 
-        // todo do we need some filters on the order? E.g. state...
-
+        // Notice that the order state is not taken into account here because that gives us more data to work with
         $qb = $this->getManager($this->orderItemClass)
             ->createQueryBuilder()
             ->select('SUM(o.quantity)')
@@ -61,7 +60,6 @@ final class PopularityDataMapper implements DataMapperInterface
             ->setParameter('variants', $variants)
         ;
 
-        // todo in the future this value should be normalized so that it will be easier for plugin users to add to the popularity score
         $target->popularity = (int) $qb->getQuery()->getSingleScalarResult();
     }
 
@@ -90,7 +88,7 @@ final class PopularityDataMapper implements DataMapperInterface
                 ->addOrderBy('o.id', 'ASC')
                 ->setParameter('date', new \DateTimeImmutable('-' . $this->popularityLookBackPeriod))
                 ->getQuery()
-                ->enableResultCache(3600) // todo should this be cached and should it be configurable?
+                ->enableResultCache(3600) // Notice that we cache the result for 1 hour to avoid making this same query for every entity
                 ->getSingleScalarResult();
         } catch (NoResultException) {
             return 0;
