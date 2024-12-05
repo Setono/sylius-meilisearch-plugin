@@ -10,7 +10,6 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
-use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface as ObjectFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
@@ -72,7 +71,10 @@ class DefaultIndexer extends AbstractIndexer
                     continue;
                 }
 
-                $documents[] = $this->normalize($document);
+                $data = $this->normalizer->normalize($document);
+                Assert::isArray($data);
+
+                $documents[] = $data;
             }
 
             $this->client->index($this->indexNameResolver->resolveFromIndexScope($indexScope))->addDocuments($documents, 'id');
@@ -90,15 +92,5 @@ class DefaultIndexer extends AbstractIndexer
                 $this->client->index($this->indexNameResolver->resolveFromIndexScope($indexScope))->deleteDocument($entity->getDocumentIdentifier());
             }
         }
-    }
-
-    // todo move this to a service
-    protected function normalize(Document $document): array
-    {
-        // todo skip null values
-        $data = $this->normalizer->normalize($document);
-        Assert::isArray($data);
-
-        return $data;
     }
 }
