@@ -14,9 +14,7 @@ final class Sortable
     final public const DESC = 'desc';
 
     public function __construct(
-        /**
-         * The direction of the sorting. If null, both directions are allowed
-         */
+        /** The direction of the sorting. If null, both directions are allowed */
         public readonly ?string $direction = null,
     ) {
     }

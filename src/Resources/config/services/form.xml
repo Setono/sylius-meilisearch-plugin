@@ -25,6 +25,12 @@
             <tag name="setono_sylius_meilisearch.facet_form_builder" priority="80"/>
         </service>
 
+        <!-- Sorting form builder -->
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\SortingFormBuilderInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Form\Builder\SortingFormBuilder"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\SortingFormBuilder"/>
+
         <!-- Search form builder -->
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface"
                  alias="Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilder"/>
@@ -32,6 +38,7 @@
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilder">
             <argument type="service" id="form.factory"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Form\Builder\FacetFormBuilderInterface"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Form\Builder\SortingFormBuilderInterface"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface"/>
             <argument type="service" id="setono_sylius_meilisearch.index.search"/>
 

@@ -19,6 +19,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
     public function __construct(
         private readonly FormFactoryInterface $formFactory,
         private readonly FacetFormBuilderInterface $facetFormBuilder,
+        private readonly SortingFormBuilderInterface $sortingFormBuilder,
         private readonly MetadataFactoryInterface $metadataFactory,
         private readonly Index $index,
     ) {
@@ -119,16 +120,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
 
         $searchFormBuilder->add($facetsFormBuilder);
 
-        $searchFormBuilder->add(SearchRequest::QUERY_PARAMETER_SORT, ChoiceType::class, [
-            'choices' => [
-                'Cheapest first' => 'price:asc',
-                'Biggest discount' => 'discount:desc',
-                'Newest first' => 'createdAt:desc',
-                'Relevance' => '',
-            ],
-            'required' => false,
-            'placeholder' => 'Sort by',
-        ]);
+        $this->sortingFormBuilder->build($searchFormBuilder, $metadata);
 
         $this->buildPagination($searchResult, $searchFormBuilder);
 

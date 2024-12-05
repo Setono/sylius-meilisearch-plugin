@@ -71,7 +71,7 @@ class SearchManager {
                 field.dispatchEvent(new CustomEvent('search:filter-changed', { bubbles: true }));
             } else if(field.name === 'p') {
                 field.dispatchEvent(new CustomEvent('search:page-changed', { bubbles: true }));
-            } else if(field.classList.contains('sort')) {
+            } else if(field.classList.contains('ssm-sort')) {
                 field.dispatchEvent(new CustomEvent('search:sort-changed', { bubbles: true }));
             }
         });

@@ -43,6 +43,7 @@ class Product extends Document implements UrlAwareInterface
 
     public ?float $originalPrice = null;
 
+    #[Sortable(direction: Sortable::DESC)]
     public float $popularity = 0.0;
 
     /**
