@@ -1,5 +1,5 @@
 {% block setono_sylius_meilisearch_facet_checkbox_row %}
-    <div class="facet facet-checkbox">
+    <div class="ssm-filter ssm-filter-checkbox">
         {{ form_label(form) }}
         <ul>
             <li>{{- form_widget(form) -}}{{ form_label(form) }}</li>
@@ -8,10 +8,10 @@
 {% endblock %}
 
 {% block setono_sylius_meilisearch_facet_range_row %}
-    <div class="facet facet-range">
+    <div class="ssm-filter ssm-filter-range">
         {{ form_label(form) }}
         {# todo these input fields should be prefilled with min and max values, but should not be submitted if those values are equal to the default value #}
-        <div class="facet-range-widget">
+        <div class="ssm-filter-range-widget">
             <div>
                 {{ form_label(form.min) }}
                 {{ form_widget(form.min) }}
@@ -25,7 +25,7 @@
 {% endblock %}
 
 {% block setono_sylius_meilisearch_facet_choice_row %}
-    <div class="facet facet-choice">
+    <div class="ssm-filter ssm-filter-choice">
         {{ form_label(form) }}
         <ul>
             {%- for child in form %}
@@ -39,7 +39,7 @@
 {% endblock %}
 
 {% block setono_sylius_meilisearch_page_choice_widget %}
-    <nav class="pagination">
+    <nav class="ssm-pagination">
         <ol>
             {%- for child in form %}
                 <li{{ child.vars.label == '__current' ? ' style="display:none"' : '' }}>

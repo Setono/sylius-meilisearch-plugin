@@ -22,7 +22,7 @@ final class SearchFormBuilderTest extends FunctionalTestCase
 
         $form = $searchFormBuilder->build($result);
         /** @var ChoiceListInterface $choiceList */
-        $choiceList = $form->get('facets')->get('size')->getConfig()->getAttributes()['choice_list'];
+        $choiceList = $form->get(SearchRequest::QUERY_PARAMETER_FILTER)->get('size')->getConfig()->getAttributes()['choice_list'];
 
         self::assertSame(
             ['S' => 'S', 'M' => 'M', 'L' => 'L', 'XL' => 'XL', 'XXL' => 'XXL'],
