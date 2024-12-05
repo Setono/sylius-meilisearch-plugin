@@ -33,7 +33,7 @@ final class SearchRequestTest extends TestCase
      */
     public function it_creates_from_request(): void
     {
-        $request = Request::create('/search', 'GET', ['q' => 'jeans', 'facets' => ['brand' => ['Celsius small', 'You are breathtaking'], 'price' => ['min' => '30', 'max' => '45']], 'p' => 2, 'sort' => 'price:asc']);
+        $request = Request::create('/search', 'GET', ['q' => 'jeans', 'facets' => ['brand' => ['Celsius small', 'You are breathtaking'], 'price' => ['min' => '30', 'max' => '45']], 'p' => 2, 's' => 'price:asc']);
         $searchRequest = SearchRequest::fromRequest($request);
 
         self::assertSame('jeans', $searchRequest->query);
