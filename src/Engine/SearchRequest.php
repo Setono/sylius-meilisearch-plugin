@@ -8,6 +8,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class SearchRequest
 {
+    public const QUERY_PARAMETER_SEARCH = 'q';
+
+    public const QUERY_PARAMETER_PAGE = 'p';
+
+    public const QUERY_PARAMETER_SORT = 's';
+
+    public const QUERY_PARAMETER_FILTER = 'facets';
+
     // todo we need the hits per page here
     public function __construct(
         public readonly ?string $query,
@@ -20,15 +28,14 @@ final class SearchRequest
 
     public static function fromRequest(Request $request): self
     {
-        $q = $request->query->get('q');
+        $q = $request->query->get(self::QUERY_PARAMETER_SEARCH);
         if (!is_string($q)) {
             $q = null;
         }
 
-        $page = max(1, (int) $request->query->get('p', 1));
+        $page = max(1, (int) $request->query->get(self::QUERY_PARAMETER_PAGE, 1));
 
-        // todo rename sort to s?
-        $sort = $request->query->get('sort');
+        $sort = $request->query->get(self::QUERY_PARAMETER_SORT);
         if (!is_string($sort)) {
             $sort = null;
         }

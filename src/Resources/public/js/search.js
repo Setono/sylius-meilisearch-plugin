@@ -70,7 +70,7 @@ class SearchManager {
                 field.dispatchEvent(new CustomEvent('search:facet-changed', { bubbles: true }));
             } else if(field.name === 'p') {
                 field.dispatchEvent(new CustomEvent('search:page-changed', { bubbles: true }));
-            } else if(field.name.startsWith('sort')) {
+            } else if(field.classList.contains('sort')) {
                 field.dispatchEvent(new CustomEvent('search:sort-changed', { bubbles: true }));
             }
         });
