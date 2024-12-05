@@ -66,8 +66,9 @@ class SearchManager {
 
             field.dispatchEvent(new CustomEvent('search:form-changed', { bubbles: true }));
 
-            if(field.name.startsWith('facets')) {
-                field.dispatchEvent(new CustomEvent('search:facet-changed', { bubbles: true }));
+            // todo would be better to have a way to check the type of the field directly on the field, e.g. with a data attribute
+            if(field.closest('.ssm-filter') !== null) {
+                field.dispatchEvent(new CustomEvent('search:filter-changed', { bubbles: true }));
             } else if(field.name === 'p') {
                 field.dispatchEvent(new CustomEvent('search:page-changed', { bubbles: true }));
             } else if(field.classList.contains('sort')) {
@@ -75,7 +76,7 @@ class SearchManager {
             }
         });
 
-        this.#form.addEventListener('search:facet-changed', (event) => this.#options.onFacetChange.bind(this, this.#form, event.target)());
+        this.#form.addEventListener('search:filter-changed', (event) => this.#options.onFacetChange.bind(this, this.#form, event.target)());
         this.#form.addEventListener('search:page-changed', (event) => this.#options.onSortChange.bind(this, this.#form, event.target)());
         this.#form.addEventListener('search:sort-changed', (event) => this.#options.onSortChange.bind(this, this.#form, event.target)());
         this.#form.addEventListener('submit', () => this.#options.onSubmit.bind(this, this.#form)());

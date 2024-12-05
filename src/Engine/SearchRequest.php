@@ -14,7 +14,7 @@ final class SearchRequest
 
     public const QUERY_PARAMETER_SORT = 's';
 
-    public const QUERY_PARAMETER_FILTER = 'facets';
+    public const QUERY_PARAMETER_FILTER = 'f';
 
     // todo we need the hits per page here
     public function __construct(
@@ -40,9 +40,8 @@ final class SearchRequest
             $sort = null;
         }
 
-        // todo rename facets to f or filters?
         /** @var array<string, mixed> $filters */
-        $filters = $request->query->all('facets');
+        $filters = $request->query->all(self::QUERY_PARAMETER_FILTER);
 
         return new self($q, $filters, $page, $sort);
     }
