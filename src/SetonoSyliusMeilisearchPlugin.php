@@ -7,7 +7,7 @@ namespace Setono\SyliusMeilisearchPlugin;
 use Setono\CompositeCompilerPass\CompositeCompilerPass;
 use Setono\SyliusMeilisearchPlugin\DataMapper\CompositeDataMapper;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\CompositeEntityFilter;
-use Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFacetFormBuilder;
+use Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFilterFormBuilder;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\CompositeIndexScopeProvider;
 use Setono\SyliusMeilisearchPlugin\Provider\Settings\CompositeSettingsProvider;
@@ -33,7 +33,7 @@ final class SetonoSyliusMeilisearchPlugin extends AbstractResourceBundle
 
         // Register services in composite services
         $container->addCompilerPass(new CompositeCompilerPass(
-            CompositeFacetFormBuilder::class,
+            CompositeFilterFormBuilder::class,
             'setono_sylius_meilisearch.facet_form_builder',
         ));
 

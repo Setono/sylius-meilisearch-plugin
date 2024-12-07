@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Document\Attribute;
 
 use Attribute;
-use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\FacetValuesSorterInterface;
+use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\FilterValuesSorterInterface;
 use Webmozart\Assert\Assert;
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_METHOD)]
@@ -14,7 +14,7 @@ final class Facetable extends Filterable
     /**
      * TODO: Should be a service id
      *
-     * @param class-string<FacetValuesSorterInterface>|null $sorter
+     * @param class-string<FilterValuesSorterInterface>|null $sorter
      */
     public function __construct(public readonly ?string $sorter = null)
     {
@@ -22,6 +22,6 @@ final class Facetable extends Filterable
             return;
         }
 
-        Assert::true(is_a($sorter, FacetValuesSorterInterface::class, true));
+        Assert::true(is_a($sorter, FilterValuesSorterInterface::class, true));
     }
 }

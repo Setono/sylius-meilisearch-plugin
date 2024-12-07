@@ -18,7 +18,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
 {
     public function __construct(
         private readonly FormFactoryInterface $formFactory,
-        private readonly FacetFormBuilderInterface $facetFormBuilder,
+        private readonly FilterFormBuilderInterface $filterFormBuilder,
         private readonly SortingFormBuilderInterface $sortingFormBuilder,
         private readonly MetadataFactoryInterface $metadataFactory,
         private readonly Index $index,
@@ -113,8 +113,8 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
                 continue;
             }
 
-            if ($this->facetFormBuilder->supports($facets[$name], $values, $facetStats[$name] ?? null)) {
-                $this->facetFormBuilder->build($facetsFormBuilder, $facets[$name], $values, $facetStats[$name] ?? null);
+            if ($this->filterFormBuilder->supports($facets[$name], $values, $facetStats[$name] ?? null)) {
+                $this->filterFormBuilder->build($facetsFormBuilder, $facets[$name], $values, $facetStats[$name] ?? null);
             }
         }
 

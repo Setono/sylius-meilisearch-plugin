@@ -7,7 +7,7 @@ namespace Setono\SyliusMeilisearchPlugin\Form\Builder;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
 use Symfony\Component\Form\FormBuilderInterface;
 
-interface FacetFormBuilderInterface
+interface FilterFormBuilderInterface
 {
     /**
      * @param array<string, int> $values The values of the facet. This could be ['red' => 10, 'blue' => 5] where the key is the facet value and the value is the number of matching documents

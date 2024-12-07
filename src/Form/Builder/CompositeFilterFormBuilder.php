@@ -9,9 +9,9 @@ use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
- * @extends CompositeService<FacetFormBuilderInterface>
+ * @extends CompositeService<FilterFormBuilderInterface>
  */
-final class CompositeFacetFormBuilder extends CompositeService implements FacetFormBuilderInterface
+final class CompositeFilterFormBuilder extends CompositeService implements FilterFormBuilderInterface
 {
     public function build(FormBuilderInterface $builder, Facet $facet, array $values, array $stats = null): void
     {
