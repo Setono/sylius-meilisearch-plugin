@@ -34,7 +34,7 @@ final class SetonoSyliusMeilisearchPlugin extends AbstractResourceBundle
         // Register services in composite services
         $container->addCompilerPass(new CompositeCompilerPass(
             CompositeFilterFormBuilder::class,
-            'setono_sylius_meilisearch.facet_form_builder',
+            'setono_sylius_meilisearch.filter_form_builder',
         ));
 
         $container->addCompilerPass(new CompositeCompilerPass(

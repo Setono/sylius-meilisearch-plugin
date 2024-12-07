@@ -17,8 +17,10 @@ use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableDataFilter\EnabledFi
 use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableDataFilter\StockAvailableFilter;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\ChannelsAwareEntityFilter;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
+use Setono\SyliusMeilisearchPlugin\Form\Builder\FilterFormBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
+use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FilterBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Twig\AutocompleteRuntime;
@@ -85,6 +87,12 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
 
         $container->registerForAutoconfiguration(EntityUrlGeneratorInterface::class)
             ->addTag('setono_sylius_meilisearch.url_generator');
+
+        $container->registerForAutoconfiguration(FilterBuilderInterface::class)
+            ->addTag('setono_sylius_meilisearch.filter_builder');
+
+        $container->registerForAutoconfiguration(FilterFormBuilderInterface::class)
+            ->addTag('setono_sylius_meilisearch.filter_form_builder');
 
         self::registerIndexesConfiguration($config['indexes'], $container);
         self::registerSearchConfiguration($config['search'], array_keys($config['indexes']), $container, $loader);

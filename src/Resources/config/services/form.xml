@@ -14,15 +14,15 @@
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFilterFormBuilder"/>
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\CheckboxFilterFormBuilder">
-            <tag name="setono_sylius_meilisearch.facet_form_builder" priority="100"/>
+            <tag name="setono_sylius_meilisearch.filter_form_builder" priority="100"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\ChoiceFilterFormBuilder">
-            <tag name="setono_sylius_meilisearch.facet_form_builder" priority="90"/>
+            <tag name="setono_sylius_meilisearch.filter_form_builder" priority="90"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\RangeFilterFormBuilder">
-            <tag name="setono_sylius_meilisearch.facet_form_builder" priority="80"/>
+            <tag name="setono_sylius_meilisearch.filter_form_builder" priority="80"/>
         </service>
 
         <!-- Sorting form builder -->
