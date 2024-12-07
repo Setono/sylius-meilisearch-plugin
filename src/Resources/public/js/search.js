@@ -17,7 +17,7 @@ class SearchManager {
      * @param {string} options.loader.selector - Selector of the loader element
      * @param {Function} options.loader.show - Function to call to show the loader. The first argument is the loader selector and 'this' is bound to the search manager
      * @param {Function} options.loader.hide - Function to call to hide the loader. The first argument is the loader selector and 'this' is bound to the search manager
-     * @param {Function} options.onFacetChange - Callback function to call when a facet input changes. The first argument is the search form, the second argument is the facet field that triggered the event, and 'this' is bound to the search manager. The default function will submit the form
+     * @param {Function} options.onFilterChange - Callback function to call when a filter input changes. The first argument is the search form, the second argument is the filter field that triggered the event, and 'this' is bound to the search manager. The default function will submit the form
      * @param {Function} options.onPageChange - Callback function to call when a page input changes. The first argument is the search form, the second argument is the page field that triggered the event, and 'this' is bound to the search manager. The default function will submit the form
      * @param {Function} options.onSortChange - Callback function to call when a sort input changes. The first argument is the search form, the second argument is the sort field that triggered the event, and 'this' is bound to the search manager. The default function will submit the form
      * @param {Function} options.onSubmit - Callback function to call when the form is submitted. The first argument is the search form, and 'this' is bound to the search manager. The default function will remove empty fields from the form before submitting it
@@ -30,7 +30,7 @@ class SearchManager {
                     show: function(selector) { document.querySelector(selector).style.display = 'block'; },
                     hide: function(selector) { document.querySelector(selector).style.display = 'none'; },
                 },
-                onFacetChange: function (form, field) {
+                onFilterChange: function (form, field) {
                     if(this.#isTypeableInput(field)) {
                         field.addEventListener('blur', function () {
                             form.requestSubmit();
@@ -76,7 +76,7 @@ class SearchManager {
             }
         });
 
-        this.#form.addEventListener('search:filter-changed', (event) => this.#options.onFacetChange.bind(this, this.#form, event.target)());
+        this.#form.addEventListener('search:filter-changed', (event) => this.#options.onFilterChange.bind(this, this.#form, event.target)());
         this.#form.addEventListener('search:page-changed', (event) => this.#options.onSortChange.bind(this, this.#form, event.target)());
         this.#form.addEventListener('search:sort-changed', (event) => this.#options.onSortChange.bind(this, this.#form, event.target)());
         this.#form.addEventListener('submit', () => this.#options.onSubmit.bind(this, this.#form)());
