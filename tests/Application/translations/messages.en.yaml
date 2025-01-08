@@ -3,7 +3,7 @@ setono_sylius_meilisearch:
         search:
             facet:
                 brand: Brand
-                eco_friendly: Eco friendly
+                eco_friendly: Eco friendly (%count%)
     ui:
         sort_by:
             price_asc: Price ascending
