@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Functional;
+namespace Setono\SyliusMeilisearchPlugin\Tests\Functional;
 
 use Setono\SyliusMeilisearchPlugin\Engine\SearchEngine;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchRequest;
-use Setono\SyliusMeilisearchPlugin\Tests\Functional\FunctionalTestCase;
 
 final class SearchPaginationTest extends FunctionalTestCase
 {
@@ -16,7 +15,7 @@ final class SearchPaginationTest extends FunctionalTestCase
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $firstPageResult = $searchEngine->execute(new SearchRequest('jeans'));
 
-        self::assertSame(8, $firstPageResult->getHitsCount());
+        self::assertSame(8, $firstPageResult->getTotalHits());
         self::assertSame(3, $firstPageResult->getHitsPerPage());
         self::assertSame(1, $firstPageResult->getPage());
         self::assertSame(3, $firstPageResult->getTotalPages());

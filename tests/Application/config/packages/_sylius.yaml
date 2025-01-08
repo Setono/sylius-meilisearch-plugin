@@ -34,3 +34,42 @@ sylius_fixtures:
                     options:
                         amount: 5
                         discount: 0.1
+            fixtures:
+                color_attribute:
+                    name: product_attribute
+                    options:
+                        custom:
+                            -   name: 'Color'
+                                code: 'color'
+                                type: 'select'
+                                configuration:
+                                    multiple: true
+                                    choices:
+                                        7a968ac4-a1e3-4a37-a707-f22a839130c4:
+                                            en_US: Red
+                                        ff62a939-d946-4d6b-b742-b7115875ae75:
+                                            en_US: Green
+                                        ec4ab1af-ed41-4ddc-9330-1af5f5258b71:
+                                            en_US: Blue
+                                        221a28d7-63cb-457e-afde-158c7a9b2cfd:
+                                            en_US: Yellow
+                                        6717419c-2d88-4118-b821-f4263a95f499:
+                                            en_US: Black
+                                        9a826235-0db1-43f4-9d6c-ecb5737e54d0:
+                                            en_US: White
+                production_date_attribute:
+                    name: product_attribute
+                    options:
+                        custom:
+                            -   name: 'Production date'
+                                code: 'production_date'
+                                type: 'date'
+                                configuration:
+                                    format: 'Y-m-d'
+                eco_friendly_attribute:
+                    name: product_attribute
+                    options:
+                        custom:
+                            -   name: 'Eco friendly'
+                                code: 'eco_friendly'
+                                type: 'checkbox'

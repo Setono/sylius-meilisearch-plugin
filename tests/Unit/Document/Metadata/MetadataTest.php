@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Document\Metadata;
 
 use PHPUnit\Framework\TestCase;
+use Setono\SyliusMeilisearchPlugin\Document\Metadata\MappedProductAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Metadata;
 
 final class MetadataTest extends TestCase
@@ -29,13 +30,10 @@ final class MetadataTest extends TestCase
         self::assertArrayHasKey('price', $metadata->getSortableAttributes());
 
         self::assertCount(2, $metadata->getMappedProductAttributes());
-        self::assertSame(
-            [
-                'collection' => ['t_shirt_collection', 'dress_collection'],
-                'brand' => ['t_shirt_brand', 'dress_brand'],
-            ],
-            $metadata->getMappedProductAttributes(),
-        );
+        self::assertEquals([
+            new MappedProductAttribute('collection', 'array', ['t_shirt_collection', 'dress_collection']),
+            new MappedProductAttribute('brand', 'array', ['t_shirt_brand', 'dress_brand']),
+        ], $metadata->getMappedProductAttributes());
 
         self::assertCount(1, $metadata->getMappedProductOptions());
         self::assertSame(

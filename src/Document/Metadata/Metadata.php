@@ -35,7 +35,7 @@ final class Metadata implements MetadataInterface
     /** @var array<string, list<string>> */
     private array $mappedProductOptions = [];
 
-    /** @var array<string, list<string>> */
+    /** @var list<MappedProductAttribute> */
     private array $mappedProductAttributes = [];
 
     /** @var array<string, Image> */
@@ -103,14 +103,14 @@ final class Metadata implements MetadataInterface
 
             if ($attribute instanceof MapProductOption) {
                 Assert::isInstanceOf($attributesAware, \ReflectionProperty::class);
+                // todo are we sure this needs to be an array?
                 Assert::same('array', (string) $attributesAware->getType());
                 $this->mappedProductOptions[$name] = $attribute->codes;
             }
 
             if ($attribute instanceof MapProductAttribute) {
                 Assert::isInstanceOf($attributesAware, \ReflectionProperty::class);
-                Assert::same('array', (string) $attributesAware->getType());
-                $this->mappedProductAttributes[$name] = $attribute->codes;
+                $this->mappedProductAttributes[] = new MappedProductAttribute($name, (string) $attributesAware->getType(), $attribute->codes);
             }
 
             if ($attribute instanceof ImageAttribute) {

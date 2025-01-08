@@ -9,7 +9,7 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final class MapProductAttribute
 {
-    /** @var list<string> */
+    /** @var non-empty-list<string> */
     public readonly array $codes;
 
     /**
@@ -19,6 +19,12 @@ final class MapProductAttribute
      */
     public function __construct(array|string $codes)
     {
-        $this->codes = is_string($codes) ? [$codes] : $codes;
+        $codes = is_string($codes) ? [$codes] : $codes;
+
+        if ([] === $codes) {
+            throw new \InvalidArgumentException('At least one code must be provided');
+        }
+
+        $this->codes = $codes;
     }
 }

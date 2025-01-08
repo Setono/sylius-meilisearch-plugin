@@ -2,6 +2,7 @@ setono_sylius_meilisearch:
     form:
         search:
             facet:
+                color: Color
                 on_sale: On sale (%count%)
                 price: Price
                 size: Size

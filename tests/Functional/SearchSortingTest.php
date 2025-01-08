@@ -15,7 +15,7 @@ final class SearchSortingTest extends FunctionalTestCase
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $result = $searchEngine->execute(new SearchRequest('jeans', sort: 'price:asc'));
 
-        self::assertSame(8, $result->getHitsCount());
+        self::assertSame(8, $result->getTotalHits());
 
         $previousKey = null;
         foreach ($result->getHits() as $key => $hit) {
@@ -37,7 +37,7 @@ final class SearchSortingTest extends FunctionalTestCase
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $result = $searchEngine->execute(new SearchRequest('jeans', sort: 'createdAt:desc'));
 
-        self::assertSame(8, $result->getHitsCount());
+        self::assertSame(8, $result->getTotalHits());
 
         $previousKey = null;
         foreach ($result->getHits() as $key => $hit) {
