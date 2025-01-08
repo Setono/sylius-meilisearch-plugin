@@ -21,4 +21,17 @@ final class Product extends BaseProduct
     #[Facetable]
     #[MapProductAttribute(['t_shirt_brand', 'cap_brand', 'dress_brand', 'jeans_brand'])]
     public array $brand = [];
+
+    /** @var list<string> */
+    #[Facetable]
+    #[MapProductAttribute(['color'])]
+    public array $color = [];
+
+    #[Facetable]
+    #[MapProductAttribute(['eco_friendly'])]
+    public bool $ecoFriendly = false;
+
+    #[Facetable]
+    #[MapProductAttribute(['origin'])]
+    public ?string $origin = null;
 }

@@ -18,7 +18,7 @@ final class SearchTest extends FunctionalTestCase
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $result = $searchEngine->execute(new SearchRequest('jeans'));
 
-        self::assertSame(8, $result->getHitsCount());
+        self::assertSame(8, $result->getTotalHits());
     }
 
     public function testItProvidesSearchResultByMultipleCriteria(): void

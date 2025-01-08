@@ -17,21 +17,27 @@ final class DocumentAttributesValuesSetter implements DocumentPropertyValuesSett
     {
         $metadata = $this->metadataFactory->getMetadataFor($target);
 
-        foreach ($metadata->getMappedProductAttributes() as $property => $codes) {
+        foreach ($metadata->getMappedProductAttributes() as $mappedProductAttribute) {
             $values = [];
-            foreach ($codes as $code) {
+            foreach ($mappedProductAttribute->codes as $code) {
                 if (!isset($attributes[$code])) {
                     continue;
                 }
 
-                /** @var string $value */
-                $value = $attributes[$code];
-                $values[] = $value;
+                $values[] = (array) $attributes[$code];
             }
 
-            /** @var array $currentValues */
-            $currentValues = $target->{$property};
-            $target->{$property} = array_merge($currentValues, $values);
+            if ([] === $values) {
+                continue;
+            }
+
+            $values = array_merge(...$values);
+
+            if ($mappedProductAttribute->isPropertyTypeScalar()) {
+                $target->{$mappedProductAttribute->property} = $values[0];
+            } else {
+                $target->{$mappedProductAttribute->property} = array_merge((array) $target->{$mappedProductAttribute->property}, $values);
+            }
         }
     }
 }

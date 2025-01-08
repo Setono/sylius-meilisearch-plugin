@@ -77,9 +77,7 @@ interface MetadataInterface
     public function getMappedProductOptions(): array;
 
     /**
-     * Return product attributes codes mapped by document property
-     *
-     * @return array<string, list<string>>
+     * @return list<MappedProductAttribute>
      */
     public function getMappedProductAttributes(): array;
 
