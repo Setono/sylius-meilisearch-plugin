@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
 /**
- * Shows the global search form
+ * Shows the global search form (not the autocomplete)
  */
 final class SearchWidgetAction
 {
