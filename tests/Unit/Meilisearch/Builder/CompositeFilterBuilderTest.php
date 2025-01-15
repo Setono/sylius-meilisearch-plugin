@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Meilisearch\Builder;
 
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\ArrayFilterBuilder;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\BooleanFilterBuilder;
@@ -13,9 +15,12 @@ use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FloatFilterBuilder;
 
 final class CompositeFilterBuilderTest extends TestCase
 {
+    use ProphecyTrait;
+
     public function test_it_returns_filters(): void
     {
-        $compositeFilterBuilder = new CompositeFilterBuilder();
+        $eventDispatcher = $this->prophesize(EventDispatcherInterface::class);
+        $compositeFilterBuilder = new CompositeFilterBuilder($eventDispatcher->reveal());
         $compositeFilterBuilder->add(new ArrayFilterBuilder());
         $compositeFilterBuilder->add(new BooleanFilterBuilder());
         $compositeFilterBuilder->add(new FloatFilterBuilder());

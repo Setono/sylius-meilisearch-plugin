@@ -12,6 +12,7 @@
             <argument type="service" id="twig"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Engine\SearchEngineInterface"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\Engine\SearchEngine">

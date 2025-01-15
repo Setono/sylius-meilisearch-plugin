@@ -8,7 +8,9 @@
             alias="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder"
         />
 
-        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder"/>
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder">
+            <argument type="service" id="event_dispatcher"/>
+        </service>
 
         <service
             id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\SearchQueryBuilderInterface"
