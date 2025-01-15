@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Meilisearch\Builder;
 
 use PHPUnit\Framework\TestCase;
+use Prophecy\PhpUnit\ProphecyTrait;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FilterBuilderInterface;
 
 final class CompositeFilterBuilderTest extends TestCase
 {
+    use ProphecyTrait;
+
     public function test_it_returns_filters(): void
     {
         $brandFilterBuilder = $this->createMock(FilterBuilderInterface::class);
@@ -19,7 +23,8 @@ final class CompositeFilterBuilderTest extends TestCase
         $sizeFilterBuilder = $this->createMock(FilterBuilderInterface::class);
         $sizeFilterBuilder->method('build')->willReturn(['(size = "size1" OR size = "size2")']);
 
-        $compositeFilterBuilder = new CompositeFilterBuilder();
+        $eventDispatcher = $this->prophesize(EventDispatcherInterface::class);
+        $compositeFilterBuilder = new CompositeFilterBuilder($eventDispatcher->reveal());
         $compositeFilterBuilder->add($brandFilterBuilder);
         $compositeFilterBuilder->add($sizeFilterBuilder);
 

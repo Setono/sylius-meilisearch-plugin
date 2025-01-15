@@ -18,11 +18,11 @@ final class SearchRequest
 
     // todo we need the hits per page here
     public function __construct(
-        public readonly ?string $query,
+        public ?string $query,
         /** @var array<string, mixed> $filters */
-        public readonly array $filters = [],
-        public readonly int $page = 1,
-        public readonly ?string $sort = null,
+        public array $filters = [],
+        public int $page = 1,
+        public ?string $sort = null,
     ) {
     }
 
