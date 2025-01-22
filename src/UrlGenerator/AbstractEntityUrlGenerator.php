@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\UrlGenerator;
 
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 abstract class AbstractEntityUrlGenerator implements EntityUrlGeneratorInterface
 {
-    public function __construct(protected UrlGeneratorInterface $urlGenerator)
+    public function __construct(protected readonly RouterInterface $urlGenerator)
     {
     }
 }

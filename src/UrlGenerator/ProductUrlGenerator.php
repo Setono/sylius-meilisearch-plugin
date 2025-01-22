@@ -14,10 +14,17 @@ final class ProductUrlGenerator extends AbstractEntityUrlGenerator
     {
         Assert::true($this->supports($entity, $context));
 
-        return $this->urlGenerator->generate('sylius_shop_product_show', [
+        $parameters = [
             'slug' => $entity->getTranslation($context['localeCode'])->getSlug(),
-            '_locale' => $context['localeCode'],
-        ]);
+        ];
+
+        $route = $this->urlGenerator->getRouteCollection()->get('sylius_shop_product_show');
+
+        if (null !== $route && $route->hasRequirement('_locale')) {
+            $parameters['_locale'] = $context['localeCode'];
+        }
+
+        return $this->urlGenerator->generate('sylius_shop_product_show', $parameters);
     }
 
     /**
