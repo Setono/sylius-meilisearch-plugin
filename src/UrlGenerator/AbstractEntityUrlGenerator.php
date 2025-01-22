@@ -8,7 +8,7 @@ use Symfony\Component\Routing\RouterInterface;
 
 abstract class AbstractEntityUrlGenerator implements EntityUrlGeneratorInterface
 {
-    public function __construct(protected readonly RouterInterface $urlGenerator)
+    public function __construct(protected readonly RouterInterface $router)
     {
     }
 }

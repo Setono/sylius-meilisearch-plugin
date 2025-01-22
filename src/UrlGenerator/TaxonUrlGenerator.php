@@ -18,13 +18,13 @@ final class TaxonUrlGenerator extends AbstractEntityUrlGenerator
             'slug' => $entity->getTranslation($context['localeCode'])->getSlug(),
         ];
 
-        $route = $this->urlGenerator->getRouteCollection()->get('sylius_shop_product_index');
+        $route = $this->router->getRouteCollection()->get('sylius_shop_product_index');
 
         if (null !== $route && $route->hasRequirement('_locale')) {
             $parameters['_locale'] = $context['localeCode'];
         }
 
-        return $this->urlGenerator->generate('sylius_shop_product_index', $parameters);
+        return $this->router->generate('sylius_shop_product_index', $parameters);
     }
 
     /**
