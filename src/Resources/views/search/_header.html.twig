@@ -1,1 +1,5 @@
-<h1>{{ 'setono_sylius_meilisearch.ui.search_results_for'|trans }} "{{ app.request.query.get('q') }}"</h1>
+{% if taxon is defined%}
+    {{ include("@SyliusShop/Taxon/_header.html.twig") }}
+{% else %}
+    <h1>{{ 'setono_sylius_meilisearch.ui.search_results_for'|trans }} "{{ app.request.query.get('q') }}"</h1>
+{% endif %}
