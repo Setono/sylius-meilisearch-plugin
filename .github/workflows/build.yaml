@@ -298,7 +298,7 @@ jobs:
                     dependency-versions: "${{ matrix.dependencies }}"
 
             -   name: "Run infection"
-                run: "vendor/bin/infection --test-framework-options=\"--testsuite Unit\""
+                run: "vendor/bin/infection --test-framework-options=\"--testsuite=Unit\""
                 env:
                     STRYKER_DASHBOARD_API_KEY: "${{ secrets.STRYKER_DASHBOARD_API_KEY }}"
     
