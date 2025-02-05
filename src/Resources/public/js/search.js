@@ -13,6 +13,7 @@ class SearchManager {
     /**
      * @param {Object} options
      * @param {string|HTMLFormElement} options.form
+     * @param {string} options.contentSelector
      * @param {Object} options.loader
      * @param {string} options.loader.selector - Selector of the loader element
      * @param {Function} options.loader.show - Function to call to show the loader. The first argument is the loader selector and 'this' is bound to the search manager
@@ -25,66 +26,130 @@ class SearchManager {
     constructor(options = {}) {
         this.#options = Object.assign({
                 form: '#search-form',
+                contentSelector: '#search-form', // Selector for the main content to replace
                 loader: {
                     selector: '#ssm-overlay',
                     show: function(selector) { document.querySelector(selector).style.display = 'block'; },
                     hide: function(selector) { document.querySelector(selector).style.display = 'none'; },
                 },
-                onFilterChange: function (form, field) {
-                    if(this.#isTypeableInput(field)) {
-                        field.addEventListener('blur', function () {
-                            form.requestSubmit();
-                        });
+                onFilterChange: function (field) {
+                    if (this.#isTypeableInput(field)) {
+                        field.addEventListener('blur', () => this.#form.requestSubmit());
 
                         return;
                     }
 
-                    form.requestSubmit();
+                    this.#form.requestSubmit();
                 },
-                onPageChange: function (form) { form.requestSubmit(); },
-                onSortChange: function (form) { form.requestSubmit(); },
-                onSubmit: function () { this.#options.loader.show.bind(this, this.#options.loader.selector)(); this.disableEmptyFields(); },
+                onPageChange: function () { this.#form.requestSubmit(); },
+                onSortChange: function () { this.#form.requestSubmit(); },
+                onSubmit: function () { this.#submitForm(); },
             },
             options
         );
 
+        // Dynamically bind all functions in options to `this`
+        Object.entries(this.#options).forEach(([key, value]) => {
+            if (typeof value === 'function') {
+                this.#options[key] = value.bind(this);
+            }
+        });
+
+        this.#initializeForm();
+    }
+
+    #initializeForm() {
         let form = this.#options.form;
 
-        if(typeof form === 'string') {
+        if (typeof form === 'string') {
             form = document.querySelector(form);
 
-            if(null === form) {
+            if (null === form) {
                 throw new Error('Form not found');
             }
         }
 
         this.#form = form;
 
-        this.#form.addEventListener('input', function (event) {
-            /** @type {HTMLInputElement} */
+        this.#form.addEventListener('input', (event) => {
             const field = event.target;
+
+            if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement)) {
+                return;
+            }
 
             field.dispatchEvent(new CustomEvent('search:form-changed', { bubbles: true }));
 
             // todo would be better to have a way to check the type of the field directly on the field, e.g. with a data attribute
-            if(field.closest('.ssm-filter') !== null) {
+            if (field.closest('.ssm-filter') !== null) {
                 field.dispatchEvent(new CustomEvent('search:filter-changed', { bubbles: true }));
-            } else if(field.name === 'p') {
+            } else if (field.name === 'p') {
                 field.dispatchEvent(new CustomEvent('search:page-changed', { bubbles: true }));
-            } else if(field.classList.contains('ssm-sort')) {
+            } else if (field.classList.contains('ssm-sort')) {
                 field.dispatchEvent(new CustomEvent('search:sort-changed', { bubbles: true }));
             }
         });
 
-        this.#form.addEventListener('search:filter-changed', (event) => this.#options.onFilterChange.bind(this, this.#form, event.target)());
-        this.#form.addEventListener('search:page-changed', (event) => this.#options.onSortChange.bind(this, this.#form, event.target)());
-        this.#form.addEventListener('search:sort-changed', (event) => this.#options.onSortChange.bind(this, this.#form, event.target)());
-        this.#form.addEventListener('submit', () => this.#options.onSubmit.bind(this, this.#form)());
+        this.#form.addEventListener('search:filter-changed', (event) => this.#options.onFilterChange(event.target));
+        this.#form.addEventListener('search:page-changed', (event) => this.#options.onPageChange(event.target));
+        this.#form.addEventListener('search:sort-changed', (event) => this.#options.onSortChange(event.target));
+        this.#form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            this.#options.onSubmit();
+        });
+    }
+
+    async #submitForm() {
+        this.#options.loader.show(this.#options.loader.selector);
+        this.disableEmptyFields();
+
+        try {
+            const url = this.#buildUrl();
+            const response = await fetch(url, {
+                method: this.#form.method.toUpperCase(),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Request failed with status: ${response.status}`);
+            }
+
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const newContent = doc.querySelector(this.#options.contentSelector);
+            const existingContent = document.querySelector(this.#options.contentSelector);
+
+            if (newContent && existingContent) {
+                existingContent.replaceWith(newContent);
+                this.#initializeForm();
+            }
+
+            history.pushState(null, '', url);
+        } catch (error) {
+            console.error('Error fetching search results:', error);
+        } finally {
+            this.#options.loader.hide(this.#options.loader.selector);
+        }
+    }
+
+    #buildUrl() {
+        const formData = new FormData(this.#form);
+        const url = new URL(this.#form.action);
+
+        url.search = '';
+
+        formData.forEach((value, key) => {
+            if (value !== '') {
+                url.searchParams.append(key, value);
+            }
+        });
+
+        return url.toString();
     }
 
     disableEmptyFields() {
         for (const field of this.#form.querySelectorAll('input,select')) {
-            if (!field.value) {
+            if (field.value === '') {
                 field.disabled = true;
             }
         }
@@ -95,7 +160,7 @@ class SearchManager {
      * @return {boolean}
      */
     #isTypeableInput(field) {
-        if(field.tagName.toLowerCase() !== 'input') {
+        if (field.tagName.toLowerCase() !== 'input') {
             return false;
         }
 
