@@ -33,6 +33,9 @@ class SearchManager {
                     hide: function(selector) { document.querySelector(selector).style.display = 'none'; },
                 },
                 onFilterChange: function (field) {
+                    // Reset to 1st page when the filters change to avoid empty results
+                    this.#form.p.value = 1;
+
                     if (this.#isTypeableInput(field)) {
                         field.addEventListener('blur', () => this.#form.requestSubmit());
 
