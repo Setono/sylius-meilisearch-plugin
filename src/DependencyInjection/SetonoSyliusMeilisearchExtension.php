@@ -322,6 +322,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
             new Reference(EntityFilterInterface::class),
             new Reference('event_dispatcher'),
             new Reference('setono_sylius_meilisearch.command_bus'),
+            new Reference('validator'),
         ]));
 
         return $indexerServiceId;
