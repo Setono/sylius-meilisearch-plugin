@@ -16,6 +16,7 @@ use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterfa
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Webmozart\Assert\Assert;
 
 /**
@@ -36,6 +37,7 @@ class DefaultIndexer extends AbstractIndexer
         protected readonly ObjectFilterInterface $objectFilter,
         protected readonly EventDispatcherInterface $eventDispatcher,
         protected readonly MessageBusInterface $commandBus,
+        protected readonly ValidatorInterface $validator,
     ) {
         $this->managerRegistry = $managerRegistry;
     }
@@ -68,6 +70,10 @@ class DefaultIndexer extends AbstractIndexer
                 $this->dataMapper->map($entity, $document, $indexScope);
 
                 if (!$this->objectFilter->filter($entity, $document, $indexScope)) {
+                    continue;
+                }
+
+                if ($this->validator->validate($document)->count() > 0) {
                     continue;
                 }
 
