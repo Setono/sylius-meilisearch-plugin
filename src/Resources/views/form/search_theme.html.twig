@@ -1,6 +1,10 @@
 {% block setono_sylius_meilisearch_facet_checkbox_row %}
     <div class="ssm-filter ssm-filter-checkbox">
-        {{ form_label(form) }}
+        <div class="ssm-filter-header">
+            {{ form_label(form) }}
+            <button type="button" class="ssm-filter-reset" data-filter="{{ form.vars.name }}">{{ 'sylius.ui.reset'|trans }}
+        </div>
+
         <ul>
             <li>{{- form_widget(form) -}}{{ form_label(form) }}</li>
         </ul>
@@ -9,7 +13,11 @@
 
 {% block setono_sylius_meilisearch_facet_range_row %}
     <div class="ssm-filter ssm-filter-range">
-        {{ form_label(form) }}
+        <div class="ssm-filter-header">
+            {{ form_label(form) }}
+            <button type="button" class="ssm-filter-reset" data-filter="{{ form.vars.name }}">{{ 'sylius.ui.reset'|trans }}
+        </div>
+
         {# todo these input fields should be prefilled with min and max values, but should not be submitted if those values are equal to the default value #}
         <div class="ssm-filter-range-widget">
             <div>
@@ -26,7 +34,10 @@
 
 {% block setono_sylius_meilisearch_facet_choice_row %}
     <div class="ssm-filter ssm-filter-choice">
-        {{ form_label(form) }}
+        <div class="ssm-filter-header">
+            {{ form_label(form) }}
+            <button type="button" class="ssm-filter-reset" data-filter="{{ form.vars.name }}">{{ 'sylius.ui.reset'|trans }}
+        </div>
         <ul>
             {%- for child in form %}
                 <li>
