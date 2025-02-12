@@ -35,6 +35,7 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
@@ -271,9 +272,14 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
      */
     private static function setServerParameters(array $config, ContainerBuilder $container): void
     {
-        $url = parse_url($config['url']);
-        if (!isset($url['host'])) {
-            throw new \RuntimeException(sprintf('The Meilisearch URL must be a valid URL. URL Given: %s', $config['url']));
+        $url = $container->resolveEnvPlaceholders($config['url'], true);
+        if (!is_string($url) || '' === $url) {
+            throw new InvalidArgumentException('The Meilisearch URL must be a string. Value given: ' . $config['url']);
+        }
+
+        $url = parse_url($url);
+        if (!is_array($url) || !isset($url['host'])) {
+            throw new InvalidArgumentException(sprintf('The Meilisearch URL must be a valid URL. Value given: %s', $config['url']));
         }
 
         // If the user has provided a URL like //host or tcp:// we will fix it for them
