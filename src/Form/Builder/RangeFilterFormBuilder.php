@@ -13,10 +13,6 @@ final class RangeFilterFormBuilder implements FilterFormBuilderInterface
 {
     public function build(FormBuilderInterface $builder, Facet $facet, array $values, array $stats = null): void
     {
-        if ($stats === null || (!isset($stats['min']) && !isset($stats['max']))) {
-            return;
-        }
-
         $builder->add($facet->name, RangeType::class, [
             'label' => sprintf('setono_sylius_meilisearch.form.search.facet.%s', u($facet->name)->snake()),
             'required' => false,
@@ -26,6 +22,14 @@ final class RangeFilterFormBuilder implements FilterFormBuilderInterface
 
     public function supports(Facet $facet, array $values, array $stats = null): bool
     {
-        return $facet->type === 'float';
+        if (!in_array($facet->type, ['float', 'integer'], true)) {
+            return false;
+        }
+
+        if ($stats === null || (!isset($stats['min']) && !isset($stats['max']))) {
+            return false;
+        }
+
+        return true;
     }
 }
