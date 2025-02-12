@@ -22,7 +22,7 @@ final class RangeFilterFormBuilder implements FilterFormBuilderInterface
 
     public function supports(Facet $facet, array $values, array $stats = null): bool
     {
-        if (!in_array($facet->type, ['float', 'integer'], true)) {
+        if (!in_array($facet->type, ['float', 'int'], true)) {
             return false;
         }
 
