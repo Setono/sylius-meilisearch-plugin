@@ -3,7 +3,7 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="Meilisearch\Client">
-            <argument>%setono_sylius_meilisearch.server.host%</argument>
+            <argument>%setono_sylius_meilisearch.server.url%</argument>
             <argument>%setono_sylius_meilisearch.server.master_key%</argument>
         </service>
     </services>

@@ -6,7 +6,7 @@
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface"/>
             <argument type="service" id="translator"/>
             <argument type="service" id="router"/>
-            <argument>%setono_sylius_meilisearch.server.host%</argument>
+            <argument>%setono_sylius_meilisearch.server.url%</argument>
             <argument>%setono_sylius_meilisearch.server.search_key%</argument>
             <argument>%setono_sylius_meilisearch.autocomplete.container%</argument>
             <argument>%setono_sylius_meilisearch.autocomplete.placeholder%</argument>

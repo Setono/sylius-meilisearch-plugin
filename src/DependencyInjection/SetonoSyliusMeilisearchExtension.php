@@ -49,7 +49,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
          *
          * @var array{
          *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}>,
-         *      server: array{ host: string, master_key: string, search_key: string },
+         *      server: array{ url: string, master_key: string, search_key: string },
          *      metadata: array{ cache: bool },
          *      search: array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ path: string } },
          *      autocomplete: array{ enabled: bool, indexes: list<string>, container: string, placeholder: string },
@@ -61,10 +61,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
 
         $this->registerResources('setono_sylius_meilisearch', SyliusResourceBundle::DRIVER_DOCTRINE_ORM, $config['resources'], $container);
 
-        // server
-        $container->setParameter('setono_sylius_meilisearch.server.host', $config['server']['host']);
-        $container->setParameter('setono_sylius_meilisearch.server.master_key', $config['server']['master_key']);
-        $container->setParameter('setono_sylius_meilisearch.server.search_key', $config['server']['search_key']);
+        self::setServerParameters($config['server'], $container);
 
         // cache
         $metadataCacheEnabled = $config['metadata']['cache'];
@@ -267,6 +264,35 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                 ],
             ],
         ]);
+    }
+
+    /**
+     * @param array{url: string, master_key: string, search_key: string} $config
+     */
+    private static function setServerParameters(array $config, ContainerBuilder $container): void
+    {
+        $url = parse_url($config['url']);
+        if (!isset($url['host'])) {
+            throw new \RuntimeException(sprintf('The Meilisearch URL must be a valid URL. URL Given: %s', $config['url']));
+        }
+
+        // If the user has provided a URL like //host or tcp:// we will fix it for them
+        if (!isset($url['scheme']) || !in_array($url['scheme'], ['http', 'https'], true)) {
+            $url['scheme'] = 'http';
+        }
+
+        $url = sprintf(
+            '%s://%s%s%s%s',
+            $url['scheme'],
+            isset($url['user'], $url['pass']) ? sprintf('%s:%s@', $url['user'], $url['pass']) : '',
+            $url['host'],
+            isset($url['port']) ? sprintf(':%d', $url['port']) : '',
+            $url['path'] ?? '',
+        );
+
+        $container->setParameter('setono_sylius_meilisearch.server.url', $url);
+        $container->setParameter('setono_sylius_meilisearch.server.master_key', $config['master_key']);
+        $container->setParameter('setono_sylius_meilisearch.server.search_key', $config['search_key']);
     }
 
     /**
