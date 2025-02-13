@@ -9,7 +9,7 @@ namespace Setono\SyliusMeilisearchPlugin\Settings;
  *
  * See https://www.meilisearch.com/docs/reference/api/settings
  */
-class Settings
+final class Settings
 {
     /**
      * Fields displayed in the returned documents
