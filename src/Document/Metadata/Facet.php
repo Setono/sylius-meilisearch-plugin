@@ -12,6 +12,7 @@ final class Facet
     public function __construct(
         public readonly string $name,
         public readonly string $type,
+        public readonly int $position = 0,
         public readonly ?string $sorter = null,
     ) {
     }

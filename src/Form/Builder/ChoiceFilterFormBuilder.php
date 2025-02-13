@@ -32,6 +32,7 @@ final class ChoiceFilterFormBuilder implements FilterFormBuilderInterface
             'multiple' => true,
             'required' => false,
             'block_prefix' => 'setono_sylius_meilisearch_facet_choice',
+            'priority' => -1 * $facet->position,
         ]);
     }
 

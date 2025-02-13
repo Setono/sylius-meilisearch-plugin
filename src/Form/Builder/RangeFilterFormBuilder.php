@@ -17,6 +17,7 @@ final class RangeFilterFormBuilder implements FilterFormBuilderInterface
             'label' => sprintf('setono_sylius_meilisearch.form.search.facet.%s', u($facet->name)->snake()),
             'required' => false,
             'block_prefix' => 'setono_sylius_meilisearch_facet_range',
+            'priority' => -1 * $facet->position,
         ]);
     }
 

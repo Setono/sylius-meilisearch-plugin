@@ -16,7 +16,7 @@ final class Facetable extends Filterable
      *
      * @param class-string<FilterValuesSorterInterface>|null $sorter
      */
-    public function __construct(public readonly ?string $sorter = null)
+    public function __construct(public readonly int $position = 0, public readonly ?string $sorter = null)
     {
         if ($this->sorter === null) {
             return;
