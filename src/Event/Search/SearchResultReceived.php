@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Event\Search;
 
-use Meilisearch\Search\SearchResult;
+use Setono\SyliusMeilisearchPlugin\Engine\SearchResult;
 
 final class SearchResultReceived
 {

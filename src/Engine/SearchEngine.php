@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Engine;
 
 use Meilisearch\Client;
-use Meilisearch\Search\SearchResult;
+use Meilisearch\Search\SearchResult as MeilisearchSearchResult;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Query\MultiSearchBuilderInterface;
 
@@ -22,13 +22,15 @@ final class SearchEngine implements SearchEngineInterface
     {
         $queries = $this->multiSearchBuilder->build($this->index, $searchRequest);
 
-        /** @var array<SearchResult> $results */
+        /** @var array<MeilisearchSearchResult> $results */
         $results = $this->client->multiSearch($queries)['results'] ?? [];
 
-        return $this->provideSearchResult($results);
+        $result = $this->provideSearchResult($results);
+
+        return SearchResult::fromMeilisearchSearchResult($this->index, $result);
     }
 
-    private function provideSearchResult(array $results): SearchResult
+    private function provideSearchResult(array $results): MeilisearchSearchResult
     {
         /** @var array{facetDistribution: array<string, int>} $firstResult */
         $firstResult = current($results);
@@ -36,6 +38,6 @@ final class SearchEngine implements SearchEngineInterface
         /** @psalm-suppress MixedArgument (just for now) */
         $firstResult['facetDistribution'] = array_merge(...array_column($results, 'facetDistribution'));
 
-        return new SearchResult($firstResult);
+        return new MeilisearchSearchResult($firstResult);
     }
 }
