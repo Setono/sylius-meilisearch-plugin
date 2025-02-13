@@ -6,6 +6,8 @@ namespace Setono\SyliusMeilisearchPlugin\Form\Builder;
 
 use Setono\CompositeCompilerPass\CompositeService;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
+use Setono\SyliusMeilisearchPlugin\Engine\FacetStat;
+use Setono\SyliusMeilisearchPlugin\Engine\FacetValues;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
@@ -13,7 +15,7 @@ use Symfony\Component\Form\FormBuilderInterface;
  */
 final class CompositeFilterFormBuilder extends CompositeService implements FilterFormBuilderInterface
 {
-    public function build(FormBuilderInterface $builder, Facet $facet, array $values, array $stats = null): void
+    public function build(FormBuilderInterface $builder, Facet $facet, FacetValues $values, FacetStat $stats = null): void
     {
         foreach ($this->services as $service) {
             if ($service->supports($facet, $values, $stats)) {
@@ -26,7 +28,7 @@ final class CompositeFilterFormBuilder extends CompositeService implements Filte
         throw new \RuntimeException(sprintf('No facet form builder supports the facet with name "%s"', $facet->name));
     }
 
-    public function supports(Facet $facet, array $values, array $stats = null): bool
+    public function supports(Facet $facet, FacetValues $values, FacetStat $stats = null): bool
     {
         foreach ($this->services as $service) {
             if ($service->supports($facet, $values, $stats)) {

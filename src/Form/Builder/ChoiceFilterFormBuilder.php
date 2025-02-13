@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Form\Builder;
 
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
+use Setono\SyliusMeilisearchPlugin\Engine\FacetStat;
+use Setono\SyliusMeilisearchPlugin\Engine\FacetValues;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\FilterValuesSorterInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -12,10 +14,9 @@ use function Symfony\Component\String\u;
 
 final class ChoiceFilterFormBuilder implements FilterFormBuilderInterface
 {
-    public function build(FormBuilderInterface $builder, Facet $facet, array $values, array $stats = null): void
+    public function build(FormBuilderInterface $builder, Facet $facet, FacetValues $values, FacetStat $stats = null): void
     {
-        $keys = array_keys($values);
-        $choices = array_combine($keys, $keys);
+        $choices = array_combine($values->getValues(), $values->getValues());
 
         /** @var class-string<FilterValuesSorterInterface> $sorter */
         $sorter = $facet->sorter;
@@ -27,7 +28,7 @@ final class ChoiceFilterFormBuilder implements FilterFormBuilderInterface
         $builder->add($facet->name, ChoiceType::class, [
             'label' => sprintf('setono_sylius_meilisearch.form.search.facet.%s', u($facet->name)->snake()),
             'choices' => $choices,
-            'choice_label' => fn (string $key) => sprintf('%s (%d)', $key, $values[$key]),
+            'choice_label' => fn (string $value) => sprintf('%s (%d)', $value, $values->getValueCount($value)),
             'expanded' => true,
             'multiple' => true,
             'required' => false,
@@ -36,19 +37,18 @@ final class ChoiceFilterFormBuilder implements FilterFormBuilderInterface
         ]);
     }
 
-    public function supports(Facet $facet, array $values, array $stats = null): bool
+    public function supports(Facet $facet, FacetValues $values, FacetStat $stats = null): bool
     {
         if ($facet->type !== 'array') {
             return false;
         }
 
-        $keys = array_keys($values);
-        if (count($keys) < 2) {
+        if (count($values) < 2) {
             return false;
         }
 
-        foreach ($keys as $key) {
-            if (is_numeric($key)) {
+        foreach ($values->getValues() as $value) {
+            if (is_numeric($value)) {
                 return false;
             }
         }
