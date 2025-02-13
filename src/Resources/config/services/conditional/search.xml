@@ -9,6 +9,7 @@
 
         <service id="Setono\SyliusMeilisearchPlugin\Controller\Action\SearchAction" public="true">
             <argument type="service" id="doctrine"/>
+            <argument type="service" id="form.factory"/>
             <argument type="service" id="twig"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Engine\SearchEngineInterface"/>
