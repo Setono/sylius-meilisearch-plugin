@@ -49,7 +49,7 @@ final class SearchAction
 
         $items = [];
         /** @var array{entityClass: class-string<IndexableInterface>, entityId: mixed} $hit */
-        foreach ($searchResult->getHits() as $hit) {
+        foreach ($searchResult->hits as $hit) {
             $item = $this->getManager($hit['entityClass'])->find($hit['entityClass'], $hit['entityId']);
             if (null === $item) {
                 continue;

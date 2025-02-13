@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Form\Builder;
 
-use Meilisearch\Search\SearchResult;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchRequest;
+use Setono\SyliusMeilisearchPlugin\Engine\SearchResult;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -55,7 +55,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
          *
          * @var array<string, array{min: int|float, max: int|float}> $facetStats
          */
-        $facetStats = $searchResult->getFacetStats();
+        $facetStats = $searchResult->facetStats;
 
         $facets = $metadata->getFacetableAttributes();
 
@@ -108,7 +108,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
          * @var string $name
          * @var array<string, int> $values
          */
-        foreach ($searchResult->getFacetDistribution() as $name => $values) {
+        foreach ($searchResult->facetDistribution as $name => $values) {
             if (!isset($facets[$name])) {
                 continue;
             }
@@ -129,22 +129,17 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
 
     private function buildPagination(SearchResult $searchResult, FormBuilderInterface $builder): void
     {
-        $page = $searchResult->getPage();
-        if (null === $page) {
-            return;
-        }
-
         $choices = [];
 
         // current is a special choice that we need to keep the page query parameter in the url on form submission
-        $choices['__current'] = $page;
+        $choices['__current'] = $searchResult->page;
 
-        if ($searchResult->getPage() > 1) {
-            $choices['setono_sylius_meilisearch.form.search.pagination.previous'] = $page - 1;
+        if ($searchResult->page > 1) {
+            $choices['setono_sylius_meilisearch.form.search.pagination.previous'] = $searchResult->page - 1;
         }
 
-        if ($searchResult->getPage() < $searchResult->getTotalPages()) {
-            $choices['setono_sylius_meilisearch.form.search.pagination.next'] = $page + 1;
+        if ($searchResult->page < $searchResult->totalPages) {
+            $choices['setono_sylius_meilisearch.form.search.pagination.next'] = $searchResult->page + 1;
         }
 
         $builder->add('p', ChoiceType::class, [

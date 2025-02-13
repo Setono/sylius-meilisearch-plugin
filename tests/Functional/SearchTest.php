@@ -18,7 +18,7 @@ final class SearchTest extends FunctionalTestCase
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $result = $searchEngine->execute(new SearchRequest('jeans'));
 
-        self::assertSame(8, $result->getTotalHits());
+        self::assertSame(8, $result->totalHits);
     }
 
     public function testItProvidesSearchResultByMultipleCriteria(): void
@@ -34,7 +34,7 @@ final class SearchTest extends FunctionalTestCase
             ]),
         );
 
-        foreach ($result->getHits() as $hit) {
+        foreach ($result->hits as $hit) {
             self::assertGreaterThanOrEqual($priceBounds[0], (int) $hit['price']);
             self::assertLessThanOrEqual($priceBounds[1], (int) $hit['price']);
             self::assertContains(((array) $hit['brand'])[0], ['Celsius small', 'You are breathtaking']);
@@ -51,8 +51,8 @@ final class SearchTest extends FunctionalTestCase
             ]),
         );
 
-        $this->assertSame(1, $result->getHitsCount());
-        $this->assertCount(4, (array) $result->getFacetDistribution()['brand']);
+        $this->assertSame(1, $result->totalHits);
+        $this->assertCount(4, (array) $result->facetDistribution['brand']);
     }
 
     /**

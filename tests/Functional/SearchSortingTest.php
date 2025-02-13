@@ -15,17 +15,17 @@ final class SearchSortingTest extends FunctionalTestCase
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $result = $searchEngine->execute(new SearchRequest('jeans', sort: 'price:asc'));
 
-        self::assertSame(8, $result->getTotalHits());
+        self::assertSame(8, $result->totalHits);
 
         $previousKey = null;
-        foreach ($result->getHits() as $key => $hit) {
+        foreach ($result->hits as $key => $hit) {
             if ($previousKey === null) {
                 $previousKey = $key;
 
                 continue;
             }
 
-            $previousHit = (array) $result->getHit($previousKey);
+            $previousHit = $result->hits[$previousKey];
             self::assertGreaterThanOrEqual($previousHit['price'], $hit['price']);
             $previousKey = $key;
         }
@@ -37,17 +37,17 @@ final class SearchSortingTest extends FunctionalTestCase
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $result = $searchEngine->execute(new SearchRequest('jeans', sort: 'createdAt:desc'));
 
-        self::assertSame(8, $result->getTotalHits());
+        self::assertSame(8, $result->totalHits);
 
         $previousKey = null;
-        foreach ($result->getHits() as $key => $hit) {
+        foreach ($result->hits as $key => $hit) {
             if ($previousKey === null) {
                 $previousKey = $key;
 
                 continue;
             }
 
-            $previousHit = (array) $result->getHit($previousKey);
+            $previousHit = $result->hits[$previousKey];
             self::assertLessThanOrEqual($previousHit['createdAt'], $hit['createdAt']);
             $previousKey = $key;
         }
@@ -61,7 +61,7 @@ final class SearchSortingTest extends FunctionalTestCase
 
         $previousDiscount = null;
         /** @var array{discount: float} $hit */
-        foreach ($result->getHits() as $hit) {
+        foreach ($result->hits as $hit) {
             if (null === $previousDiscount) {
                 $previousDiscount = $hit['discount'];
             }
