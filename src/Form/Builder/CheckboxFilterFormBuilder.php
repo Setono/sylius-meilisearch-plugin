@@ -20,6 +20,7 @@ final class CheckboxFilterFormBuilder implements FilterFormBuilderInterface
             ],
             'required' => false,
             'block_prefix' => 'setono_sylius_meilisearch_facet_checkbox',
+            'priority' => -1 * $facet->position,
         ]);
     }
 

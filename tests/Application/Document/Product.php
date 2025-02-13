@@ -13,7 +13,7 @@ use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\SizeSorter;
 final class Product extends BaseProduct
 {
     /** @var list<string> */
-    #[Facetable(sorter: SizeSorter::class)]
+    #[Facetable(position: -1, sorter: SizeSorter::class)]
     #[MapProductOption(['t_shirt_size', 'dress_size', 'jeans_size'])]
     public array $size = [];
 

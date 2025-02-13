@@ -89,6 +89,7 @@ final class Metadata implements MetadataInterface
                 $this->facetableAttributes[$name] = new Facet(
                     $name,
                     self::getFacetType($attributesAware),
+                    $attribute->position,
                     $attribute->sorter ?? null,
                 );
             }
