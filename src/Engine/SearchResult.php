@@ -13,7 +13,7 @@ final class SearchResult
     public function __construct(
         /** The index that was queried */
         public readonly Index $index,
-
+        public readonly string $query,
         /** @var array<int, array> $hits */
         public readonly array $hits,
         public readonly int $totalHits,
@@ -44,6 +44,7 @@ final class SearchResult
 
         return new self(
             $index,
+            $meilisearchSearchResult->getQuery(),
             $meilisearchSearchResult->getHits(),
             $totalHits,
             $page,

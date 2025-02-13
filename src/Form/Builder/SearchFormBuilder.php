@@ -35,7 +35,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
                 'csrf_protection' => false,
                 'allow_extra_fields' => true,
             ])
-            ->add('q', HiddenType::class)
+            ->add(SearchRequest::QUERY_PARAMETER_FILTER, HiddenType::class)
             ->setMethod('GET')
         ;
 
@@ -79,7 +79,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
             $choices['setono_sylius_meilisearch.form.search.pagination.next'] = $searchResult->page + 1;
         }
 
-        $builder->add('p', ChoiceType::class, [
+        $builder->add(SearchRequest::QUERY_PARAMETER_PAGE, ChoiceType::class, [
             'choices' => $choices,
             'choice_attr' => fn (string $page) => ['style' => 'display: none'], // we only want to display the labels
             'required' => false,
