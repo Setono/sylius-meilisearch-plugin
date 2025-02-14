@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Form\Builder;
 
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
+use Setono\SyliusMeilisearchPlugin\Engine\FacetStat;
+use Setono\SyliusMeilisearchPlugin\Engine\FacetValues;
 use Setono\SyliusMeilisearchPlugin\Form\Type\RangeType;
 use Symfony\Component\Form\FormBuilderInterface;
 use function Symfony\Component\String\u;
 
 final class RangeFilterFormBuilder implements FilterFormBuilderInterface
 {
-    public function build(FormBuilderInterface $builder, Facet $facet, array $values, array $stats = null): void
+    public function build(FormBuilderInterface $builder, Facet $facet, FacetValues $values, FacetStat $stats = null): void
     {
         $builder->add($facet->name, RangeType::class, [
             'label' => sprintf('setono_sylius_meilisearch.form.search.facet.%s', u($facet->name)->snake()),
@@ -21,16 +23,8 @@ final class RangeFilterFormBuilder implements FilterFormBuilderInterface
         ]);
     }
 
-    public function supports(Facet $facet, array $values, array $stats = null): bool
+    public function supports(Facet $facet, FacetValues $values, FacetStat $stats = null): bool
     {
-        if (!in_array($facet->type, ['float', 'int'], true)) {
-            return false;
-        }
-
-        if ($stats === null || (!isset($stats['min']) && !isset($stats['max']))) {
-            return false;
-        }
-
-        return true;
+        return null !== $stats && in_array($facet->type, ['float', 'int'], true);
     }
 }

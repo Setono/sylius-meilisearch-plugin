@@ -52,7 +52,7 @@ final class SearchTest extends FunctionalTestCase
         );
 
         $this->assertSame(1, $result->totalHits);
-        $this->assertCount(4, (array) $result->facetDistribution['brand']);
+        $this->assertCount(4, $result->facetDistribution['brand']);
     }
 
     /**

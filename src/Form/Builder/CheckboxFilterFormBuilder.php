@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Form\Builder;
 
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
+use Setono\SyliusMeilisearchPlugin\Engine\FacetStat;
+use Setono\SyliusMeilisearchPlugin\Engine\FacetValues;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use function Symfony\Component\String\u;
 
 final class CheckboxFilterFormBuilder implements FilterFormBuilderInterface
 {
-    public function build(FormBuilderInterface $builder, Facet $facet, array $values, array $stats = null): void
+    public function build(FormBuilderInterface $builder, Facet $facet, FacetValues $values, FacetStat $stats = null): void
     {
         $builder->add($facet->name, CheckboxType::class, [
             'label' => sprintf('setono_sylius_meilisearch.form.search.facet.%s', u($facet->name)->snake()),
@@ -24,7 +26,7 @@ final class CheckboxFilterFormBuilder implements FilterFormBuilderInterface
         ]);
     }
 
-    public function supports(Facet $facet, array $values, array $stats = null): bool
+    public function supports(Facet $facet, FacetValues $values, FacetStat $stats = null): bool
     {
         return $facet->type === 'bool' && match (count($values)) {
             1 => isset($values['true']),

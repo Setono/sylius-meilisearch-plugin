@@ -43,78 +43,15 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
         // todo could this be fixed by adding the facet forms to some kind of collection?
         $facetsFormBuilder = $this->formFactory->createNamedBuilder(SearchRequest::QUERY_PARAMETER_FILTER);
 
-        /**
-         * Here is an example of the facet stats array
-         *
-         * [
-         *   "price" => [
-         *     "min" => 1.24
-         *     "max" => 47.42
-         *   ]
-         * ]
-         *
-         * @var array<string, array{min: int|float, max: int|float}> $facetStats
-         */
-        $facetStats = $searchResult->facetStats;
-
         $facets = $metadata->getFacetableAttributes();
 
-        /**
-         * Here is an example of the facet distribution array
-         *
-         * "brand" => [
-         *   "Celsius Small" => 3
-         *   "Date & Banana" => 2
-         *   "Modern Wear" => 6
-         *   "You are breathtaking" => 10
-         * ]
-         * "hierarchicalTaxons" => []
-         * "hierarchicalTaxons.level0" => [
-         *   "Category" => 21
-         * ]
-         * "hierarchicalTaxons.level1" => [
-         *   "Category > Caps" => 4
-         *   "Category > Dresses" => 3
-         *   "Category > Jeans" => 8
-         *   "Category > T-shirts" => 6
-         * ]
-         * "hierarchicalTaxons.level2" => [
-         *   "Category > Caps > Simple" => 2
-         *   "Category > Caps > With pompons" => 2
-         *   "Category > Jeans > Men" => 4
-         *   "Category > Jeans > Women" => 4
-         *   "Category > T-shirts > Men" => 3
-         *   "Category > T-shirts > Women" => 3
-         * ]
-         * "onSale" => [
-         *   "false" => 16
-         *   "true" => 5
-         * ]
-         * "price" => [
-         *   "15.12" => 1
-         *   "16.08" => 1
-         *   "18.92" => 1
-         *   "19.83" => 1
-         *   "20.78" => 1
-         * ]
-         * "size" => [
-         *   "L" => 17
-         *   "M" => 17
-         *   "S" => 17
-         *   "XL" => 17
-         *   "XXL" => 17
-         * ]
-         *
-         * @var string $name
-         * @var array<string, int> $values
-         */
         foreach ($searchResult->facetDistribution as $name => $values) {
             if (!isset($facets[$name])) {
                 continue;
             }
 
-            if ($this->filterFormBuilder->supports($facets[$name], $values, $facetStats[$name] ?? null)) {
-                $this->filterFormBuilder->build($facetsFormBuilder, $facets[$name], $values, $facetStats[$name] ?? null);
+            if ($this->filterFormBuilder->supports($facets[$name], $values, $searchResult->facetStats[$name] ?? null)) {
+                $this->filterFormBuilder->build($facetsFormBuilder, $facets[$name], $values, $searchResult->facetStats[$name] ?? null);
             }
         }
 

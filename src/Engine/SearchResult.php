@@ -20,12 +20,8 @@ final class SearchResult
         public readonly int $page,
         public readonly int $pageSize,
         public readonly int $totalPages,
-
-        /** @var array<string, mixed> $facetStats */
-        public readonly array $facetStats,
-
-        /** @var array<string, mixed> $facetDistribution */
-        public readonly array $facetDistribution,
+        public readonly FacetStats $facetStats,
+        public readonly FacetDistribution $facetDistribution,
     ) {
     }
 
@@ -54,8 +50,8 @@ final class SearchResult
             $page,
             $pageSize,
             $totalPages,
-            $meilisearchSearchResult->getFacetStats(),
-            $meilisearchSearchResult->getFacetDistribution(),
+            new FacetStats($meilisearchSearchResult->getFacetStats()),
+            new FacetDistribution($meilisearchSearchResult->getFacetDistribution()),
         );
     }
 }
