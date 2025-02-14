@@ -17,13 +17,22 @@ final class FacetDistribution implements \Countable, \IteratorAggregate, \ArrayA
 
     /**
      * @param array<string, mixed> $facetDistribution
+     * @param array<string, mixed> $facetStats
      */
-    public function __construct(array $facetDistribution)
+    public function __construct(array $facetDistribution, array $facetStats)
     {
         foreach ($facetDistribution as $facet => $facetValues) {
             Assert::isArray($facetValues);
 
-            $this->facetValues[$facet] = new FacetValues($facet, $facetValues);
+            $stats = null;
+
+            if (isset($facetStats[$facet])) {
+                Assert::isArray($facetStats[$facet]);
+
+                $stats = new FacetStats($facet, $facetStats[$facet]);
+            }
+
+            $this->facetValues[$facet] = new FacetValues($facet, $facetValues, $stats);
         }
     }
 

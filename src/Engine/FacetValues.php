@@ -43,6 +43,7 @@ final class FacetValues implements \Countable, \IteratorAggregate, \ArrayAccess
     public function __construct(
         public readonly string $name,
         array $values,
+        public readonly ?FacetStats $stats = null,
     ) {
         foreach ($values as $key => $value) {
             if (!is_string($key) || !is_int($value)) {

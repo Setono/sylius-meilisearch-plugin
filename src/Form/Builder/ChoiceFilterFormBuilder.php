@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Form\Builder;
 
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
-use Setono\SyliusMeilisearchPlugin\Engine\FacetStat;
 use Setono\SyliusMeilisearchPlugin\Engine\FacetValues;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\FilterValuesSorterInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -14,7 +13,7 @@ use function Symfony\Component\String\u;
 
 final class ChoiceFilterFormBuilder implements FilterFormBuilderInterface
 {
-    public function build(FormBuilderInterface $builder, Facet $facet, FacetValues $values, FacetStat $stats = null): void
+    public function build(FormBuilderInterface $builder, Facet $facet, FacetValues $values): void
     {
         $choices = array_combine($values->getValues(), $values->getValues());
 
@@ -37,7 +36,7 @@ final class ChoiceFilterFormBuilder implements FilterFormBuilderInterface
         ]);
     }
 
-    public function supports(Facet $facet, FacetValues $values, FacetStat $stats = null): bool
+    public function supports(Facet $facet, FacetValues $values): bool
     {
         if ($facet->type !== 'array') {
             return false;
