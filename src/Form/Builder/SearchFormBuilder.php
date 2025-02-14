@@ -50,8 +50,8 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
                 continue;
             }
 
-            if ($this->filterFormBuilder->supports($facets[$name], $values, $searchResult->facetStats[$name] ?? null)) {
-                $this->filterFormBuilder->build($facetsFormBuilder, $facets[$name], $values, $searchResult->facetStats[$name] ?? null);
+            if ($this->filterFormBuilder->supports($facets[$name], $values)) {
+                $this->filterFormBuilder->build($facetsFormBuilder, $facets[$name], $values);
             }
         }
 
