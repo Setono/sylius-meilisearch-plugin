@@ -46,14 +46,14 @@ final class FacetValues implements \Countable, \IteratorAggregate, \ArrayAccess
         public readonly ?FacetStats $stats = null,
     ) {
         foreach ($values as $key => $value) {
-            if (!is_string($key) || !is_int($value)) {
+            if (!is_int($value)) {
                 throw new \InvalidArgumentException(sprintf(
                     'The $values array must be an array of strings and integers. Input was: %s',
                     json_encode($values, \JSON_THROW_ON_ERROR),
                 ));
             }
 
-            $this->values[$key] = $value;
+            $this->values[(string) $key] = $value;
         }
     }
 
