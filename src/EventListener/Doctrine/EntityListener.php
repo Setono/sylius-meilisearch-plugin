@@ -8,6 +8,7 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntity;
 use Setono\SyliusMeilisearchPlugin\Message\Command\RemoveEntity;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class EntityListener
@@ -37,6 +38,11 @@ final class EntityListener
     private function dispatch(LifecycleEventArgs $eventArgs, callable $message): void
     {
         $obj = $eventArgs->getObject();
+
+        if ($obj instanceof TranslationInterface) {
+            $obj = $obj->getTranslatable();
+        }
+        
         if (!$obj instanceof IndexableInterface) {
             return;
         }
