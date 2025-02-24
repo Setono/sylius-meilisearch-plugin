@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Message\Handler;
 
 use Setono\SyliusMeilisearchPlugin\Config\Index;
+use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntity;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 
 final class IndexEntityHandler extends AbstractEntityHandler
 {
-    protected function execute(IndexableInterface $entity, Index $index): void
+    public function __invoke(IndexEntity $message): void
     {
-        $index->indexer()->indexEntity($entity);
+        $this->handle($message, static fn (IndexableInterface $entity, Index $index) => $index->indexer()->indexEntity($entity));
     }
 }

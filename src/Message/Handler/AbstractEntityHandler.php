@@ -22,7 +22,10 @@ abstract class AbstractEntityHandler
         $this->managerRegistry = $managerRegistry;
     }
 
-    public function __invoke(RemoveEntity|IndexEntity $message): void
+    /**
+     * @param callable(IndexableInterface $entity, Index $index):void $action
+     */
+    protected function handle(RemoveEntity|IndexEntity $message, callable $action): void
     {
         $entity = $this->getManager($message->class)->find($message->class, $message->id);
         if (null === $entity) {
@@ -30,9 +33,7 @@ abstract class AbstractEntityHandler
         }
 
         foreach ($this->indexRegistry->getByEntity($message->class) as $index) {
-            $this->execute($entity, $index);
+            $action($entity, $index);
         }
     }
-
-    abstract protected function execute(IndexableInterface $entity, Index $index): void;
 }
