@@ -42,7 +42,7 @@ final class EntityListener
         if ($obj instanceof TranslationInterface) {
             $obj = $obj->getTranslatable();
         }
-        
+
         if (!$obj instanceof IndexableInterface) {
             return;
         }
