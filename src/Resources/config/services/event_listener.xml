@@ -8,6 +8,7 @@
 
             <tag name="doctrine.event_listener" event="postPersist"/>
             <tag name="doctrine.event_listener" event="postUpdate"/>
+            <tag name="doctrine.event_listener" event="preRemove"/>
             <tag name="doctrine.event_listener" event="postRemove"/>
         </service>
 
