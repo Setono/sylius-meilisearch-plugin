@@ -59,6 +59,18 @@ class SearchManager {
         });
 
         this.#initializeForm();
+
+        window.addEventListener('popstate', (event) => {
+            // Handle the navigation event (back/forward button)
+            if (event.state?.searchContent) {
+                const content = event.state.searchContent;
+                const existingContent = document.querySelector(this.#options.contentSelector);
+
+                if (content && existingContent) {
+                    existingContent.innerHTML = content;
+                }
+            }
+        });
     }
 
     #initializeForm() {
@@ -117,9 +129,7 @@ class SearchManager {
             }
 
             const text = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            const newContent = doc.querySelector(this.#options.contentSelector);
+            const newContent = this.parseResponseContent(text, this.#options.contentSelector);
             const existingContent = document.querySelector(this.#options.contentSelector);
 
             if (newContent && existingContent) {
@@ -127,7 +137,7 @@ class SearchManager {
                 this.#initializeForm();
             }
 
-            history.pushState(null, '', url);
+            history.pushState({ searchContent: newContent.innerHTML}, '', url);
         } catch (error) {
             console.error('Error fetching search results:', error);
         } finally {
@@ -156,6 +166,13 @@ class SearchManager {
                 field.disabled = true;
             }
         }
+    }
+
+    parseResponseContent(html, selector) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        return doc.querySelector(selector);
     }
 
     /**
