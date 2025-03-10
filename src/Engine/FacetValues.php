@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Engine;
 
-use Webmozart\Assert\Assert;
-
 /**
  * @implements \ArrayAccess<string, int>
  * @implements \IteratorAggregate<string, int>
