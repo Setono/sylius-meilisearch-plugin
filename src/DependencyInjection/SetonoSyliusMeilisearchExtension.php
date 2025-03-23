@@ -121,6 +121,37 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                 ],
             ],
             'grids' => [
+                'setono_sylius_meilisearch_admin_index_settings' => [
+                    'driver' => [
+                        'name' => SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
+                        'options' => [
+                            'class' => '%setono_sylius_meilisearch.model.index_settings.class%',
+                        ],
+                    ],
+                    'limits' => [100, 250, 500, 1000],
+                    'fields' => [
+                        'index' => [
+                            'type' => 'string',
+                            'label' => 'setono_sylius_meilisearch.ui.index',
+                        ],
+                    ],
+                    'filters' => [
+                        'search' => [
+                            'type' => 'string',
+                            'label' => 'sylius.ui.search',
+                            'options' => [
+                                'fields' => ['index'],
+                            ],
+                        ],
+                    ],
+                    'actions' => [
+                        'item' => [
+                            'update' => [
+                                'type' => 'update',
+                            ],
+                        ],
+                    ],
+                ],
                 'setono_sylius_meilisearch_admin_synonym' => [
                     'driver' => [
                         'name' => SyliusResourceBundle::DRIVER_DOCTRINE_ORM,

@@ -38,9 +38,13 @@ setono_sylius_meilisearch:
             main:
                 meilisearch:
                     header: Meilisearch
+                    settings: Settings
                     synonyms: Synonyms
     ui:
         indexes: Indexes
+        index_settings: Index settings
+        index_settings_header: Index settings
+        index_settings_subheader: Update your index settings to optimize the search experience
         no_indexes: No indexes
         search: Search
         search_placeholder: Search...
