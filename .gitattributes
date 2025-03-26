@@ -16,3 +16,6 @@
 /tests                          export-ignore
 /CHANGELOG.md                   export-ignore
 /UPGRADE.md                     export-ignore
+/stubs                          export-ignore
+/infection.json.dist            export-ignore
+/rector.php                     export-ignore
