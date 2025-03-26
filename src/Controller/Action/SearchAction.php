@@ -51,6 +51,8 @@ final class SearchAction
         /** @var array{entityClass: class-string<IndexableInterface>, entityId: mixed} $hit */
         foreach ($searchResult->hits as $hit) {
             $item = $this->getManager($hit['entityClass'])->find($hit['entityClass'], $hit['entityId']);
+
+            // todo if the item doesn't exist in the database, we can in fact end up with an empty $items list
             if (null === $item) {
                 continue;
             }
@@ -63,6 +65,7 @@ final class SearchAction
             'searchForm' => $searchForm->createView(),
             'items' => $items,
         ], $request);
+
         $this->eventDispatcher->dispatch($searchResponseParametersCreatedEvent);
 
         return new Response($this->twig->render($searchResponseParametersCreatedEvent->template, $searchResponseParametersCreatedEvent->context));

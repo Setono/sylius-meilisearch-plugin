@@ -73,6 +73,7 @@
         "phpspec/prophecy-phpunit": "^2.3",
         "phpunit/phpunit": "^9.6.21",
         "psalm/plugin-phpunit": "^0.18.4",
+        "psalm/plugin-symfony": "^5.2",
         "setono/code-quality-pack": "^2.8.3",
         "sylius/sylius": "~1.12.19",
         "symfony/browser-kit": "^5.4 || ^6.4 || ^7.0",

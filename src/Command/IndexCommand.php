@@ -42,6 +42,7 @@ final class IndexCommand extends Command
             )
             ->addOption('wait', 'w', InputOption::VALUE_NONE, 'Wait for the indexing to finish')
             ->addOption('wait-timeout', 't', InputOption::VALUE_REQUIRED, 'The maximum time to wait for the indexing to finish in seconds. This is only relevant if you have enabled the "wait" option', 300)
+            ->addOption('delete', 'd', InputOption::VALUE_NONE, 'Delete index before creating')
         ;
     }
 
@@ -78,11 +79,16 @@ final class IndexCommand extends Command
     {
         /** @var list<string> $indexes */
         $indexes = $input->getArgument('indexes');
+        $delete = $input->getOption('delete');
+
+        if ($delete) {
+            $output->writeln('<comment>WARNING: The delete option is enabled</comment>');
+        }
 
         foreach ($indexes as $index) {
             $output->writeln(sprintf('Index "%s" submitted for indexing', $index));
 
-            $this->commandBus->dispatch(new Index($index));
+            $this->commandBus->dispatch(new Index($index, $delete));
         }
 
         /** @var bool $wait */

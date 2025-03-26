@@ -33,7 +33,7 @@ final class SearchRequest
             $q = null;
         }
 
-        $page = max(1, (int) $request->query->get(self::QUERY_PARAMETER_PAGE, 1));
+        $page = max(1, (int) $request->query->get(self::QUERY_PARAMETER_PAGE, '1'));
 
         $sort = $request->query->get(self::QUERY_PARAMETER_SORT);
         if (!is_string($sort)) {

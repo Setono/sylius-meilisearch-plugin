@@ -20,7 +20,7 @@ final class IndexHandler
         private readonly Client $client,
         private readonly SettingsProviderInterface $settingsProvider,
         private readonly IndexScopeProviderInterface $indexScopeProvider,
-        private readonly IndexUidResolverInterface $indexNameResolver,
+        private readonly IndexUidResolverInterface $indexUidResolver,
         private readonly NormalizerInterface $normalizer,
     ) {
     }
@@ -34,9 +34,15 @@ final class IndexHandler
         }
 
         foreach ($this->indexScopeProvider->getAll($index) as $indexScope) {
+            $uid = $this->indexUidResolver->resolveFromIndexScope($indexScope);
+
+            if ($message->delete) {
+                $this->client->deleteIndex($uid);
+            }
+
             $this
                 ->client
-                ->index($this->indexNameResolver->resolveFromIndexScope($indexScope))
+                ->index($uid)
                 ->updateSettings(
                     $this->normalizer->normalize($this->settingsProvider->getSettings($indexScope)),
                 )

@@ -20,7 +20,7 @@
     </projectFiles>
     <plugins>
         <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
-    </plugins>
+    <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/></plugins>
     <forbiddenFunctions>
         <function name="dd"/>
         <function name="dump"/>
@@ -35,6 +35,8 @@
                 <directory name="src/Repository"/>
             </errorLevel>
         </TooManyTemplateParams>
+        <PluginIssue name="QueryBuilderSetParameter" errorLevel="suppress"/>
+        <MissingTemplateParam errorLevel="suppress"/>
     </issueHandlers>
     <stubs>
         <file name="stubs/Psr/Container/ContainerInterface.phpstub"/>

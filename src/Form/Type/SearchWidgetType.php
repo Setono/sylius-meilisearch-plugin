@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Event\PreSetDataEvent;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -29,7 +29,7 @@ final class SearchWidgetType extends AbstractType
                 'required' => true,
             ])
             ->setMethod('GET')
-            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (PreSetDataEvent $event): void {
                 /** @var mixed $data */
                 $data = $event->getData();
 
