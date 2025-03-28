@@ -26,6 +26,20 @@
             <argument>%setono_sylius_meilisearch.search.hits_per_page%</argument>
         </service>
 
+        <!-- Client -->
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Client\ClientFactoryInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Meilisearch\Client\ClientFactory"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Client\ClientFactory">
+            <argument>%setono_sylius_meilisearch.server.url%</argument>
+            <argument>%setono_sylius_meilisearch.server.master_key%</argument>
+            <argument type="service" id="psr18.http_client"/>
+        </service>
+
+        <service id="Meilisearch\Client" class="Meilisearch\Client">
+            <factory service="Setono\SyliusMeilisearchPlugin\Meilisearch\Client\ClientFactoryInterface" method="create"/>
+        </service>
+
         <!-- Synonym resolver -->
         <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolverInterface"
                  alias="Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolver"/>
