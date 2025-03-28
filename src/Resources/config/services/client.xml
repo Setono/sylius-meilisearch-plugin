@@ -5,6 +5,7 @@
         <service id="Meilisearch\Client">
             <argument>%setono_sylius_meilisearch.server.url%</argument>
             <argument>%setono_sylius_meilisearch.server.master_key%</argument>
+            <argument type="service" id="psr18.http_client"/>
         </service>
     </services>
 </container>
