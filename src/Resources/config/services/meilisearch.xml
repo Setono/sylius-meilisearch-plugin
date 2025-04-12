@@ -33,7 +33,8 @@
         <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Client\ClientFactory">
             <argument>%setono_sylius_meilisearch.server.url%</argument>
             <argument>%setono_sylius_meilisearch.server.master_key%</argument>
-            <argument type="service" id="psr18.http_client"/>
+            <argument type="service" id="psr18.http_client.setono_sylius_meilisearch"/>
+            <argument>%kernel.debug%</argument>
         </service>
 
         <service id="Meilisearch\Client" class="Meilisearch\Client">

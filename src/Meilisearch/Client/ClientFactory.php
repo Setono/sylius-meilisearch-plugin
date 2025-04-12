@@ -13,11 +13,16 @@ final class ClientFactory implements ClientFactoryInterface
         private readonly string $url,
         private readonly string $apiKey,
         private readonly ClientInterface $httpClient,
+        private readonly bool $debug = false,
     ) {
     }
 
     public function create(): Client
     {
+        if ($this->debug) {
+            return new TraceableClient($this->url, $this->apiKey, $this->httpClient);
+        }
+
         return new Client($this->url, $this->apiKey, $this->httpClient);
     }
 }

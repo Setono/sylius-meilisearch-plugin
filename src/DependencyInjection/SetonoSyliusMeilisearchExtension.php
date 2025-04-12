@@ -107,6 +107,13 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                     ],
                 ],
             ],
+            'http_client' => [
+                'scoped_clients' => [
+                    'http_client.setono_sylius_meilisearch' => [
+                        'scope' => '%env(MEILISEARCH_URL)%',
+                    ],
+                ],
+            ],
             'messenger' => [
                 'buses' => [
                     'setono_sylius_meilisearch.command_bus' => null,
