@@ -10,6 +10,7 @@ use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchEngineInterface;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchRequest;
 use Setono\SyliusMeilisearchPlugin\Event\Search\SearchRequestCreated;
+use Setono\SyliusMeilisearchPlugin\Event\Search\SearchResponseCreated;
 use Setono\SyliusMeilisearchPlugin\Event\Search\SearchResponseParametersCreated;
 use Setono\SyliusMeilisearchPlugin\Event\Search\SearchResultReceived;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
@@ -68,6 +69,15 @@ final class SearchAction
 
         $this->eventDispatcher->dispatch($searchResponseParametersCreatedEvent);
 
-        return new Response($this->twig->render($searchResponseParametersCreatedEvent->template, $searchResponseParametersCreatedEvent->context));
+        $response = new Response(
+            $this->twig->render(
+                $searchResponseParametersCreatedEvent->template,
+                $searchResponseParametersCreatedEvent->context,
+            ),
+        );
+
+        $this->eventDispatcher->dispatch(new SearchResponseCreated($request, $response));
+
+        return $response;
     }
 }

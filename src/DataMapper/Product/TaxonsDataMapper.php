@@ -45,9 +45,7 @@ final class TaxonsDataMapper implements DataMapperInterface
             array_unshift($taxons, $ancestor->getTranslation($localeCode)->getName());
         }
 
-        $taxons = array_filter($taxons, static function (?string $taxon) {
-            return ((string) $taxon) !== '';
-        });
+        $taxons = array_filter($taxons, static fn (?string $taxon) => ((string) $taxon) !== '');
 
         $taxons = array_slice($taxons, $this->topLevelsToExclude, $this->levelsToInclude);
 
