@@ -60,6 +60,15 @@ class SearchManager {
 
         this.#initializeForm();
 
+        const initialContent = document.querySelector(this.#options.contentSelector);
+        if (initialContent) {
+            history.replaceState(
+                { searchContent: initialContent.innerHTML },
+                '',
+                window.location.href
+            );
+        }
+
         window.addEventListener('popstate', (event) => {
             // Handle the navigation event (back/forward button)
             if (event.state?.searchContent) {
