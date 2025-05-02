@@ -54,6 +54,7 @@
         "symfony/string": "^5.4 || ^6.4 || ^7.0",
         "symfony/translation-contracts": "^1.1 || ^2.5 || ^3.2",
         "symfony/validator": "^5.4 || ^6.4 || ^7.0",
+        "symfony/web-link": "^5.4 || ^6.4 || ^7.0",
         "twig/twig": "^2.15 || ^3.0",
         "webmozart/assert": "^1.11"
     },

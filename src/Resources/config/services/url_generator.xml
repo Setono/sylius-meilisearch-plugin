@@ -21,5 +21,12 @@
 
             <tag name="setono_sylius_meilisearch.url_generator"/>
         </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\UrlGenerator\CanonicalUrlGeneratorInterface"
+                 alias="setono_sylius_meilisearch.canonical_url_generator"/>
+        <service id="setono_sylius_meilisearch.canonical_url_generator"
+                 class="Setono\SyliusMeilisearchPlugin\UrlGenerator\CanonicalUrlGenerator">
+            <argument type="service" id="router"/>
+        </service>
     </services>
 </container>

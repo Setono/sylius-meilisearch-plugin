@@ -19,8 +19,8 @@ final class RangeFilterFormBuilder implements FilterFormBuilderInterface
             'required' => false,
             'block_prefix' => 'setono_sylius_meilisearch_facet_range',
             'priority' => -1 * $facet->position,
-            'min' => $values->stats->min,
-            'max' => $values->stats->max,
+            'min' => $values->stats?->min,
+            'max' => $values->stats?->max,
         ]);
     }
 
