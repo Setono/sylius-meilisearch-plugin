@@ -14,7 +14,9 @@ use Setono\SyliusMeilisearchPlugin\Event\Search\SearchResponseCreated;
 use Setono\SyliusMeilisearchPlugin\Event\Search\SearchResponseParametersCreated;
 use Setono\SyliusMeilisearchPlugin\Event\Search\SearchResultReceived;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\SearchFormBuilderInterface;
+use Setono\SyliusMeilisearchPlugin\Form\Type\SearchResultType;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
@@ -25,6 +27,7 @@ final class SearchAction
 
     public function __construct(
         ManagerRegistry $managerRegistry,
+        private readonly FormFactoryInterface $formFactory,
         private readonly Environment $twig,
         private readonly SearchFormBuilderInterface $searchFormBuilder,
         private readonly SearchEngineInterface $searchEngine,
@@ -41,7 +44,7 @@ final class SearchAction
         $searchResult = $this->searchEngine->execute($searchRequestCreatedEvent->searchRequest);
         $this->eventDispatcher->dispatch(new SearchResultReceived($searchResult));
 
-        $searchForm = $this->searchFormBuilder->build($searchResult);
+        $searchForm = $this->formFactory->create(SearchResultType::class, $searchResult);
         $searchForm->handleRequest($request);
 
         if ($searchForm->isSubmitted() && !$searchForm->isValid()) {
