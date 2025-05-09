@@ -6,6 +6,14 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Setono\SyliusMeilisearchPlugin\EventSubscriber\EnsureIndexSettingsAreCreatedSubscriber">
+            <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
+            <argument type="service" id="setono_sylius_meilisearch.repository.index_settings"/>
+            <argument type="service" id="setono_sylius_meilisearch.factory.index_settings"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\TaxonSearchSubscriber">
             <argument type="service" id="sylius.repository.taxon"/>
             <argument type="service" id="sylius.context.locale"/>

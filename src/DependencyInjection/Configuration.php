@@ -8,9 +8,12 @@ use Setono\SyliusMeilisearchPlugin\DataProvider\DefaultIndexableDataProvider;
 use Setono\SyliusMeilisearchPlugin\Document\Product;
 use Setono\SyliusMeilisearchPlugin\Event\QueryBuilderForDataProvisionCreated;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
+use Setono\SyliusMeilisearchPlugin\Form\Type\IndexSettingsType;
 use Setono\SyliusMeilisearchPlugin\Form\Type\SynonymType;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
+use Setono\SyliusMeilisearchPlugin\Model\IndexSettings;
 use Setono\SyliusMeilisearchPlugin\Model\Synonym;
+use Setono\SyliusMeilisearchPlugin\Repository\IndexSettingsRepository;
 use Setono\SyliusMeilisearchPlugin\Repository\SynonymRepository;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
 use Sylius\Component\Resource\Factory\Factory;
@@ -174,6 +177,22 @@ INFO, ToggleableInterface::class, EntityFilterInterface::class, QueryBuilderForD
                 ->arrayNode('resources')
                     ->addDefaultsIfNotSet()
                     ->children()
+                        ->arrayNode('index_settings')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->variableNode('options')->end()
+                                ->arrayNode('classes')
+                                    ->addDefaultsIfNotSet()
+                                    ->children()
+                                        ->scalarNode('model')->defaultValue(IndexSettings::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('repository')->defaultValue(IndexSettingsRepository::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('form')->defaultValue(IndexSettingsType::class)->end()
+                                        ->scalarNode('factory')->defaultValue(Factory::class)->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
                         ->arrayNode('synonym')
                             ->addDefaultsIfNotSet()
                             ->children()
