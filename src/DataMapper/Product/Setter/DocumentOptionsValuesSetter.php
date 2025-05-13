@@ -17,7 +17,7 @@ final class DocumentOptionsValuesSetter implements DocumentPropertyValuesSetterI
     {
         $metadata = $this->metadataFactory->getMetadataFor($target);
 
-        foreach ($metadata->getMappedProductOptions() as $property => $optionCodes) {
+        foreach ($metadata->mappedProductOptions as $property => $optionCodes) {
             $values = [];
             /** @var string $code */
             foreach ($optionCodes as $code) {

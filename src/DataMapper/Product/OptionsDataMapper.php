@@ -40,7 +40,7 @@ final class OptionsDataMapper implements DataMapperInterface
     {
         return $source instanceof ProductInterface &&
             $target instanceof ProductDocument &&
-            $this->metadataFactory->getMetadataFor($target)->getMappedProductOptions() !== []
+            $this->metadataFactory->getMetadataFor($target)->mappedProductOptions !== []
         ;
     }
 }

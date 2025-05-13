@@ -24,7 +24,7 @@ final class MultiSearchBuilder implements MultiSearchBuilderInterface
     {
         $metadata = $index->metadata();
         $facetsNames = $metadata->getFacetableAttributeNames();
-        $facets = $metadata->getFacetableAttributes();
+        $facets = $metadata->facetableAttributes;
 
         $filters = $this->filterBuilder->build($facets, $searchRequest->filters);
 

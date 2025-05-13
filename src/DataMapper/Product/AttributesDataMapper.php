@@ -42,7 +42,7 @@ final class AttributesDataMapper implements DataMapperInterface
         return $source instanceof ProductInterface &&
             $target instanceof ProductDocument &&
             null !== $indexScope->localeCode &&
-            $this->metadataFactory->getMetadataFor($target)->getMappedProductAttributes() !== []
+            $this->metadataFactory->getMetadataFor($target)->mappedProductAttributes !== []
         ;
     }
 }

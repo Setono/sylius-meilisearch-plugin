@@ -13,7 +13,7 @@ final class CachedMetadataFactory implements MetadataFactoryInterface
     /**
      * The loaded metadata, indexed by class name
      *
-     * @var array<class-string<Document>, MetadataInterface>
+     * @var array<class-string<Document>, Metadata>
      */
     private array $loadedClasses = [];
 
@@ -23,7 +23,7 @@ final class CachedMetadataFactory implements MetadataFactoryInterface
     ) {
     }
 
-    public function getMetadataFor(string|Document $document): MetadataInterface
+    public function getMetadataFor(string|Document $document): Metadata
     {
         if ($document instanceof Document) {
             $document = $document::class;
@@ -36,7 +36,7 @@ final class CachedMetadataFactory implements MetadataFactoryInterface
         $cacheItem = $this->cache->getItem($this->escapeClassName($document));
         if ($cacheItem->isHit()) {
             $metadata = $cacheItem->get();
-            Assert::isInstanceOf($metadata, MetadataInterface::class);
+            Assert::isInstanceOf($metadata, Metadata::class);
 
             $this->loadedClasses[$document] = $metadata;
 
