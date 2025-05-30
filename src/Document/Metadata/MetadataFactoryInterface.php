@@ -11,5 +11,5 @@ interface MetadataFactoryInterface
     /**
      * @param class-string<Document>|Document $document
      */
-    public function getMetadataFor(string|Document $document): MetadataInterface;
+    public function getMetadataFor(string|Document $document): Metadata;
 }

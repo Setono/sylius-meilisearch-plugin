@@ -43,7 +43,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
         // todo could this be fixed by adding the facet forms to some kind of collection?
         $facetsFormBuilder = $this->formFactory->createNamedBuilder(SearchRequest::QUERY_PARAMETER_FILTER);
 
-        $facets = $metadata->getFacetableAttributes();
+        $facets = $metadata->facetableAttributes;
 
         foreach ($searchResult->facetDistribution as $name => $values) {
             if (!isset($facets[$name])) {

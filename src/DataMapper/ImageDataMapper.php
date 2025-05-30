@@ -33,7 +33,7 @@ final class ImageDataMapper implements DataMapperInterface
         );
 
         $metadata = $this->metadataFactory->getMetadataFor($target);
-        foreach ($metadata->getImageAttributes() as $imageAttribute) {
+        foreach ($metadata->imageAttributes as $imageAttribute) {
             $image = $imageAttribute->type === null ? $source->getImages()->first() : $source->getImagesByType($imageAttribute->type)->first();
             if (false === $image) {
                 continue;
@@ -58,6 +58,6 @@ final class ImageDataMapper implements DataMapperInterface
         IndexScope $indexScope,
         array $context = [],
     ): bool {
-        return $source instanceof ImagesAwareInterface && $this->metadataFactory->getMetadataFor($target)->getImageAttributes() !== [];
+        return $source instanceof ImagesAwareInterface && $this->metadataFactory->getMetadataFor($target)->imageAttributes !== [];
     }
 }

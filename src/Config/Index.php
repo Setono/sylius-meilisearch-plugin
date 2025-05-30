@@ -7,8 +7,8 @@ namespace Setono\SyliusMeilisearchPlugin\Config;
 use Psr\Container\ContainerInterface;
 use Setono\SyliusMeilisearchPlugin\DataProvider\IndexableDataProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
+use Setono\SyliusMeilisearchPlugin\Document\Metadata\Metadata;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
-use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
@@ -97,7 +97,7 @@ final class Index implements \Stringable
         return $indexNameResolver->resolve($this);
     }
 
-    public function metadata(): MetadataInterface
+    public function metadata(): Metadata
     {
         /** @var MetadataFactoryInterface $metadataFactory */
         $metadataFactory = $this->locator->get(MetadataFactoryInterface::class);
