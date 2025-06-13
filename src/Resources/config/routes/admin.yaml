@@ -1,3 +1,19 @@
+setono_sylius_meilisearch_admin_index_settings:
+    resource: |
+        section: admin
+        alias: setono_sylius_meilisearch.index_settings
+        templates: "@SyliusAdmin\\Crud"
+        redirect: index
+        permission: true
+        grid: setono_sylius_meilisearch_admin_index_settings
+        vars:
+            all:
+                header: setono_sylius_meilisearch.ui.index_settings_header
+                subheader: setono_sylius_meilisearch.ui.index_settings_subheader
+                templates:
+                    form: "@SetonoSyliusMeilisearchPlugin/admin/index_settings/_form.html.twig"
+    type: sylius.resource
+
 setono_sylius_meilisearch_admin_synonym:
     resource: |
         section: admin

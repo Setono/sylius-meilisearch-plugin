@@ -2,6 +2,9 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
+        <parameter type="collection" key="setono_sylius_meilisearch.form.type.index_settings.validation_groups">
+            <parameter>setono_sylius_meilisearch</parameter>
+        </parameter>
         <parameter type="collection" key="setono_sylius_meilisearch.form.type.synonym.validation_groups">
             <parameter>setono_sylius_meilisearch</parameter>
         </parameter>
@@ -54,6 +57,13 @@
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Type\SearchWidgetType">
             <argument type="service" id="request_stack"/>
+
+            <tag name="form.type"/>
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Type\IndexSettingsType">
+            <argument>%setono_sylius_meilisearch.model.index_settings.class%</argument>
+            <argument>%setono_sylius_meilisearch.form.type.index_settings.validation_groups%</argument>
 
             <tag name="form.type"/>
         </service>

@@ -26,6 +26,14 @@ final class AddMenuSubscriber implements EventSubscriberInterface
         $header = $this->getHeader($menu);
 
         $header
+            ->addChild('settings', [
+                'route' => 'setono_sylius_meilisearch_admin_index_settings_index',
+            ])
+            ->setLabel('setono_sylius_meilisearch.menu.admin.main.meilisearch.settings')
+            ->setLabelAttribute('icon', 'cog')
+        ;
+
+        $header
             ->addChild('synonyms', [
                 'route' => 'setono_sylius_meilisearch_admin_synonym_index',
             ])
