@@ -20,7 +20,7 @@ final class SearchTest extends FunctionalTestCase
 
     public function testItProvidesSearchResultByMultipleCriteria(): void
     {
-        $brands = ['Celsius small', 'You are breathtaking'];
+        $brands = ['Celsius Small', 'You are breathtaking'];
 
         /** @var SearchEngine $searchEngine */
         $searchEngine = self::getContainer()->get(SearchEngine::class);
@@ -65,7 +65,7 @@ final class SearchTest extends FunctionalTestCase
         $searchEngine = self::getContainer()->get(SearchEngine::class);
         $result = $searchEngine->execute(
             new SearchRequest('jeans', [
-                'brand' => ['Celsius small'],
+                'brand' => ['Celsius Small'],
             ]),
         );
 
