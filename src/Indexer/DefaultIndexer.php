@@ -46,7 +46,13 @@ class DefaultIndexer extends AbstractIndexer
     {
         foreach ($this->index->entities as $entity) {
             /** @var IndexBuffer<string|int> $buffer */
-            $buffer = new IndexBuffer(100, fn (array $ids) => $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids)));
+            $buffer = new IndexBuffer(
+                100,
+                /** @param list<string|int> $ids */
+                function (array $ids) use ($entity): void {
+                    $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids));
+                },
+            );
 
             foreach ($this->index->dataProvider()->getIds($entity, $this->index) as $id) {
                 $buffer->push($id);

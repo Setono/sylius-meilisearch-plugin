@@ -23,6 +23,11 @@ abstract class AbstractFilter implements EventSubscriberInterface
     {
         $rootAliases = $qb->getRootAliases();
 
-        return reset($rootAliases);
+        $rootAlias = reset($rootAliases);
+        if (!is_string($rootAlias)) {
+            throw new \RuntimeException('The query builder does not have any root aliases');
+        }
+
+        return $rootAlias;
     }
 }

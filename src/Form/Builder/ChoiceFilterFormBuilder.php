@@ -13,6 +13,9 @@ use function Symfony\Component\String\u;
 
 final class ChoiceFilterFormBuilder implements FilterFormBuilderInterface
 {
+    /**
+     * @param FormBuilderInterface<mixed> $builder
+     */
     public function build(FormBuilderInterface $builder, Facet $facet, FacetValues $values): void
     {
         $choices = array_combine($values->getValues(), $values->getValues());
@@ -20,7 +23,6 @@ final class ChoiceFilterFormBuilder implements FilterFormBuilderInterface
         /** @var class-string<FilterValuesSorterInterface> $sorter */
         $sorter = $facet->sorter;
         if ($facet->sorter !== null) {
-            /** @var array $choices */
             $choices = (new $sorter())->sort($choices);
         }
 

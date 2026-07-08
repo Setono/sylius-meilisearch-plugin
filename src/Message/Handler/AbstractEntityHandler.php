@@ -12,6 +12,7 @@ use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntity;
 use Setono\SyliusMeilisearchPlugin\Message\Command\RemoveEntity;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
+use Webmozart\Assert\Assert;
 
 abstract class AbstractEntityHandler
 {
@@ -29,7 +30,10 @@ abstract class AbstractEntityHandler
     {
         $entity = $this->getManager($message->class)->find($message->class, $message->id);
         if (null === $entity) {
-            throw new UnrecoverableMessageHandlingException(sprintf('Entity (%s) with id %s not found', $message->class, (string) $message->id));
+            $id = $message->id;
+            Assert::scalar($id);
+
+            throw new UnrecoverableMessageHandlingException(sprintf('Entity (%s) with id %s not found', $message->class, (string) $id));
         }
 
         foreach ($this->indexRegistry->getByEntity($message->class) as $index) {

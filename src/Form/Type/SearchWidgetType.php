@@ -12,6 +12,9 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<mixed>
+ */
 final class SearchWidgetType extends AbstractType
 {
     public function __construct(private readonly RequestStack $requestStack)

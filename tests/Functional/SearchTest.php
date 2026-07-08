@@ -35,6 +35,7 @@ final class SearchTest extends FunctionalTestCase
         );
 
         foreach ($result->hits as $hit) {
+            self::assertIsNumeric($hit['price']);
             self::assertGreaterThanOrEqual($priceBounds[0], (int) $hit['price']);
             self::assertLessThanOrEqual($priceBounds[1], (int) $hit['price']);
             self::assertContains(((array) $hit['brand'])[0], ['Celsius small', 'You are breathtaking']);
@@ -51,8 +52,8 @@ final class SearchTest extends FunctionalTestCase
             ]),
         );
 
-        $this->assertSame(1, $result->totalHits);
-        $this->assertCount(4, $result->facetDistribution['brand']);
+        self::assertSame(1, $result->totalHits);
+        self::assertCount(4, $result->facetDistribution['brand']);
     }
 
     /**
@@ -74,19 +75,18 @@ final class SearchTest extends FunctionalTestCase
         /** @var EntityManagerInterface $manager */
         $manager = $managerRegistry->getManagerForClass($channelPricingClass);
 
-        /** @var array<array-key, int> $prices */
-        $prices = array_map(
-            static fn (array $row) => (int) $row['price'],
-            $manager->createQueryBuilder()
-                ->select('o.price')
-                ->from($channelPricingClass, 'o')
-                ->getQuery()
-                ->getScalarResult(),
-        );
+        /** @var list<array{price: int|numeric-string}> $rows */
+        $rows = $manager->createQueryBuilder()
+            ->select('o.price')
+            ->from($channelPricingClass, 'o')
+            ->getQuery()
+            ->getScalarResult();
+
+        $prices = array_map(intval(...), array_column($rows, 'price'));
 
         sort($prices);
 
-        $lowerBound = random_int(10, count($prices) - 20);
+        $lowerBound = random_int(10, max(10, count($prices) - 20));
         $upperBound = $lowerBound + 10;
 
         return [(int) floor($prices[$lowerBound] / 100), (int) ceil($prices[$upperBound] / 100)];

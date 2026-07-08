@@ -9,6 +9,9 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<mixed>
+ */
 final class IndexChoiceType extends AbstractType
 {
     public function __construct(private readonly IndexRegistryInterface $indexRegistry)
@@ -21,7 +24,7 @@ final class IndexChoiceType extends AbstractType
 
         $resolver->setDefaults([
             'choices' => array_combine($names, $names),
-            'choice_label' => static fn (string $name): string => ucfirst($name),
+            'choice_label' => ucfirst(...),
         ]);
     }
 

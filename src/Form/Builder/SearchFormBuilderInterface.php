@@ -9,5 +9,8 @@ use Symfony\Component\Form\FormInterface;
 
 interface SearchFormBuilderInterface
 {
+    /**
+     * @return FormInterface<mixed>
+     */
     public function build(SearchResult $searchResult): FormInterface;
 }

@@ -10,6 +10,9 @@ use Webmozart\Assert\Assert;
 
 final class SynonymFactory implements SynonymFactoryInterface
 {
+    /**
+     * @param FactoryInterface<object> $decorated
+     */
     public function __construct(private readonly FactoryInterface $decorated)
     {
     }
@@ -25,7 +28,6 @@ final class SynonymFactory implements SynonymFactoryInterface
     public function createInverseFromExisting(SynonymInterface $synonym): SynonymInterface
     {
         $obj = $this->createNew();
-        Assert::isInstanceOf($obj, SynonymInterface::class);
 
         $obj->setTerm($synonym->getSynonym());
         $obj->setSynonym($synonym->getTerm());

@@ -18,7 +18,7 @@ final class Facetable extends Filterable
      */
     public function __construct(public readonly int $position = 0, public readonly ?string $sorter = null)
     {
-        if ($this->sorter === null) {
+        if ($sorter === null) {
             return;
         }
 

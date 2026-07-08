@@ -14,14 +14,17 @@ final class ProductUrlGenerator extends AbstractEntityUrlGenerator
     {
         Assert::true($this->supports($entity, $context));
 
+        $localeCode = $context['localeCode'] ?? null;
+        Assert::string($localeCode);
+
         $parameters = [
-            'slug' => $entity->getTranslation($context['localeCode'])->getSlug(),
+            'slug' => $entity->getTranslation($localeCode)->getSlug(),
         ];
 
         $route = $this->router->getRouteCollection()->get('sylius_shop_product_show');
 
         if (null !== $route && $route->hasRequirement('_locale')) {
-            $parameters['_locale'] = $context['localeCode'];
+            $parameters['_locale'] = $localeCode;
         }
 
         return $this->router->generate('sylius_shop_product_show', $parameters);
@@ -29,7 +32,6 @@ final class ProductUrlGenerator extends AbstractEntityUrlGenerator
 
     /**
      * @psalm-assert-if-true ProductInterface $entity
-     * @psalm-assert-if-true string $context['localeCode']
      */
     public function supports(IndexableInterface $entity, array $context = []): bool
     {

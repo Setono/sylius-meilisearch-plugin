@@ -61,7 +61,6 @@ final class IndexCommand extends Command
             }
         }
 
-        /** @var mixed|null $waitTimeout */
         $waitTimeout = $input->getOption('wait-timeout');
 
         if (!is_numeric($waitTimeout)) {
@@ -95,10 +94,7 @@ final class IndexCommand extends Command
         $wait = $input->getOption('wait');
 
         if ($wait) {
-            /** @var mixed|null $waitTimeout */
-            $waitTimeout = $input->getOption('wait-timeout');
-
-            $this->wait((int) $waitTimeout, $output);
+            $this->wait((int) $input->getOption('wait-timeout'), $output);
         }
 
         return 0;

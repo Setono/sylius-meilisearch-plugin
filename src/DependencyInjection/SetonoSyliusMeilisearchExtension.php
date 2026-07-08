@@ -54,7 +54,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
          *      metadata: array{ cache: bool },
          *      search: array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ path: string } },
          *      autocomplete: array{ enabled: bool, indexes: list<string>, container: string, placeholder: string },
-         *      resources: array,
+         *      resources: array<string, mixed>,
          * } $config
          */
         $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);

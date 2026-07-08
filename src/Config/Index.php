@@ -77,12 +77,18 @@ final class Index implements \Stringable
 
     public function indexer(): IndexerInterface
     {
-        return $this->locator->get(IndexerInterface::class);
+        /** @var IndexerInterface $indexer */
+        $indexer = $this->locator->get(IndexerInterface::class);
+
+        return $indexer;
     }
 
     public function dataProvider(): IndexableDataProviderInterface
     {
-        return $this->locator->get(IndexableDataProviderInterface::class);
+        /** @var IndexableDataProviderInterface $dataProvider */
+        $dataProvider = $this->locator->get(IndexableDataProviderInterface::class);
+
+        return $dataProvider;
     }
 
     /**

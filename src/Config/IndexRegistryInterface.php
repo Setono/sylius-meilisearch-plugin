@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Config;
 
 /**
- * @extends \Traversable<Index>
+ * @extends \Traversable<string, Index>
  */
 interface IndexRegistryInterface extends \Traversable, \Countable
 {

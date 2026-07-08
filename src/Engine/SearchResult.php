@@ -14,7 +14,7 @@ final class SearchResult
         /** The index that was queried */
         public readonly Index $index,
 
-        /** @var array<int, array> $hits */
+        /** @var array<int, array<mixed>> $hits */
         public readonly array $hits,
         public readonly int $totalHits,
         public readonly int $page,

@@ -13,6 +13,9 @@ final class DocumentOptionsValuesSetter implements DocumentPropertyValuesSetterI
     {
     }
 
+    /**
+     * @param array<string, bool|float|int|string|list<string>> $attributes
+     */
     public function setFor(Document $target, array $attributes): void
     {
         $metadata = $this->metadataFactory->getMetadataFor($target);
@@ -25,16 +28,16 @@ final class DocumentOptionsValuesSetter implements DocumentPropertyValuesSetterI
                     continue;
                 }
 
-                /** @var array $value */
+                /** @var list<string> $value */
                 $value = $attributes[$code];
                 $values[] = $value;
             }
 
             $values = array_values(array_unique(array_merge(...$values)));
 
-            /** @var array $currentValues */
-            $currentValues = $target->{$property};
-            $target->{$property} = array_merge($currentValues, $values);
+            /** @var list<string> $currentValues */
+            $currentValues = $target->{$property}; // @phpstan-ignore property.dynamicName
+            $target->{$property} = array_merge($currentValues, $values); // @phpstan-ignore property.dynamicName
         }
     }
 }

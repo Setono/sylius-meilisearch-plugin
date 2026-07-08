@@ -16,7 +16,7 @@ final class AttributesDataMapperTest extends FunctionalTestCase
 {
     public function testItMapsProductAttributesToDocumentProperties(): void
     {
-        /** @var ProductRepositoryInterface $productRepository */
+        /** @var ProductRepositoryInterface<\Sylius\Component\Core\Model\ProductInterface> $productRepository */
         $productRepository = self::getContainer()->get('sylius.repository.product');
         /** @var Product $jeansProduct */
         $jeansProduct = $productRepository->findOneBy(['code' => '990M_regular_fit_jeans']);

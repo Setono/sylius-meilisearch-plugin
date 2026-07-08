@@ -9,11 +9,8 @@ use Setono\SyliusMeilisearchPlugin\Model\IndexableAwareTrait;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Sylius\Component\Core\Model\Taxon as BaseTaxon;
 
-/**
- * @ORM\Entity
- *
- * @ORM\Table(name="sylius_taxon")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'sylius_taxon')]
 class Taxon extends BaseTaxon implements IndexableInterface
 {
     use IndexableAwareTrait;

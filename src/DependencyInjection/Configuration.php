@@ -103,7 +103,7 @@ INFO, ToggleableInterface::class, EntityFilterInterface::class, QueryBuilderForD
                     ->children()
                         ->booleanNode('cache')
                             ->info('Whether or not to cache the metadata')
-                            ->defaultValue(!'%kernel.debug%')
+                            ->defaultValue(false)
                         ->end()
                     ->end()
                 ->end()

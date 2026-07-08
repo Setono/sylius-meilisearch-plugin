@@ -12,6 +12,9 @@ use function Symfony\Component\String\u;
 
 final class CheckboxFilterFormBuilder implements FilterFormBuilderInterface
 {
+    /**
+     * @param FormBuilderInterface<mixed> $builder
+     */
     public function build(FormBuilderInterface $builder, Facet $facet, FacetValues $values): void
     {
         $builder->add($facet->name, CheckboxType::class, [

@@ -21,9 +21,6 @@ final class Source
         return [] !== $this->templates;
     }
 
-    /**
-     * @psalm-assert-if-true string $this->templates[$template]
-     */
     public function hasTemplate(string $template): bool
     {
         return isset($this->templates[$template]);
@@ -31,7 +28,7 @@ final class Source
 
     public function getTemplate(string $template): string
     {
-        if (!$this->hasTemplate($template)) {
+        if (!isset($this->templates[$template])) {
             throw new \InvalidArgumentException(sprintf('The template "%s" does not exist', $template));
         }
 

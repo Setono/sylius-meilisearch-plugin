@@ -36,9 +36,6 @@ final class FacetDistribution implements \Countable, \IteratorAggregate, \ArrayA
         }
     }
 
-    /**
-     * @psalm-assert-if-true FacetValues $this->facetValues[$facet]
-     */
     public function has(string $facet): bool
     {
         return isset($this->facetValues[$facet]);
@@ -46,7 +43,7 @@ final class FacetDistribution implements \Countable, \IteratorAggregate, \ArrayA
 
     public function get(string $facet): FacetValues
     {
-        if (!$this->has($facet)) {
+        if (!isset($this->facetValues[$facet])) {
             throw new \InvalidArgumentException(sprintf('Facet "%s" does not exist', $facet));
         }
 
@@ -71,11 +68,17 @@ final class FacetDistribution implements \Countable, \IteratorAggregate, \ArrayA
         return [] === $this->facetValues;
     }
 
+    /**
+     * @param string $offset
+     */
     public function offsetExists(mixed $offset): bool
     {
         return $this->has($offset);
     }
 
+    /**
+     * @param string $offset
+     */
     public function offsetGet(mixed $offset): FacetValues
     {
         return $this->get($offset);

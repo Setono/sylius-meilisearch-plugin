@@ -19,13 +19,17 @@ class Synonym implements SynonymInterface
 
     protected ?int $id = null;
 
+    // @phpstan-ignore doctrine.columnType (nullable until initialized, which is the standard Sylius resource model pattern)
     protected ?string $term = null;
 
+    // @phpstan-ignore doctrine.columnType (nullable until initialized, which is the standard Sylius resource model pattern)
     protected ?string $synonym = null;
 
+    // @phpstan-ignore doctrine.associationType (the mapping targets the interface, which is resolved to a concrete class at runtime)
     protected ?LocaleInterface $locale = null;
 
     /** @var Collection<array-key, ChannelInterface> */
+    // @phpstan-ignore doctrine.associationType (the mapping targets the interface, which is resolved to a concrete class at runtime)
     protected Collection $channels;
 
     /** @var list<string>|null */

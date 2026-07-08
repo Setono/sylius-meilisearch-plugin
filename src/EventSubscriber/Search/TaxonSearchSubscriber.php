@@ -17,6 +17,9 @@ final class TaxonSearchSubscriber implements EventSubscriberInterface, ResetInte
 {
     private ?TaxonInterface $taxon = null;
 
+    /**
+     * @param TaxonRepositoryInterface<TaxonInterface> $taxonRepository
+     */
     public function __construct(
         private readonly TaxonRepositoryInterface $taxonRepository,
         private readonly LocaleContextInterface $localeContext,

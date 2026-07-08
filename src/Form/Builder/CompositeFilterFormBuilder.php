@@ -14,6 +14,9 @@ use Symfony\Component\Form\FormBuilderInterface;
  */
 final class CompositeFilterFormBuilder extends CompositeService implements FilterFormBuilderInterface
 {
+    /**
+     * @param FormBuilderInterface<mixed> $builder
+     */
     public function build(FormBuilderInterface $builder, Facet $facet, FacetValues $values): void
     {
         foreach ($this->services as $service) {
