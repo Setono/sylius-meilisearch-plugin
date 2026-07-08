@@ -1,0 +1,21 @@
+# Meilisearch for the functional and end-to-end tests.
+# The database is not containerized (use your local MySQL/MariaDB, or the MySQL service in CI).
+# Keep the image version in sync with the service containers in .github/workflows/build.yaml.
+name: "setono-sylius-meilisearch-plugin"
+
+services:
+    meilisearch:
+        image: "getmeili/meilisearch:v1.49"
+        environment:
+            MEILI_MASTER_KEY: "aSampleMasterKey" # matches MEILISEARCH_MASTER_KEY in .env
+            MEILI_NO_ANALYTICS: "true"
+        ports:
+            - "7700:7700"
+        # No volume on purpose: `docker compose down && docker compose up -d` gives a fresh
+        # instance, which avoids the stale-document drift you get from a long-lived index.
+        # localhost resolves to IPv6 inside the container, but Meilisearch binds IPv4 only, so use 127.0.0.1
+        healthcheck:
+            test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:7700/health"]
+            interval: "2s"
+            timeout: "3s"
+            retries: 30

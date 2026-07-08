@@ -22,7 +22,7 @@ After changing code, run `composer fix-style`, `composer analyse`, and `(cd test
 
 ### Functional tests
 
-The Functional suite needs MariaDB/MySQL and Meilisearch on `:7700` with master key `aSampleMasterKey` (start one with `tests/Application/meilisearch.sh`, or see the service container in `.github/workflows/build.yaml`). Setup chain (all from `tests/Application`, with `APP_ENV=test` — the test env ignores `.env.local`, which may hold real cloud credentials):
+The Functional suite needs MariaDB/MySQL and Meilisearch on `:7700` with master key `aSampleMasterKey`. Start Meilisearch with `cd tests/Application && docker compose up -d --wait` (or `tests/Application/meilisearch.sh` without Docker; the CI service container is in `.github/workflows/build.yaml`). Keep the compose image version in sync with the CI service containers. Setup chain (all from `tests/Application`, with `APP_ENV=test` — the test env ignores `.env.local`, which may hold real cloud credentials):
 
 ```shell
 bin/console doctrine:database:create
@@ -32,7 +32,11 @@ bin/console setono:sylius-meilisearch:index --wait
 cd ../.. && vendor/bin/phpunit --testsuite Functional
 ```
 
-Note: repeated fixture loads accumulate stale documents in a long-lived local Meilisearch (indexes are only added to, never purged), which can make index-vs-database comparisons drift. CI uses a fresh container per run.
+Note: repeated fixture loads accumulate stale documents in a long-lived local Meilisearch (indexes are only added to, never purged), which can make index-vs-database comparisons drift. `docker compose down && docker compose up -d` resets the instance (the compose service has no volume); CI uses a fresh container per run.
+
+### E2E tests (Playwright)
+
+Browser tests for the shop search page and autocomplete widget live in `tests/Application/e2e/*.spec.ts` and run with `(cd tests/Application && yarn e2e)` (single-cell `e2e-tests` job in `build.yaml`). Prerequisites are the same DB/fixtures/index chain as Functional, plus `yarn install && yarn build && bin/console assets:install` and the Symfony CLI. `yarn e2e` auto-starts the app via `e2e/serve.sh`, which resolves `MEILISEARCH_SEARCH_KEY` from the running Meilisearch (the browser queries Meilisearch directly for autocomplete) and runs `symfony serve` in `APP_ENV=test`. The search form is AJAX-driven (`src/Resources/public/js/search.js` swaps the `#search-form` node + `history.pushState`), so specs wait on `toHaveURL(...)` after each interaction. Note: the untracked `.mcp.json` configures the Playwright MCP server for agent-driven browsing — unrelated to this suite.
 
 ### Dependency extremes
 

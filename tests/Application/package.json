@@ -3,10 +3,13 @@
   "scripts": {
     "build": "encore dev",
     "build:prod": "encore production",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
     "postinstall": "semantic-ui-css-patch",
     "watch": "encore dev --watch"
   },
   "devDependencies": {
+    "@playwright/test": "1.61.1",
     "@sylius-ui/frontend": "^1.0.3"
   },
   "resolutions": {
