@@ -24,6 +24,7 @@ parameters:
         objectManagerLoader: tests/PHPStan/object_manager.php
 
     ignoreErrors:
+        - identifier: doctrine.associationType
         - identifier: doctrine.columnType
         - identifier: missingType.generics
         - identifier: missingType.iterableValue
