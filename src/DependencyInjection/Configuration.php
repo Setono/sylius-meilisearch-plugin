@@ -21,7 +21,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
-    public function __construct(private readonly bool $debug)
+    public function __construct(private readonly bool $debug = true)
     {
     }
 

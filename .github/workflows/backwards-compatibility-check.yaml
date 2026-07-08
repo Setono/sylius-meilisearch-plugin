@@ -13,7 +13,7 @@ jobs:
 
         steps:
             -   name: "Checkout"
-                uses: "actions/checkout@v4"
+                uses: "actions/checkout@v6"
                 with:
                     fetch-depth: 0
 
@@ -22,6 +22,11 @@ jobs:
                 with:
                     php-version: "8.1"
                     coverage: "none"
+
+            # The baseline (the base branch) is installed by the tool with the current composer,
+            # which by default refuses to install packages with known security advisories
+            -   name: "Allow composer to install packages with security advisories"
+                run: "composer config --global policy.advisories.block false"
 
             -   name: "Install tool"
                 run: "composer global require roave/backward-compatibility-check"
