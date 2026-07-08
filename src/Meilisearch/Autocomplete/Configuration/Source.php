@@ -28,7 +28,7 @@ final class Source
 
     public function getTemplate(string $template): string
     {
-        if (!isset($this->templates[$template])) {
+        if (!$this->hasTemplate($template)) {
             throw new \InvalidArgumentException(sprintf('The template "%s" does not exist', $template));
         }
 

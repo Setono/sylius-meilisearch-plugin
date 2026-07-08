@@ -77,18 +77,12 @@ final class Index implements \Stringable
 
     public function indexer(): IndexerInterface
     {
-        /** @var IndexerInterface $indexer */
-        $indexer = $this->locator->get(IndexerInterface::class);
-
-        return $indexer;
+        return $this->locator->get(IndexerInterface::class);
     }
 
     public function dataProvider(): IndexableDataProviderInterface
     {
-        /** @var IndexableDataProviderInterface $dataProvider */
-        $dataProvider = $this->locator->get(IndexableDataProviderInterface::class);
-
-        return $dataProvider;
+        return $this->locator->get(IndexableDataProviderInterface::class);
     }
 
     /**
@@ -97,18 +91,12 @@ final class Index implements \Stringable
      */
     public function uid(): string
     {
-        /** @var IndexUidResolverInterface $indexNameResolver */
-        $indexNameResolver = $this->locator->get(IndexUidResolverInterface::class);
-
-        return $indexNameResolver->resolve($this);
+        return $this->locator->get(IndexUidResolverInterface::class)->resolve($this);
     }
 
     public function metadata(): Metadata
     {
-        /** @var MetadataFactoryInterface $metadataFactory */
-        $metadataFactory = $this->locator->get(MetadataFactoryInterface::class);
-
-        return $metadataFactory->getMetadataFor($this->document);
+        return $this->locator->get(MetadataFactoryInterface::class)->getMetadataFor($this->document);
     }
 
     public function __toString(): string

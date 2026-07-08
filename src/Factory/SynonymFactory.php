@@ -10,9 +10,6 @@ use Webmozart\Assert\Assert;
 
 final class SynonymFactory implements SynonymFactoryInterface
 {
-    /**
-     * @param FactoryInterface<object> $decorated
-     */
     public function __construct(private readonly FactoryInterface $decorated)
     {
     }

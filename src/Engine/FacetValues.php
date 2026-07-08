@@ -38,9 +38,6 @@ final class FacetValues implements \Countable, \IteratorAggregate, \ArrayAccess
      */
     private array $values = [];
 
-    /**
-     * @param array<mixed> $values
-     */
     public function __construct(
         public readonly string $name,
         array $values,
@@ -68,7 +65,7 @@ final class FacetValues implements \Countable, \IteratorAggregate, \ArrayAccess
 
     public function getValueCount(string $value): int
     {
-        if (!isset($this->values[$value])) {
+        if (!$this->has($value)) {
             throw new \InvalidArgumentException(sprintf('Facet value "%s" does not exist', $value));
         }
 

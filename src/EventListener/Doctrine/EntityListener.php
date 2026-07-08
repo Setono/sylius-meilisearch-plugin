@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\EventListener\Doctrine;
 
 use Doctrine\Persistence\Event\LifecycleEventArgs;
-use Doctrine\Persistence\ObjectManager;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntity;
 use Setono\SyliusMeilisearchPlugin\Message\Command\RemoveEntity;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
@@ -24,25 +23,16 @@ final class EntityListener
         $this->removeIndexableStorage = new SplObjectStorage();
     }
 
-    /**
-     * @param LifecycleEventArgs<ObjectManager> $eventArgs
-     */
     public function postPersist(LifecycleEventArgs $eventArgs): void
     {
         $this->dispatch($eventArgs, static fn (IndexableInterface $entity) => IndexEntity::new($entity));
     }
 
-    /**
-     * @param LifecycleEventArgs<ObjectManager> $eventArgs
-     */
     public function postUpdate(LifecycleEventArgs $eventArgs): void
     {
         $this->dispatch($eventArgs, static fn (IndexableInterface $entity) => IndexEntity::new($entity));
     }
 
-    /**
-     * @param LifecycleEventArgs<ObjectManager> $eventArgs
-     */
     public function preRemove(LifecycleEventArgs $eventArgs): void
     {
         $indexable = self::extractIndexableFromEvent($eventArgs);
@@ -52,9 +42,6 @@ final class EntityListener
         }
     }
 
-    /**
-     * @param LifecycleEventArgs<ObjectManager> $eventArgs
-     */
     public function postRemove(LifecycleEventArgs $eventArgs): void
     {
         $indexable = self::extractIndexableFromEvent($eventArgs);
@@ -76,7 +63,6 @@ final class EntityListener
     }
 
     /**
-     * @param LifecycleEventArgs<ObjectManager> $eventArgs
      * @param callable(IndexableInterface):object $message
      */
     private function dispatch(LifecycleEventArgs $eventArgs, callable $message): void
@@ -88,9 +74,6 @@ final class EntityListener
         }
     }
 
-    /**
-     * @param LifecycleEventArgs<ObjectManager> $eventArgs
-     */
     private static function extractIndexableFromEvent(LifecycleEventArgs $eventArgs): ?IndexableInterface
     {
         $obj = $eventArgs->getObject();

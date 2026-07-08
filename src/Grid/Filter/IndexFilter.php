@@ -9,10 +9,6 @@ use Sylius\Component\Grid\Filtering\FilterInterface;
 
 class IndexFilter implements FilterInterface
 {
-    /**
-     * @param mixed $data
-     * @param array<string, mixed> $options
-     */
     public function apply(DataSourceInterface $dataSource, string $name, $data, array $options): void
     {
         if (!is_string($data) || '' === $data) {

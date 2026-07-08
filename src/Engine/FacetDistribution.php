@@ -43,7 +43,7 @@ final class FacetDistribution implements \Countable, \IteratorAggregate, \ArrayA
 
     public function get(string $facet): FacetValues
     {
-        if (!isset($this->facetValues[$facet])) {
+        if (!$this->has($facet)) {
             throw new \InvalidArgumentException(sprintf('Facet "%s" does not exist', $facet));
         }
 

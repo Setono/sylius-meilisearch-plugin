@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\EventListener\Doctrine;
 
 use Doctrine\Persistence\Event\LifecycleEventArgs;
-use Doctrine\Persistence\ObjectManager;
 use Setono\SyliusMeilisearchPlugin\Message\Command\UpdateSynonyms;
 use Setono\SyliusMeilisearchPlugin\Model\SynonymInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -20,25 +19,16 @@ final class SynonymListener implements EventSubscriberInterface
     {
     }
 
-    /**
-     * @param LifecycleEventArgs<ObjectManager> $eventArgs
-     */
     public function postPersist(LifecycleEventArgs $eventArgs): void
     {
         $this->handle($eventArgs);
     }
 
-    /**
-     * @param LifecycleEventArgs<ObjectManager> $eventArgs
-     */
     public function postUpdate(LifecycleEventArgs $eventArgs): void
     {
         $this->handle($eventArgs);
     }
 
-    /**
-     * @param LifecycleEventArgs<ObjectManager> $eventArgs
-     */
     public function postRemove(LifecycleEventArgs $eventArgs): void
     {
         $this->handle($eventArgs);
@@ -46,8 +36,6 @@ final class SynonymListener implements EventSubscriberInterface
 
     /**
      * This method can be called multiple times in the same request, therefore we set a flag to only dispatch the command once
-     *
-     * @param LifecycleEventArgs<ObjectManager> $eventArgs
      */
     public function handle(LifecycleEventArgs $eventArgs): void
     {

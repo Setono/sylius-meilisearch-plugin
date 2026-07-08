@@ -9,8 +9,5 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 interface SortingFormBuilderInterface
 {
-    /**
-     * @param FormBuilderInterface<mixed> $searchFormBuilder
-     */
     public function build(FormBuilderInterface $searchFormBuilder, Metadata $metadata): void;
 }

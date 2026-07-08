@@ -21,6 +21,10 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
+    public function __construct(private readonly bool $debug)
+    {
+    }
+
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('setono_sylius_meilisearch');
@@ -103,7 +107,7 @@ INFO, ToggleableInterface::class, EntityFilterInterface::class, QueryBuilderForD
                     ->children()
                         ->booleanNode('cache')
                             ->info('Whether or not to cache the metadata')
-                            ->defaultValue(false)
+                            ->defaultValue(!$this->debug)
                         ->end()
                     ->end()
                 ->end()

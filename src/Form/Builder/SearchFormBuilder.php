@@ -25,9 +25,6 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
     ) {
     }
 
-    /**
-     * @return FormInterface<mixed>
-     */
     public function build(SearchResult $searchResult): FormInterface
     {
         $metadata = $this->metadataFactory->getMetadataFor($this->index->document);
@@ -67,9 +64,6 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
         return $searchFormBuilder->getForm();
     }
 
-    /**
-     * @param FormBuilderInterface<mixed> $builder
-     */
     private function buildPagination(SearchResult $searchResult, FormBuilderInterface $builder): void
     {
         $choices = [];

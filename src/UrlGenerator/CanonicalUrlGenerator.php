@@ -14,9 +14,6 @@ final class CanonicalUrlGenerator implements CanonicalUrlGeneratorInterface
     ) {
     }
 
-    /**
-     * @param array<string, mixed> $parameters
-     */
     public function generate(Request $request, array $parameters = []): string
     {
         /** @var string|null $routeName */

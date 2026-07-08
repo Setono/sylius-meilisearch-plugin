@@ -13,9 +13,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 final class SortingFormBuilder implements SortingFormBuilderInterface
 {
-    /**
-     * @param FormBuilderInterface<mixed> $searchFormBuilder
-     */
     public function build(FormBuilderInterface $searchFormBuilder, Metadata $metadata): void
     {
         $choices = [];

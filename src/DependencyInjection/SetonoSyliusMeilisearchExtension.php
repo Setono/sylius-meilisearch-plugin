@@ -54,7 +54,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
          *      metadata: array{ cache: bool },
          *      search: array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ path: string } },
          *      autocomplete: array{ enabled: bool, indexes: list<string>, container: string, placeholder: string },
-         *      resources: array<string, mixed>,
+         *      resources: array,
          * } $config
          */
         $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);
@@ -95,6 +95,11 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         self::registerIndexesConfiguration($config['indexes'], $container);
         self::registerSearchConfiguration($config['search'], array_keys($config['indexes']), $container, $loader);
         self::registerAutocompleteConfiguration($config['autocomplete'], array_keys($config['indexes']), $container, $loader);
+    }
+
+    public function getConfiguration(array $config, ContainerBuilder $container): Configuration
+    {
+        return new Configuration((bool) $container->getParameter('kernel.debug'));
     }
 
     public function prepend(ContainerBuilder $container): void

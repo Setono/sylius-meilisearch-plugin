@@ -33,7 +33,7 @@ jobs:
 
         steps:
             -   name: "Checkout"
-                uses: "actions/checkout@v5"
+                uses: "actions/checkout@v6"
 
             -   name: "Setup PHP, with composer and extensions"
                 uses: "shivammathur/setup-php@v2"
@@ -86,7 +86,7 @@ jobs:
 
         steps:
             -   name: "Checkout"
-                uses: "actions/checkout@v5"
+                uses: "actions/checkout@v6"
 
             -   name: "Setup PHP, with composer and extensions"
                 uses: "shivammathur/setup-php@v2"
@@ -133,7 +133,7 @@ jobs:
 
         steps:
             -   name: "Checkout"
-                uses: "actions/checkout@v5"
+                uses: "actions/checkout@v6"
 
             -   name: "Setup PHP, with composer and extensions"
                 uses: "shivammathur/setup-php@v2"
@@ -177,7 +177,7 @@ jobs:
 
         steps:
             -   name: "Checkout"
-                uses: "actions/checkout@v5"
+                uses: "actions/checkout@v6"
 
             -   name: "Setup PHP, with composer and extensions"
                 uses: "shivammathur/setup-php@v2"
@@ -229,7 +229,7 @@ jobs:
                 run: "sudo /etc/init.d/mysql start"
 
             -   name: "Checkout"
-                uses: "actions/checkout@v5"
+                uses: "actions/checkout@v6"
 
             -   name: "Setup PHP, with composer and extensions"
                 uses: "shivammathur/setup-php@v2"
@@ -282,7 +282,7 @@ jobs:
 
         steps:
             -   name: "Checkout"
-                uses: "actions/checkout@v5"
+                uses: "actions/checkout@v6"
 
             -   name: "Setup PHP, with composer and extensions"
                 uses: "shivammathur/setup-php@v2"
@@ -316,7 +316,7 @@ jobs:
 
         steps:
             -   name: "Checkout"
-                uses: "actions/checkout@v5"
+                uses: "actions/checkout@v6"
 
             -   name: "Setup PHP, with composer and extensions"
                 uses: "shivammathur/setup-php@v2"
@@ -334,6 +334,6 @@ jobs:
                 run: "vendor/bin/phpunit --coverage-clover=.build/logs/clover.xml --testsuite Unit"
 
             -   name: "Send code coverage report to Codecov.io"
-                uses: "codecov/codecov-action@v4"
+                uses: "codecov/codecov-action@v5"
                 with:
                     token: "${{ secrets.CODECOV_TOKEN }}"

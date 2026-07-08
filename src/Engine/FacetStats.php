@@ -10,9 +10,6 @@ final class FacetStats
 
     public readonly float|int $max;
 
-    /**
-     * @param array<mixed> $values
-     */
     public function __construct(
         public readonly string $name,
         array $values,

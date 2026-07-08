@@ -16,8 +16,6 @@ final class TraceableClient extends Client
 
     /**
      * @param list<SearchQuery> $queries
-     *
-     * @return array<mixed>
      */
     public function multiSearch(array $queries = [], ?MultiSearchFederation $federation = null): array
     {

@@ -10,9 +10,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 interface FilterFormBuilderInterface
 {
-    /**
-     * @param FormBuilderInterface<mixed> $builder
-     */
     public function build(FormBuilderInterface $builder, Facet $facet, FacetValues $values): void;
 
     public function supports(Facet $facet, FacetValues $values): bool;
