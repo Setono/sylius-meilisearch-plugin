@@ -21,7 +21,7 @@ final class IndexChoiceType extends AbstractType
 
         $resolver->setDefaults([
             'choices' => array_combine($names, $names),
-            'choice_label' => static fn (string $name): string => ucfirst($name),
+            'choice_label' => ucfirst(...),
         ]);
     }
 

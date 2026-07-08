@@ -91,18 +91,12 @@ final class Index implements \Stringable
      */
     public function uid(): string
     {
-        /** @var IndexUidResolverInterface $indexNameResolver */
-        $indexNameResolver = $this->locator->get(IndexUidResolverInterface::class);
-
-        return $indexNameResolver->resolve($this);
+        return $this->locator->get(IndexUidResolverInterface::class)->resolve($this);
     }
 
     public function metadata(): Metadata
     {
-        /** @var MetadataFactoryInterface $metadataFactory */
-        $metadataFactory = $this->locator->get(MetadataFactoryInterface::class);
-
-        return $metadataFactory->getMetadataFor($this->document);
+        return $this->locator->get(MetadataFactoryInterface::class)->getMetadataFor($this->document);
     }
 
     public function __toString(): string

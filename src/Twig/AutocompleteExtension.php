@@ -18,8 +18,8 @@ final class AutocompleteExtension extends AbstractExtension
      */
     public function getFunctions(): array
     {
-        /** @psalm-suppress InvalidArgument */
         return [
+            // @phpstan-ignore argument.type (Twig resolves the runtime-class callable at runtime)
             new TwigFunction('ssm_autocomplete_configuration', [AutocompleteRuntime::class, 'configuration'], ['needs_environment' => true, 'is_safe' => ['html']]),
             new TwigFunction('ssm_autocomplete_enabled', $this->isEnabled(...)),
         ];

@@ -22,6 +22,9 @@ final class DefaultIndexableDataProvider implements IndexableDataProviderInterfa
         $this->managerRegistry = $managerRegistry;
     }
 
+    /**
+     * @return \Generator<array-key, string|int>
+     */
     public function getIds(string $entity, Index $index): \Generator
     {
         $qb = $this

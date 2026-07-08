@@ -14,6 +14,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final class EntityListener
 {
+    /** @var SplObjectStorage<IndexableInterface, int|string|null> */
     private readonly SplObjectStorage $removeIndexableStorage;
 
     public function __construct(
@@ -49,7 +50,6 @@ final class EntityListener
             return;
         }
 
-        /** @var ?int $entityId */
         $entityId = $this->removeIndexableStorage[$indexable] ?? null;
 
         if (null === $entityId) {

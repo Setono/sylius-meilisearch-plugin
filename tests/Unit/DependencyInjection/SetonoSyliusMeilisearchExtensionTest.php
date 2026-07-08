@@ -15,6 +15,13 @@ use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product as ProductEn
  */
 final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->container->setParameter('kernel.debug', true);
+    }
+
     protected function getContainerExtensions(): array
     {
         return [

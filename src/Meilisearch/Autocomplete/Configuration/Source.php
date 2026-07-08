@@ -21,9 +21,6 @@ final class Source
         return [] !== $this->templates;
     }
 
-    /**
-     * @psalm-assert-if-true string $this->templates[$template]
-     */
     public function hasTemplate(string $template): bool
     {
         return isset($this->templates[$template]);

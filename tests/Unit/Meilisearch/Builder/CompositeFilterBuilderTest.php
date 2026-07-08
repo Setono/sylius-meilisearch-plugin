@@ -35,7 +35,7 @@ final class CompositeFilterBuilderTest extends TestCase
             ['onSale' => true, 'ecoFriendly' => true, 'brand' => ['brand1'], 'size' => ['size1', 'size2']],
         );
 
-        $this->assertSame([
+        self::assertSame([
             '(brand = "brand1")',
             '(size = "size1" OR size = "size2")',
             'onSale = true',

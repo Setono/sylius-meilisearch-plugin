@@ -8,6 +8,7 @@ use Meilisearch\Client;
 use Meilisearch\Search\SearchResult as MeilisearchSearchResult;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Query\MultiSearchBuilderInterface;
+use Webmozart\Assert\Assert;
 
 final class SearchEngine implements SearchEngineInterface
 {
@@ -22,21 +23,29 @@ final class SearchEngine implements SearchEngineInterface
     {
         $queries = $this->multiSearchBuilder->build($this->index, $searchRequest);
 
-        /** @var array<MeilisearchSearchResult> $results */
-        $results = $this->client->multiSearch($queries)['results'] ?? [];
+        $response = $this->client->multiSearch($queries);
+        Assert::isArray($response);
+
+        /** @var list<array<string, mixed>> $results */
+        $results = $response['results'] ?? [];
 
         $result = $this->provideSearchResult($results);
 
         return SearchResult::fromMeilisearchSearchResult($this->index, $result);
     }
 
+    /**
+     * @param list<array<string, mixed>> $results
+     */
     private function provideSearchResult(array $results): MeilisearchSearchResult
     {
-        /** @var array{facetDistribution: array<string, int>} $firstResult */
+        /** @var array{facetDistribution?: array<string, array<string, int>>} $firstResult */
         $firstResult = current($results);
 
-        /** @psalm-suppress MixedArgument (just for now) */
-        $firstResult['facetDistribution'] = array_merge(...array_column($results, 'facetDistribution'));
+        /** @var list<array<string, array<string, int>>> $facetDistributions */
+        $facetDistributions = array_column($results, 'facetDistribution');
+
+        $firstResult['facetDistribution'] = array_merge(...$facetDistributions);
 
         return new MeilisearchSearchResult($firstResult);
     }

@@ -1,0 +1,35 @@
+parameters:
+    level: max
+
+    paths:
+        - src
+        - tests
+
+    excludePaths:
+        - tests/Application/*
+
+    bootstrapFiles:
+        - vendor/autoload.php
+
+    stubFiles:
+        - stubs/Psr/Container/ContainerInterface.stub
+
+    # Symfony Configuration
+    symfony:
+        consoleApplicationLoader: tests/PHPStan/console_application.php
+
+    # Doctrine Configuration
+    doctrine:
+        repositoryClass: Doctrine\ORM\EntityRepository
+        objectManagerLoader: tests/PHPStan/object_manager.php
+
+    ignoreErrors:
+        - identifier: doctrine.associationType
+        - identifier: doctrine.columnType
+        - identifier: missingType.generics
+        - identifier: missingType.iterableValue
+        - identifier: missingType.parameter
+        - identifier: trait.unused
+
+    reportUnmatchedIgnoredErrors: false
+    treatPhpDocTypesAsCertain: false

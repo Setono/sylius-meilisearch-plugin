@@ -11,9 +11,12 @@ use Webmozart\Assert\Assert;
 
 final class TraceableClient extends Client
 {
-    /** @var list<array{queries: list<SearchQuery>, results: array}> */
+    /** @var list<array{queries: list<SearchQuery>, results: array<mixed>}> */
     private array $multiSearchRequests = [];
 
+    /**
+     * @param list<SearchQuery> $queries
+     */
     public function multiSearch(array $queries = [], ?MultiSearchFederation $federation = null): array
     {
         $results = parent::multiSearch($queries, $federation);
@@ -28,7 +31,7 @@ final class TraceableClient extends Client
     }
 
     /**
-     * @return list<array{queries: list<SearchQuery>, results: array}>
+     * @return list<array{queries: list<SearchQuery>, results: array<mixed>}>
      */
     public function getMultiSearchRequests(): array
     {

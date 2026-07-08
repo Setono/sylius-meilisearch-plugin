@@ -83,7 +83,7 @@ final class PopularityDataMapper implements DataMapperInterface
                 ->createQueryBuilder()
                 ->select('o.id')
                 ->from($this->orderClass, 'o')
-                ->andwhere('o.createdAt >= :date')
+                ->andWhere('o.createdAt >= :date')
                 ->setMaxResults(1)
                 ->addOrderBy('o.id', 'ASC')
                 ->setParameter('date', new \DateTimeImmutable('-' . $this->popularityLookBackPeriod))

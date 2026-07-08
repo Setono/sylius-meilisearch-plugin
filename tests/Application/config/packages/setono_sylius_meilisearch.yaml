@@ -1,3 +1,10 @@
+parameters:
+    # Fallbacks so the container can boot without Dotenv (e.g. PHPStan's kernel loaders)
+    env(MEILISEARCH_URL): 'http://127.0.0.1:7700'
+    env(MEILISEARCH_MASTER_KEY): ''
+    env(MEILISEARCH_PREFIX): ''
+    env(MEILISEARCH_SEARCH_KEY): ''
+
 setono_sylius_meilisearch:
     indexes:
         products:

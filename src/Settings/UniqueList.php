@@ -54,9 +54,10 @@ final class UniqueList implements \JsonSerializable, \ArrayAccess, \IteratorAggr
 
     public function offsetUnset(mixed $offset): void
     {
-        unset($this->items[$offset]);
+        $items = $this->items;
+        unset($items[$offset]);
 
-        $this->items = array_values($this->items);
+        $this->items = array_values($items);
     }
 
     /**
@@ -71,6 +72,9 @@ final class UniqueList implements \JsonSerializable, \ArrayAccess, \IteratorAggr
         return $this->items;
     }
 
+    /**
+     * @return \ArrayIterator<int, string>
+     */
     public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->items);

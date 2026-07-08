@@ -46,6 +46,9 @@ final class SettingsNormalizer implements NormalizerInterface
         return $data instanceof Settings;
     }
 
+    /**
+     * @return array<class-string, bool>
+     */
     public function getSupportedTypes(?string $format): array
     {
         return [

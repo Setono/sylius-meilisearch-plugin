@@ -38,6 +38,9 @@ final class SizeSorterTest extends TestCase
         );
     }
 
+    /**
+     * @return array<array-key, string>
+     */
     private function getChoices(): array
     {
         return [
@@ -125,6 +128,9 @@ final class SizeSorterTest extends TestCase
         ];
     }
 
+    /**
+     * @return array<array-key, string>
+     */
     private function getSortedChoices(): array
     {
         return [

@@ -27,8 +27,8 @@ final class SynonymResolver implements SynonymResolverInterface
             $resolvedSynonyms[$synonym['term']][] = $synonym['synonym'];
         }
 
-        foreach ($resolvedSynonyms as $term => $synonyms) {
-            $resolvedSynonyms[$term] = array_values(array_unique($synonyms));
+        foreach ($resolvedSynonyms as $term => $termSynonyms) {
+            $resolvedSynonyms[$term] = array_values(array_unique($termSynonyms));
         }
 
         return $resolvedSynonyms;

@@ -17,6 +17,7 @@ final class Document extends BaseDocument
     #[Searchable]
     public ?string $name = null;
 
+    /** @var list<string> */
     #[Facetable]
     #[MapProductOption(['t_shirt_size', 'dress_size'])]
     public array $size = [];
@@ -25,6 +26,7 @@ final class Document extends BaseDocument
     #[Sortable]
     public ?int $price = null;
 
+    /** @var list<string> */
     #[Filterable]
     public array $taxons = [];
 

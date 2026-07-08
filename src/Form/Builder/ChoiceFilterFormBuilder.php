@@ -20,7 +20,6 @@ final class ChoiceFilterFormBuilder implements FilterFormBuilderInterface
         /** @var class-string<FilterValuesSorterInterface> $sorter */
         $sorter = $facet->sorter;
         if ($facet->sorter !== null) {
-            /** @var array $choices */
             $choices = (new $sorter())->sort($choices);
         }
 

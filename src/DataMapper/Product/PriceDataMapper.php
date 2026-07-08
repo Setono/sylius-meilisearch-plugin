@@ -19,6 +19,9 @@ use Webmozart\Assert\Assert;
 
 final class PriceDataMapper implements DataMapperInterface
 {
+    /**
+     * @param ChannelRepositoryInterface<ChannelInterface> $channelRepository
+     */
     public function __construct(
         private readonly ChannelRepositoryInterface $channelRepository,
         private readonly CurrencyConverterInterface $currencyConverter,

@@ -45,7 +45,7 @@ final class ImageDataMapper implements DataMapperInterface
                 referenceType: UrlGeneratorInterface::ABSOLUTE_PATH,
             );
 
-            $target->{$imageAttribute->name} = $imageUrl;
+            $target->{$imageAttribute->name} = $imageUrl; // @phpstan-ignore property.dynamicName
         }
     }
 

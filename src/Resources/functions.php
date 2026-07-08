@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin;
 
-/** @psalm-suppress UndefinedClass,MixedArgument */
-if (!\function_exists(formatAmount::class)) {
+if (!\function_exists(__NAMESPACE__ . '\formatAmount')) {
     function formatAmount(int $amount): float
     {
         return round($amount / 100, 2);

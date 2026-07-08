@@ -14,6 +14,9 @@ use Webmozart\Assert\Assert;
 
 final class AttributesDataMapperValuesProvider implements DataMapperValuesProviderInterface
 {
+    /**
+     * @return array<string, bool|float|int|string|list<string>>
+     */
     public function provide(IndexableInterface $source, IndexScope $indexScope): array
     {
         Assert::isInstanceOf($source, ProductInterface::class);
@@ -32,10 +35,10 @@ final class AttributesDataMapperValuesProvider implements DataMapperValuesProvid
             Assert::notNull($storageType);
 
             $convertedValue = match ($storageType) {
-                AttributeValueInterface::STORAGE_TEXT => (string) $value,
+                AttributeValueInterface::STORAGE_TEXT => null === $value || is_scalar($value) ? (string) $value : null,
                 AttributeValueInterface::STORAGE_BOOLEAN => (bool) $value,
-                AttributeValueInterface::STORAGE_INTEGER => (int) $value,
-                AttributeValueInterface::STORAGE_FLOAT => (float) $value,
+                AttributeValueInterface::STORAGE_INTEGER => null === $value || is_scalar($value) ? (int) $value : null,
+                AttributeValueInterface::STORAGE_FLOAT => null === $value || is_scalar($value) ? (float) $value : null,
                 AttributeValueInterface::STORAGE_DATE => self::convertDate($value, 'Y-m-d'),
                 AttributeValueInterface::STORAGE_DATETIME => self::convertDate($value, \DATE_ATOM),
                 AttributeValueInterface::STORAGE_JSON => self::convertJson($value, $attribute, $indexScope->localeCode),
@@ -86,6 +89,8 @@ final class AttributesDataMapperValuesProvider implements DataMapperValuesProvid
      *     ]
      *   ]
      * ]
+     *
+     * @return list<string>|string|null
      */
     private static function convertJson(mixed $values, AttributeInterface $attribute, string $locale): array|string|null
     {

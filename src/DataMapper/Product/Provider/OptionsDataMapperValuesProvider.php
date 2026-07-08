@@ -13,9 +13,12 @@ use Webmozart\Assert\Assert;
 
 final class OptionsDataMapperValuesProvider implements DataMapperValuesProviderInterface
 {
+    /**
+     * @return array<string, list<string>>
+     */
     public function provide(IndexableInterface $source, IndexScope $indexScope): array
     {
-        Assert::isinstanceOf($source, ProductInterface::class);
+        Assert::isInstanceOf($source, ProductInterface::class);
 
         /** @var array<string, list<string>> $options */
         $options = [];

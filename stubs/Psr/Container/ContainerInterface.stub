@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Psr\Container;
 
 interface ContainerInterface
@@ -11,7 +9,7 @@ interface ContainerInterface
      *
      * @param class-string<T>|string $id
      *
-     * @return ($id is class-string ? T : object)
+     * @return ($id is class-string<T> ? T : object)
      */
     public function get(string $id);
 }

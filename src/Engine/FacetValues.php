@@ -72,9 +72,6 @@ final class FacetValues implements \Countable, \IteratorAggregate, \ArrayAccess
         return $this->values[$value];
     }
 
-    /**
-     * @psalm-assert-if-true int $this->values[$value]
-     */
     public function has(string $value): bool
     {
         return isset($this->values[$value]);
@@ -88,11 +85,17 @@ final class FacetValues implements \Countable, \IteratorAggregate, \ArrayAccess
         return new \ArrayIterator($this->values);
     }
 
+    /**
+     * @param string $offset
+     */
     public function offsetExists(mixed $offset): bool
     {
         return $this->has($offset);
     }
 
+    /**
+     * @param string $offset
+     */
     public function offsetGet(mixed $offset): int
     {
         return $this->values[$offset];

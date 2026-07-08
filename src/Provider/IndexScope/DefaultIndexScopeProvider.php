@@ -12,6 +12,9 @@ use Sylius\Component\Locale\Context\LocaleContextInterface;
 
 final class DefaultIndexScopeProvider implements IndexScopeProviderInterface
 {
+    /**
+     * @param ChannelRepositoryInterface<ChannelInterface> $channelRepository
+     */
     public function __construct(
         private readonly ChannelRepositoryInterface $channelRepository,
         private readonly ChannelContextInterface $channelContext,
@@ -21,7 +24,6 @@ final class DefaultIndexScopeProvider implements IndexScopeProviderInterface
 
     public function getAll(Index $index): iterable
     {
-        /** @var ChannelInterface[] $channels */
         $channels = $this->channelRepository->findBy([
             'enabled' => true,
         ]);

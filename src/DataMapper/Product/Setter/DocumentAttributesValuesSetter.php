@@ -13,6 +13,9 @@ final class DocumentAttributesValuesSetter implements DocumentPropertyValuesSett
     {
     }
 
+    /**
+     * @param array<string, bool|float|int|string|list<string>> $attributes
+     */
     public function setFor(Document $target, array $attributes): void
     {
         $metadata = $this->metadataFactory->getMetadataFor($target);
@@ -34,8 +37,9 @@ final class DocumentAttributesValuesSetter implements DocumentPropertyValuesSett
             $values = array_merge(...$values);
 
             if ($mappedProductAttribute->isPropertyTypeScalar()) {
-                $target->{$mappedProductAttribute->property} = $values[0];
+                $target->{$mappedProductAttribute->property} = $values[0]; // @phpstan-ignore property.dynamicName
             } else {
+                // @phpstan-ignore property.dynamicName, property.dynamicName
                 $target->{$mappedProductAttribute->property} = array_merge((array) $target->{$mappedProductAttribute->property}, $values);
             }
         }

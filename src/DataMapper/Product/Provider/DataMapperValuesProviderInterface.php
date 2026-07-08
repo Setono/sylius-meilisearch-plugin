@@ -9,5 +9,8 @@ use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 
 interface DataMapperValuesProviderInterface
 {
+    /**
+     * @return array<string, bool|float|int|string|list<string>>
+     */
     public function provide(IndexableInterface $source, IndexScope $indexScope): array;
 }

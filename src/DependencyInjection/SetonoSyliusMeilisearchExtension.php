@@ -97,6 +97,11 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         self::registerAutocompleteConfiguration($config['autocomplete'], array_keys($config['indexes']), $container, $loader);
     }
 
+    public function getConfiguration(array $config, ContainerBuilder $container): Configuration
+    {
+        return new Configuration((bool) $container->getParameter('kernel.debug'));
+    }
+
     public function prepend(ContainerBuilder $container): void
     {
         $container->prependExtensionConfig('framework', [

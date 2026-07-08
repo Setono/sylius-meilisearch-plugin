@@ -9,11 +9,8 @@ use Setono\SyliusMeilisearchPlugin\Model\IndexableAwareTrait;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Sylius\Component\Core\Model\Product as BaseProduct;
 
-/**
- * @ORM\Entity
- *
- * @ORM\Table(name="sylius_product")
- */
+#[ORM\Entity]
+#[ORM\Table(name: 'sylius_product')]
 class Product extends BaseProduct implements IndexableInterface
 {
     use IndexableAwareTrait;

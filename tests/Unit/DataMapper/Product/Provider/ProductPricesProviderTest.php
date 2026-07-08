@@ -41,8 +41,8 @@ final class ProductPricesProviderTest extends TestCase
 
         $productPrices = $this->getTestSubject()->getPricesForChannel($product, $channel);
 
-        $this->assertEquals(1000, $productPrices->price);
-        $this->assertEquals(2000, $productPrices->originalPrice);
+        self::assertEquals(1000, $productPrices->price);
+        self::assertEquals(2000, $productPrices->originalPrice);
     }
 
     public function test_it_returns_empty_object_if_no_variant_is_found(): void

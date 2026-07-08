@@ -13,7 +13,7 @@ final class ArrayFilterBuilder implements FilterBuilderInterface
         foreach ($facets as $facet) {
             $query = [];
 
-            if ($facet->type === 'array' && isset($facetsValues[$facet->name])) {
+            if ($facet->type === 'array' && isset($facetsValues[$facet->name]) && is_array($facetsValues[$facet->name])) {
                 /** @var mixed $value */
                 foreach ($facetsValues[$facet->name] as $value) {
                     if (!is_string($value) || '' === $value) {
