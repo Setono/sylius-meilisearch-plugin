@@ -16,7 +16,9 @@ use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableDataFilter\ChannelsA
 use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableDataFilter\EnabledFilter;
 use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableDataFilter\StockAvailableFilter;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\ChannelsAwareEntityFilter;
+use Setono\SyliusMeilisearchPlugin\Filter\Entity\EnabledEntityFilter;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
+use Setono\SyliusMeilisearchPlugin\Filter\Entity\StockAvailableEntityFilter;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\FilterFormBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\FilterValuesSorterInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
@@ -537,6 +539,11 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
             ->setArgument('$index', $indexName)
             ->addTag('kernel.event_subscriber')
         ;
+
+        $container->register(sprintf('setono_sylius_meilisearch.filter.entity.enabled.%s', $indexName), EnabledEntityFilter::class)
+            ->setArgument('$index', $indexName)
+            ->addTag('setono_sylius_meilisearch.entity_filter')
+        ;
     }
 
     /**
@@ -571,6 +578,11 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         $container->register(sprintf('setono_sylius_meilisearch.event_subscriber.indexable_data_filter.stock_available.%s', $indexName), StockAvailableFilter::class)
             ->setArgument('$index', $indexName)
             ->addTag('kernel.event_subscriber')
+        ;
+
+        $container->register(sprintf('setono_sylius_meilisearch.filter.entity.stock_available.%s', $indexName), StockAvailableEntityFilter::class)
+            ->setArgument('$index', $indexName)
+            ->addTag('setono_sylius_meilisearch.entity_filter')
         ;
     }
 
