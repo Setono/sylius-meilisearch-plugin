@@ -318,10 +318,52 @@ class SearchManager {
             return null;
         }
 
+        // Remember what was focused: replaceWith() removes the element the user just operated
+        // (a checkbox, the sort select), so focus would reset to <body> and keyboard users would
+        // have to tab from the top again after every interaction.
+        const active = document.activeElement;
+        const focusId = active instanceof Element ? active.id : '';
+        const focusName = (active instanceof HTMLInputElement || active instanceof HTMLSelectElement || active instanceof HTMLTextAreaElement) ? active.name : '';
+
         existingContent.replaceWith(newContent);
         this.#initializeForm();
 
+        this.#restoreFocus(newContent, focusId, focusName);
+
         return newContent;
+    }
+
+    /**
+     * Restores focus to the equivalent element in the freshly swapped-in content: the same id, or
+     * the same field name, or — as a fallback — the results region itself (so focus is never left
+     * on <body>).
+     *
+     * @param {Element} container
+     * @param {string} focusId
+     * @param {string} focusName
+     */
+    #restoreFocus(container, focusId, focusName) {
+        let target = null;
+
+        if (focusId !== '') {
+            target = container.querySelector(`#${CSS.escape(focusId)}`) ?? document.getElementById(focusId);
+        }
+
+        if (target === null && focusName !== '') {
+            target = container.querySelector(`[name="${CSS.escape(focusName)}"]`);
+        }
+
+        if (target === null) {
+            // Fallback: move focus into the results region so it isn't dumped back at <body>.
+            target = container;
+            if (!container.hasAttribute('tabindex')) {
+                container.setAttribute('tabindex', '-1');
+            }
+        }
+
+        if (typeof target.focus === 'function') {
+            target.focus({ preventScroll: true });
+        }
     }
 
     /**

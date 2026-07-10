@@ -1,2 +1,5 @@
 {# @var searchResult \Setono\SyliusMeilisearchPlugin\Engine\SearchResult #}
-{{ 'setono_sylius_meilisearch.form.search.results_count'|trans({'%count%': searchResult.totalHits}) }}
+{# role=status + aria-live so screen readers announce the new result count after each AJAX update #}
+<span class="ssm-hits-count" role="status" aria-live="polite">
+    {{- 'setono_sylius_meilisearch.form.search.results_count'|trans({'%count%': searchResult.totalHits}) -}}
+</span>

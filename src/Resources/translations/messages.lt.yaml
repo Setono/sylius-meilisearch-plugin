@@ -7,6 +7,7 @@ setono_sylius_meilisearch:
                 price: Price
                 size: Size
                 taxons: Category
+            loading: 'Kraunami rezultatai…'
             no_results:
                 body: 'Pabandykite ieškoti ko nors kito'
                 header: 'Rezultatų nerasta'
