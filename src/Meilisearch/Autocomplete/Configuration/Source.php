@@ -13,6 +13,8 @@ final class Source
         public readonly ?string $urlAttribute = null,
         /** @var array<string, string> $templates */
         public readonly array $templates = [],
+        /** The maximum number of suggestions to fetch for this source */
+        public readonly int $limit = 5,
     ) {
     }
 

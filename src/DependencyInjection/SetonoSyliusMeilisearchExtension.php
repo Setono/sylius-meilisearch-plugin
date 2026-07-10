@@ -53,7 +53,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
          *      server: array{ url: string, public_url: string|null, master_key: string, search_key: string },
          *      metadata: array{ cache: bool },
          *      search: array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ path: string } },
-         *      autocomplete: array{ enabled: bool, indexes: list<string>, container: string, placeholder: string },
+         *      autocomplete: array{ enabled: bool, indexes: list<string>, container: string, placeholder: string, limit: int },
          *      resources: array,
          * } $config
          */
@@ -423,7 +423,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     }
 
     /**
-     * @param array{ enabled: bool, indexes: list<string>, container: string, placeholder: string } $config
+     * @param array{ enabled: bool, indexes: list<string>, container: string, placeholder: string, limit: int } $config
      * @param list<string> $indexes a list of configured index names
      */
     private static function registerAutocompleteConfiguration(array $config, array $indexes, ContainerBuilder $container, LoaderInterface $loader): void
@@ -446,6 +446,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
 
         $container->setParameter('setono_sylius_meilisearch.autocomplete.container', $config['container']);
         $container->setParameter('setono_sylius_meilisearch.autocomplete.placeholder', $config['placeholder']);
+        $container->setParameter('setono_sylius_meilisearch.autocomplete.limit', $config['limit']);
 
         $loader->load('services/conditional/autocomplete.xml');
 
