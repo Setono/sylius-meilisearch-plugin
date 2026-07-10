@@ -193,6 +193,15 @@ class SearchManager {
 
         this.#form = form;
 
+        // JavaScript is available, so changing a filter/sort/page auto-submits. Hide the
+        // fallback submit button, which only exists so the form works without JavaScript.
+        // Set display directly as well: the button carries Semantic UI's `.ui.button`
+        // classes, whose `display` rule outweighs the `[hidden]` attribute on its own.
+        this.#form.querySelectorAll('.ssm-apply-filters').forEach((el) => {
+            el.hidden = true;
+            el.style.display = 'none';
+        });
+
         this.#form.addEventListener('input', (event) => {
             const field = event.target;
 

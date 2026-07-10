@@ -46,11 +46,31 @@ test.describe('shop search page', () => {
     test('filters by a brand facet', async ({ page }) => {
         await page.goto('/en_US/search?q=jeans');
 
-        // Checking the box auto-submits (there is no submit button in the form)
+        // Checking the box auto-submits (with JS the fallback submit button is hidden)
+        await expect(page.locator('.ssm-apply-filters')).toBeHidden();
         await page.locator('.ssm-filters input[name="f[brand][]"][value="Celsius Small"]').check();
         await expect(page).toHaveURL(/f%5Bbrand%5D%5B%5D=Celsius/);
         await expect(page.getByText('1 result', { exact: true })).toBeVisible();
         await expect(names(page)).toHaveCount(1);
+    });
+
+    test.describe('without javascript', () => {
+        test.use({ javaScriptEnabled: false });
+
+        test('filters via the fallback submit button', async ({ page }) => {
+            await page.goto('/en_US/search?q=jeans');
+
+            // Without JS the fallback submit button is visible and the form is a plain GET form
+            const applyButton = page.locator('.ssm-apply-filters');
+            await expect(applyButton).toBeVisible();
+
+            await page.locator('.ssm-filters input[name="f[brand][]"][value="Celsius Small"]').check();
+            await applyButton.click();
+
+            await expect(page).toHaveURL(/f%5Bbrand%5D%5B%5D=Celsius/);
+            await expect(page.getByText('1 result', { exact: true })).toBeVisible();
+            await expect(names(page)).toHaveCount(1);
+        });
     });
 
     test('filters by a price range', async ({ page }) => {

@@ -1,6 +1,7 @@
 setono_sylius_meilisearch:
     form:
         search:
+            apply_filters: 'Appliquer les filtres'
             facet:
                 color: Color
                 on_sale: On sale (%count%)
