@@ -242,6 +242,16 @@ class Product extends BaseProduct implements IndexableInterface, FilterableInter
 
 The plugin also ships default entity filters (e.g. an `enabled` filter for `ToggleableInterface` entities and a channel filter for channel-aware entities). Toggle them per index under `indexes.<name>.default_filters`, or add your own by implementing `Filter\Entity\EntityFilterInterface`.
 
+## The search widget
+
+The search widget is automatically injected into the shop header via the `sylius.shop.layout.header.grid` Sylius UI event. If your theme doesn't render that event — or you want the widget somewhere else — render it manually:
+
+```twig
+{{ ssm_search_widget() }}
+```
+
+Depending on your configuration it renders either the javascript based autocomplete widget or a plain search form, and it outputs nothing when both search and autocomplete are disabled.
+
 ## Autocomplete
 
 Enable the instant-search widget and point it at one or more indexes:
