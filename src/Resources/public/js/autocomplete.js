@@ -80,7 +80,7 @@ if(configuration.searchParameter) {
 
     if (configuration.searchPath) {
         autocompleteConfig.onSubmit = ({event, state}) => {
-            location.href = `${configuration.searchPath}?${configuration.searchParameter}=${state.query}`;
+            location.href = `${configuration.searchPath}?${configuration.searchParameter}=${encodeURIComponent(state.query)}`;
         }
     }
 }
