@@ -267,6 +267,10 @@ setono_sylius_meilisearch:
 
 The server-side indexing and search keep using `server.url`; only the autocomplete widget uses `server.public_url`.
 
+### Per-source item template
+
+Each autocomplete source is resolved by `Meilisearch\Autocomplete\SourceResolverInterface`. The default resolver renders `@SetonoSyliusMeilisearchPlugin/autocomplete/templates/{indexName}/item.html.twig` when that template exists, and otherwise falls back to the shared `@SetonoSyliusMeilisearchPlugin/autocomplete/templates/item.html.twig`. So with multiple indexes (e.g. `products` and `taxons`) you can give each its own template just by creating `templates/taxons/item.html.twig` in your app. Decorate the resolver if you need to control the `urlAttribute` (or anything else) per index.
+
 ## Customizing the JavaScript
 
 The plugin ships two first-party scripts, both served as plain browser JavaScript (no build step). You customize them by defining a global options object **before** the script runs — put the `<script>` that sets it above the plugin's scripts, or in a `javascripts` block that renders earlier. The plugin's scripts are loaded with `defer`, so a normal inline `<script>` in `<head>` or the body runs first.
