@@ -77,7 +77,9 @@ const autocompleteConfig = {
 
 if(configuration.searchParameter) {
     autocompleteConfig.initialState = {
-        query: new URL(window.location).searchParams.get(configuration.searchParameter),
+        // searchParams.get() returns null when the parameter is absent (every page but the search
+        // results page); autocomplete-js's state is typed as `query: string`, so default to ''.
+        query: new URL(window.location).searchParams.get(configuration.searchParameter) ?? '',
     };
 
     if (configuration.searchPath) {
