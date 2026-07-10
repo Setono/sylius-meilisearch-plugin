@@ -167,6 +167,11 @@ INFO, ToggleableInterface::class, EntityFilterInterface::class, QueryBuilderForD
                             ->defaultValue('setono_sylius_meilisearch.ui.search_placeholder')
                             ->info('This is the placeholder text that will be displayed in the input field')
                             ->cannotBeEmpty()
+                        ->end()
+                        ->integerNode('limit')
+                            ->defaultValue(5)
+                            ->info('The maximum number of suggestions to fetch per autocomplete source')
+                            ->min(1)
         ;
 
         return $treeBuilder;

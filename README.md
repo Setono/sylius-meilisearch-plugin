@@ -252,6 +252,7 @@ setono_sylius_meilisearch:
         enabled: true
         indexes: [ products ]
         container: '#autocomplete'   # CSS selector for the element the widget mounts on
+        limit: 5                     # max suggestions to fetch per source
 ```
 
 The widget talks to Meilisearch directly from the browser using the (read-only) `MEILISEARCH_SEARCH_KEY`, so make sure that key is a search-only key.

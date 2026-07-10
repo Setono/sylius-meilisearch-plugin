@@ -23,6 +23,7 @@ final class AutocompleteRuntime implements RuntimeExtensionInterface
         private readonly string $searchKey,
         private readonly string $container,
         private readonly string $placeholder,
+        private readonly int $limit,
         /** @var list<Index> $indexes */
         private readonly array $indexes,
         private readonly bool $debug,
@@ -49,6 +50,7 @@ final class AutocompleteRuntime implements RuntimeExtensionInterface
                 [
                     'item' => $twig->render('@SetonoSyliusMeilisearchPlugin/autocomplete/templates/item.html.twig'),
                 ],
+                $this->limit,
             );
         }
 

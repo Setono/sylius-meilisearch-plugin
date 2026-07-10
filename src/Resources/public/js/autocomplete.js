@@ -17,6 +17,7 @@
      * @property {string} index - Resolved Meilisearch index uid to query.
      * @property {?string} urlAttribute - Item attribute holding the URL to open when selected.
      * @property {Object.<string, string>} templates - Map of template name to an Algolia `html` template string.
+     * @property {number} limit - Maximum number of suggestions to fetch for this source.
      */
 
     /**
@@ -108,6 +109,7 @@
                             {
                                 indexName: source.index,
                                 query,
+                                params: { hitsPerPage: source.limit },
                             },
                         ],
                     });
