@@ -93,9 +93,25 @@ test.describe('shop search page', () => {
             expect(price).toBeGreaterThanOrEqual(threshold);
         }
 
-        // An impossible window renders the no-results block in place (it reuses #search-form)
+        // An impossible window renders the no-results message inside the results form
         await page.goto('/en_US/search?q=jeans&f[price][min]=999999');
         await expect(page.locator('.ui.message .header')).toHaveText('No results found');
+    });
+
+    test('keeps the filter UI on the no-results page so the shopper can recover', async ({ page }) => {
+        // Over-filter into an empty result set
+        await page.goto('/en_US/search?q=jeans&f[brand][]=Celsius%20Small&f[price][min]=999999');
+        await expect(page.locator('.ui.message .header')).toHaveText('No results found');
+
+        // The facets are still rendered (the whole results form is kept), with the selection checked
+        const brand = page.locator('.ssm-filters input[name="f[brand][]"][value="Celsius Small"]');
+        await expect(brand).toBeVisible();
+
+        // Relaxing the price filter recovers results without leaving the page
+        await page.locator('#f_price_min').fill('');
+        await page.locator('#f_price_min').blur();
+        await expect(page).not.toHaveURL(/f%5Bprice%5D%5Bmin%5D=999999/);
+        await expect(names(page).first()).toBeVisible();
     });
 
     test('sorts by price ascending', async ({ page }) => {
@@ -116,8 +132,8 @@ test.describe('shop search page — history & resilience', () => {
         await expect(names(page)).toHaveCount(3);
 
         // Force a no-results state via an impossible price floor (the typeable input submits on blur).
-        // The results markup is a <form>, the no-results markup is a <div> reusing the same id — the
-        // history state stores outerHTML so back/forward can swap one element type for the other.
+        // The results form (facets + sorting) is kept even with zero hits; the "no results" message
+        // is shown in the items slot, so the shopper can still recover by relaxing a filter.
         await page.locator('#f_price_min').fill('999999');
         await page.locator('#f_price_min').blur();
         await expect(page).toHaveURL(/f%5Bprice%5D%5Bmin%5D=999999/);

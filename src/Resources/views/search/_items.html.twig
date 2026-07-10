@@ -1,3 +1,7 @@
-{% for item in items %}
-    {{ include('@SyliusShop/Product/_box.html.twig', { product: item }) }}
-{% endfor %}
+{% if items|length > 0 %}
+    {% for item in items %}
+        {{ include('@SyliusShop/Product/_box.html.twig', { product: item }) }}
+    {% endfor %}
+{% else %}
+    {{ include('@SetonoSyliusMeilisearchPlugin/search/_no_results.html.twig') }}
+{% endif %}
