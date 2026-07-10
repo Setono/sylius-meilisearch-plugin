@@ -8,6 +8,8 @@ use Meilisearch\Client;
 use Meilisearch\Contracts\TasksQuery;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -27,6 +29,8 @@ final class IndexCommand extends Command
         private readonly MessageBusInterface $commandBus,
         private readonly IndexRegistryInterface $indexRegistry,
         private readonly Client $client,
+        private readonly IndexScopeProviderInterface $indexScopeProvider,
+        private readonly IndexUidResolverInterface $indexUidResolver,
     ) {
         parent::__construct();
     }
@@ -94,18 +98,42 @@ final class IndexCommand extends Command
         $wait = $input->getOption('wait');
 
         if ($wait) {
-            $this->wait((int) $input->getOption('wait-timeout'), $output);
+            $this->wait($this->resolveIndexUids($indexes), (int) $input->getOption('wait-timeout'), $output);
         }
 
         return 0;
     }
 
-    private function wait(int $waitTimeout, OutputInterface $output): void
+    /**
+     * Resolves the concrete Meilisearch index uids (across all scopes) for the given index names,
+     * so --wait only waits on tasks belonging to this run rather than every task on the instance.
+     *
+     * @param list<string> $indexes
+     *
+     * @return list<string>
+     */
+    private function resolveIndexUids(array $indexes): array
+    {
+        $uids = [];
+
+        foreach ($indexes as $index) {
+            foreach ($this->indexScopeProvider->getAll($this->indexRegistry->get($index)) as $indexScope) {
+                $uid = $this->indexUidResolver->resolveFromIndexScope($indexScope);
+                $uids[$uid] = $uid;
+            }
+        }
+
+        return array_values($uids);
+    }
+
+    /**
+     * @param list<string> $indexUids
+     */
+    private function wait(array $indexUids, int $waitTimeout, OutputInterface $output): void
     {
         $start = time();
 
-        $query = new TasksQuery();
-        $query->setStatuses(['enqueued', 'processing']);
+        $query = self::createTasksQuery($indexUids);
 
         do {
             $results = $this->client->getTasks($query);
@@ -120,5 +148,23 @@ final class IndexCommand extends Command
         } while ((time() - $start) < $waitTimeout);
 
         throw new RuntimeException(sprintf('The indexing did not finish within the specified time (%d seconds)', $waitTimeout));
+    }
+
+    /**
+     * @param list<string> $indexUids
+     */
+    public static function createTasksQuery(array $indexUids): TasksQuery
+    {
+        $query = new TasksQuery();
+        $query->setStatuses(['enqueued', 'processing']);
+
+        // Scope the query to this run's index uids so we don't wait on unrelated tasks from
+        // other developers/environments sharing the same Meilisearch instance (the exact
+        // scenario MEILISEARCH_PREFIX exists for).
+        if ([] !== $indexUids) {
+            $query->setIndexUids($indexUids);
+        }
+
+        return $query;
     }
 }
