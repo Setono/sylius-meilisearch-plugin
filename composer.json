@@ -24,6 +24,7 @@
         "psr/container": "^1.0 || ^2.0",
         "psr/event-dispatcher": "^1.0",
         "psr/http-client": "^1.0",
+        "psr/log": "^1.0 || ^2.0 || ^3.0",
         "setono/composite-compiler-pass": "^1.2",
         "setono/doctrine-orm-trait": "^1.1",
         "sylius/attribute": "^1.0",

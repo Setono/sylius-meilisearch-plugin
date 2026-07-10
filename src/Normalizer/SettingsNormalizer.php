@@ -30,11 +30,19 @@ final class SettingsNormalizer implements NormalizerInterface
         }
 
         // Only strip null values. Empty arrays are meaningful for list-valued settings
-        // (filterableAttributes, sortableAttributes, stopWords, synonyms, …): because
-        // updateSettings is a *partial* update, sending [] is exactly how you reset such a
-        // setting. Keys that must be omitted when "not configured" are modelled as null in
-        // Settings, not as [].
-        return array_filter($data, static fn (mixed $value): bool => null !== $value);
+        // (filterableAttributes, sortableAttributes, stopWords, …): because updateSettings is a
+        // *partial* update, sending [] is exactly how you reset such a setting. Keys that must be
+        // omitted when "not configured" are modelled as null in Settings, not as [].
+        $data = array_filter($data, static fn (mixed $value): bool => null !== $value);
+
+        // `synonyms` is a map/object in Meilisearch, not a list. An empty PHP array serializes to
+        // the JSON array `[]`, which Meilisearch rejects with "expected an object", so send `{}`
+        // (its reset value) instead when there are no synonyms.
+        if (isset($data['synonyms']) && [] === $data['synonyms']) {
+            $data['synonyms'] = new \stdClass();
+        }
+
+        return $data;
     }
 
     /**
