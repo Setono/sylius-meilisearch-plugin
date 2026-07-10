@@ -52,6 +52,8 @@ class SearchManager {
      * @param {Function} options.loader.show - Shows the loader. Receives the loader selector; `this` is the search manager.
      * @param {Function} options.loader.hide - Hides the loader. Receives the loader selector; `this` is the search manager.
      * @param {Function} options.onFilterChange - Called when a filter field changes. Receives the field that changed; `this` is the search manager. Default: reset to page 1 and submit (typeable inputs submit on blur).
+     * @param {Function} options.onFilterRemove - Called when an active filter chip is clicked. Receives the chip link; `this` is the search manager. Default: load the link's url in the background.
+     * @param {Function} options.onFiltersReset - Called when the "reset all filters" link is clicked. Receives the link; `this` is the search manager. Default: load the link's url in the background.
      * @param {Function} options.onPageChange - Called when the page field changes. Receives the field that changed; `this` is the search manager. Default: submit, then scroll the new results into view.
      * @param {Function} options.onSortChange - Called when the sort field changes. Receives the field that changed; `this` is the search manager. Default: submit.
      * @param {Function} options.onSubmit - Called when the form is submitted. Receives no arguments; `this` is the search manager. Default: run the background search.
@@ -99,6 +101,8 @@ class SearchManager {
 
                 this.form.requestSubmit();
             },
+            onFilterRemove: function (link) { this.navigate(link.href); },
+            onFiltersReset: function (link) { this.navigate(link.href); },
             onSortChange: function () { this.form.requestSubmit(); },
             onSubmit: function () { this.submit(); },
         };
@@ -172,6 +176,17 @@ class SearchManager {
         return this.#submitForm();
     }
 
+    /**
+     * Loads the given search url in the background and swaps the results markup
+     * (same as clicking an active filter chip).
+     *
+     * @param {string} url
+     * @return {Promise<void>}
+     */
+    navigate(url) {
+        return this.#submitForm(url);
+    }
+
     #initializeForm() {
         let form = this.#options.form;
 
@@ -237,6 +252,30 @@ class SearchManager {
 
             this.#submitForm(link.href);
         });
+
+        // Active filter chips and the "reset all filters" control are plain links too;
+        // give them the same treatment as pagination links.
+        this.#form.addEventListener('click', (event) => {
+            const link = event.target instanceof Element
+                ? event.target.closest('a[data-ssm-filter-remove], a[data-ssm-filters-reset]')
+                : null;
+            if (link === null || !this.#form.contains(link)) {
+                return;
+            }
+            if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+            }
+
+            event.preventDefault();
+
+            link.dispatchEvent(new CustomEvent(
+                link.hasAttribute('data-ssm-filters-reset') ? 'search:filters-reset' : 'search:filter-removed',
+                { bubbles: true, detail: { url: link.href } },
+            ));
+        });
+        this.#form.addEventListener('search:filter-removed', (event) => this.#options.onFilterRemove(event.target));
+        this.#form.addEventListener('search:filters-reset', (event) => this.#options.onFiltersReset(event.target));
+
         this.#form.addEventListener('submit', (event) => {
             event.preventDefault();
             this.#options.onSubmit();
@@ -255,7 +294,8 @@ class SearchManager {
         const controller = new AbortController();
         this.#abortController = controller;
 
-        // Pagination links pass their own URL; the form controls build the URL from form state.
+        // Pagination and active-filter links pass their own URL; the form controls build
+        // the URL from form state.
         const url = targetUrl ?? this.#buildUrl();
         let navigating = false;
 

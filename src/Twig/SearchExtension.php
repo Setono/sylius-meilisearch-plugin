@@ -23,6 +23,8 @@ final class SearchExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
+            // @phpstan-ignore argument.type (Twig resolves the runtime-class callable at runtime)
+            new TwigFunction('ssm_active_filters', [SearchRuntime::class, 'activeFilters']),
             new TwigFunction('ssm_search_enabled', $this->isEnabled(...)),
             new TwigFunction('ssm_search_widget', $this->renderWidget(...), [
                 'needs_environment' => true,

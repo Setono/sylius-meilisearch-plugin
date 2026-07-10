@@ -1,0 +1,19 @@
+{% set activeFilters = ssm_active_filters(searchResult ?? null) %}
+{% if activeFilters is not empty %}
+    <nav class="ssm-active-filters" aria-label="{{ 'setono_sylius_meilisearch.form.search.active_filters.title'|trans }}">
+        <ul>
+            {% for activeFilter in activeFilters %}
+                <li>
+                    <a href="{{ activeFilter.removeUrl }}" class="ui label" data-ssm-filter-remove data-facet="{{ activeFilter.facet }}" aria-label="{{ 'setono_sylius_meilisearch.form.search.active_filters.remove'|trans({'%filter%': activeFilter.label}) }}">
+                        {{ activeFilter.label }} <span aria-hidden="true">&times;</span>
+                    </a>
+                </li>
+            {% endfor %}
+            <li>
+                <a href="{{ activeFilters.resetUrl }}" class="ui label" data-ssm-filters-reset>
+                    {{ 'setono_sylius_meilisearch.form.search.active_filters.reset'|trans }}
+                </a>
+            </li>
+        </ul>
+    </nav>
+{% endif %}
