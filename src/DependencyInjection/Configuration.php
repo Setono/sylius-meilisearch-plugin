@@ -172,6 +172,11 @@ INFO, ToggleableInterface::class, EntityFilterInterface::class, QueryBuilderForD
                             ->defaultValue(5)
                             ->info('The maximum number of suggestions to fetch per autocomplete source')
                             ->min(1)
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ->end()
         ;
 
         return $treeBuilder;
