@@ -35,8 +35,8 @@ final class IndexRegistry implements \IteratorAggregate, IndexRegistryInterface
         if (!isset($this->indexes[$name])) {
             throw new \InvalidArgumentException(sprintf(
                 'No index exists with the name %s. Available indexes are: [%s]',
-                implode(', ', array_keys($this->indexes)),
                 $name,
+                implode(', ', array_keys($this->indexes)),
             ));
         }
 
