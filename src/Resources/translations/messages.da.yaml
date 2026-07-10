@@ -3,6 +3,15 @@ setono_sylius_meilisearch:
         see_all_results: 'Se alle resultater'
     form:
         search:
+            active_filters:
+                facet:
+                    on_sale: På tilbud
+                range: '%facet%: %min%–%max%'
+                range_max: '%facet%: op til %max%'
+                range_min: '%facet%: fra %min%'
+                remove: Fjern filteret "%filter%"
+                reset: Nulstil alle filtre
+                title: Aktive filtre
             facet:
                 color: Color
                 on_sale: On sale (%count%)

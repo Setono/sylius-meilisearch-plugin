@@ -3,6 +3,15 @@ setono_sylius_meilisearch:
         see_all_results: 'Vezi toate rezultatele'
     form:
         search:
+            active_filters:
+                facet:
+                    on_sale: La reducere
+                range: '%facet%: %min%–%max%'
+                range_max: '%facet%: până la %max%'
+                range_min: '%facet%: de la %min%'
+                remove: Elimină filtrul "%filter%"
+                reset: Resetează toate filtrele
+                title: Filtre active
             facet:
                 color: Color
                 on_sale: On sale (%count%)

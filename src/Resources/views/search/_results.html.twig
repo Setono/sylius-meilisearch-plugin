@@ -1,6 +1,8 @@
 {% form_theme searchForm '@SetonoSyliusMeilisearchPlugin/form/search_theme.html.twig' %}
 
 {{ form_start(searchForm, { 'attr': { 'id': 'search-form' } }) }}
+    {{ include('@SetonoSyliusMeilisearchPlugin/search/_active_filters.html.twig') }}
+
     <div class="ui stackable grid">
         <div class="four wide column">
             {{ include('@SetonoSyliusMeilisearchPlugin/search/_filters.html.twig') }}

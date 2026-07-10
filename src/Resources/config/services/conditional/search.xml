@@ -27,5 +27,20 @@
 
         <service id="Setono\SyliusMeilisearchPlugin\Engine\SearchEngineInterface"
                  alias="Setono\SyliusMeilisearchPlugin\Engine\SearchEngine"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\ActiveFilters\ActiveFiltersProvider">
+            <argument type="service" id="setono_sylius_meilisearch.index.search"/>
+            <argument type="service" id="translator"/>
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\ActiveFilters\ActiveFiltersProviderInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Provider\ActiveFilters\ActiveFiltersProvider"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Twig\SearchRuntime">
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Provider\ActiveFilters\ActiveFiltersProviderInterface"/>
+            <argument type="service" id="request_stack"/>
+
+            <tag name="twig.runtime"/>
+        </service>
     </services>
 </container>
