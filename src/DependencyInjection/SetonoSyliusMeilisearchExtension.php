@@ -95,7 +95,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
             ->addTag('setono_sylius_meilisearch.filter_form_builder');
 
         self::registerIndexesConfiguration($config['indexes'], $container);
-        self::registerSearchConfiguration($config['search'], array_keys($config['indexes']), $container, $loader);
+        self::registerSearchConfiguration($config['search'], $container, $loader);
         self::registerAutocompleteConfiguration($config['autocomplete'], array_keys($config['indexes']), $container, $loader);
     }
 
@@ -340,9 +340,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         $indexRegistry = $container->getDefinition('setono_sylius_meilisearch.config.index_registry');
 
         foreach ($config as $indexName => $index) {
-            if ('search' === $indexName) {
-                throw new \RuntimeException('You cannot use "search" as an index name. It is reserved for the search configuration');
-            }
+            // The "search" index name is reserved; this is validated in Configuration.
 
             $indexServiceId = self::getIndexServiceId($indexName);
 
@@ -395,9 +393,8 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
      * todo the search controller should only be available when search is enabled
      *
      * @param array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ path: string } } $config the search configuration
-     * @param list<string> $indexes a list of index names
      */
-    private static function registerSearchConfiguration(array $config, array $indexes, ContainerBuilder $container, LoaderInterface $loader): void
+    private static function registerSearchConfiguration(array $config, ContainerBuilder $container, LoaderInterface $loader): void
     {
         $container->setParameter('setono_sylius_meilisearch.search.enabled', $config['enabled']);
         $container->setParameter('setono_sylius_meilisearch.search.path', $config['path']); // The route that uses this parameter is defined even if search is disabled
@@ -407,13 +404,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
             return;
         }
 
-        if (!isset($config['index'])) {
-            throw new \RuntimeException('When search is enabled, you have to configure the index for the search');
-        }
-
-        if (!in_array($config['index'], $indexes, true)) {
-            throw new \RuntimeException(sprintf('For the search configuration you have added the index "%s". That index is not configured in setono_sylius_meilisearch.indexes. Available indexes are [%s]', $config['index'], implode(', ', $indexes)));
-        }
+        // Presence and validity of $config['index'] (when search is enabled) are validated in Configuration.
 
         $container->setAlias('setono_sylius_meilisearch.index.search', self::getIndexServiceId($config['index']));
         $container->setAlias(Index::class . ' $searchIndex', self::getIndexServiceId($config['index']));

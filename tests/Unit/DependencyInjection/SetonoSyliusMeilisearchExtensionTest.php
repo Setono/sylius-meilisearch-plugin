@@ -9,6 +9,7 @@ use Setono\SyliusMeilisearchPlugin\Controller\Action\SearchAction;
 use Setono\SyliusMeilisearchPlugin\DependencyInjection\SetonoSyliusMeilisearchExtension;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product as ProductEntity;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
  * See examples of tests and configuration options here: https://github.com/SymfonyTest/SymfonyDependencyInjectionTest
@@ -106,6 +107,46 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
             'search' => [
                 'path' => 'search',
                 'index' => 'products',
+            ],
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_when_an_unknown_default_filter_key_is_used(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        // The message lists the valid keys
+        $this->expectExceptionMessageMatches('/stock_available/');
+
+        $this->load([
+            'indexes' => [
+                'products' => [
+                    'document' => ProductDocument::class,
+                    'entities' => [ProductEntity::class],
+                    'default_filters' => [
+                        'stock_availabe' => true, // typo on purpose
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_when_using_the_reserved_search_index_name(): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessageMatches('/reserved/');
+
+        $this->load([
+            'indexes' => [
+                'search' => [
+                    'document' => ProductDocument::class,
+                    'entities' => [ProductEntity::class],
+                ],
             ],
         ]);
     }

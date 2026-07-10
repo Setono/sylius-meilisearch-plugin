@@ -18,6 +18,7 @@ use Sylius\Component\Resource\Model\ToggleableInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 final class Configuration implements ConfigurationInterface
 {
@@ -61,7 +62,6 @@ final class Configuration implements ConfigurationInterface
                             ->end()
                             ->scalarNode('indexer')
                                 ->info(sprintf('You can set a custom indexer here. If you do not set one, the default indexer will be used. The default indexer is %s', DefaultIndexer::class))
-                                ->cannotBeEmpty()
                                 ->defaultNull()
                             ->end()
                             ->scalarNode('prefix')
@@ -72,12 +72,19 @@ final class Configuration implements ConfigurationInterface
                             ->arrayNode('default_filters')
                                 ->info(
                                     sprintf(<<<INFO
-The plugin comes with a few filters out of the box based on the entities you configure. E.g. there is an "enabled" filter if your entity implements the %s.
-You can disable/enable them here. If you want to create your own filters, you can do so by implementing the %s or by listening to the %s event
+The plugin comes with a few filters out of the box based on the entities you configure:
+- "enabled": excludes entities that implement %s and are disabled
+- "channels_aware": excludes entities that are not enabled for the current channel
+- "stock_available": excludes products that are out of stock
+You can enable/disable them here. If you want to create your own filters, you can do so by implementing the %s or by listening to the %s event
 INFO, ToggleableInterface::class, EntityFilterInterface::class, QueryBuilderForDataProvisionCreated::class),
                                 )
-                                ->useAttributeAsKey('name')
-                                ->scalarPrototype()->end()
+                                ->addDefaultsIfNotSet()
+                                ->children()
+                                    ->booleanNode('enabled')->defaultTrue()->end()
+                                    ->booleanNode('channels_aware')->defaultTrue()->end()
+                                    ->booleanNode('stock_available')->defaultFalse()->end()
+                                ->end()
                             ->end()
                         ->end()
                     ->end()
@@ -175,6 +182,38 @@ INFO, ToggleableInterface::class, EntityFilterInterface::class, QueryBuilderForD
                         ->end()
                     ->end()
                 ->end()
+            ->end()
+            ->validate()
+                ->ifTrue(static fn (array $v): bool => array_key_exists('search', (array) ($v['indexes'] ?? [])))
+                ->thenInvalid('You cannot use "search" as an index name in setono_sylius_meilisearch.indexes. It is reserved for the search configuration.')
+            ->end()
+            ->validate()
+                ->ifTrue(static function (array $v): bool {
+                    $search = (array) ($v['search'] ?? []);
+
+                    return true === ($search['enabled'] ?? false) && null === ($search['index'] ?? null);
+                })
+                ->thenInvalid('When search is enabled you must configure the index to search under setono_sylius_meilisearch.search.index')
+            ->end()
+            ->validate()
+                ->ifTrue(static function (array $v): bool {
+                    $search = (array) ($v['search'] ?? []);
+
+                    return true === ($search['enabled'] ?? false) &&
+                        isset($search['index']) &&
+                        is_string($search['index']) &&
+                        !array_key_exists($search['index'], (array) ($v['indexes'] ?? []));
+                })
+                ->then(static function (array $v): array {
+                    $search = (array) ($v['search'] ?? []);
+                    $index = $search['index'] ?? null;
+
+                    throw new InvalidConfigurationException(sprintf(
+                        'The index "%s" configured under setono_sylius_meilisearch.search.index is not configured in setono_sylius_meilisearch.indexes. Available indexes are: [%s]',
+                        is_scalar($index) ? (string) $index : '',
+                        implode(', ', array_keys((array) ($v['indexes'] ?? []))),
+                    ));
+                })
             ->end()
         ->end()
         ;
