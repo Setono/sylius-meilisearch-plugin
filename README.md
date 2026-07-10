@@ -256,6 +256,16 @@ setono_sylius_meilisearch:
 
 The widget talks to Meilisearch directly from the browser using the (read-only) `MEILISEARCH_SEARCH_KEY`, so make sure that key is a search-only key.
 
+Because the browser connects to Meilisearch directly, it needs a URL it can actually reach. In containerized setups (Docker Swarm/Kubernetes) `MEILISEARCH_URL` is often an internal hostname like `http://meilisearch:7700` that browsers can't resolve. Configure the public, browser-facing URL separately in that case:
+
+```yaml
+setono_sylius_meilisearch:
+    server:
+        public_url: '%env(MEILISEARCH_PUBLIC_URL)%' # falls back to server.url when null/empty
+```
+
+The server-side indexing and search keep using `server.url`; only the autocomplete widget uses `server.public_url`.
+
 ## Synonyms
 
 Synonyms are managed in the Sylius admin (the plugin adds its own menu section) and synced to Meilisearch automatically when created, updated, or removed. A synonym can be scoped to specific channels and a locale.

@@ -50,7 +50,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
          *
          * @var array{
          *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}>,
-         *      server: array{ url: string, master_key: string, search_key: string },
+         *      server: array{ url: string, public_url: string|null, master_key: string, search_key: string },
          *      metadata: array{ cache: bool },
          *      search: array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ path: string } },
          *      autocomplete: array{ enabled: bool, indexes: list<string>, container: string, placeholder: string },
@@ -280,37 +280,54 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     }
 
     /**
-     * @param array{url: string, master_key: string, search_key: string} $config
+     * @param array{url: string, public_url: string|null, master_key: string, search_key: string} $config
      */
     private static function setServerParameters(array $config, ContainerBuilder $container): void
     {
-        $url = $container->resolveEnvPlaceholders($config['url'], true);
-        if (!is_string($url) || '' === $url) {
-            throw new InvalidArgumentException('The Meilisearch URL must be a string. Value given: ' . $config['url']);
-        }
+        $url = self::normalizeServerUrl($container, $config['url']);
 
-        $url = parse_url($url);
-        if (!is_array($url) || !isset($url['host'])) {
-            throw new InvalidArgumentException(sprintf('The Meilisearch URL must be a valid URL. Value given: %s', $config['url']));
-        }
-
-        // If the user has provided a URL like //host or tcp:// we will fix it for them
-        if (!isset($url['scheme']) || !in_array($url['scheme'], ['http', 'https'], true)) {
-            $url['scheme'] = 'http';
-        }
-
-        $url = sprintf(
-            '%s://%s%s%s%s',
-            $url['scheme'],
-            isset($url['user'], $url['pass']) ? sprintf('%s:%s@', $url['user'], $url['pass']) : '',
-            $url['host'],
-            isset($url['port']) ? sprintf(':%d', $url['port']) : '',
-            $url['path'] ?? '',
-        );
+        // The public URL is the browser-facing host used by the autocomplete widget. In containerized
+        // setups the server URL is often an internal hostname that is unreachable from browsers, so it
+        // can be configured separately. A null or empty value falls back to the (server-side) URL.
+        $publicUrl = $container->resolveEnvPlaceholders($config['public_url'] ?? '', true);
+        $publicUrl = is_string($publicUrl) && '' !== $publicUrl
+            ? self::normalizeServerUrl($container, (string) $config['public_url'])
+            : $url;
 
         $container->setParameter('setono_sylius_meilisearch.server.url', $url);
+        $container->setParameter('setono_sylius_meilisearch.server.public_url', $publicUrl);
         $container->setParameter('setono_sylius_meilisearch.server.master_key', $config['master_key']);
         $container->setParameter('setono_sylius_meilisearch.server.search_key', $config['search_key']);
+    }
+
+    /**
+     * Resolves environment placeholders in the given URL and normalizes it: a valid host is required
+     * and a missing/invalid scheme is coerced to http (e.g. //host or tcp:// are fixed for the user).
+     */
+    private static function normalizeServerUrl(ContainerBuilder $container, string $url): string
+    {
+        $resolvedUrl = $container->resolveEnvPlaceholders($url, true);
+        if (!is_string($resolvedUrl) || '' === $resolvedUrl) {
+            throw new InvalidArgumentException('The Meilisearch URL must be a string. Value given: ' . $url);
+        }
+
+        $parts = parse_url($resolvedUrl);
+        if (!is_array($parts) || !isset($parts['host'])) {
+            throw new InvalidArgumentException(sprintf('The Meilisearch URL must be a valid URL. Value given: %s', $url));
+        }
+
+        if (!isset($parts['scheme']) || !in_array($parts['scheme'], ['http', 'https'], true)) {
+            $parts['scheme'] = 'http';
+        }
+
+        return sprintf(
+            '%s://%s%s%s%s',
+            $parts['scheme'],
+            isset($parts['user'], $parts['pass']) ? sprintf('%s:%s@', $parts['user'], $parts['pass']) : '',
+            $parts['host'],
+            isset($parts['port']) ? sprintf(':%d', $parts['port']) : '',
+            $parts['path'] ?? '',
+        );
     }
 
     /**
