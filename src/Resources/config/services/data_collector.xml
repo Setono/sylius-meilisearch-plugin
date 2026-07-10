@@ -4,6 +4,9 @@
     <services>
         <service id="Setono\SyliusMeilisearchPlugin\DataCollector\MeilisearchDataCollector">
             <argument type="service" id="Meilisearch\Client"/>
+            <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface"/>
 
             <tag name="data_collector" template="@SetonoSyliusMeilisearchPlugin/data_collector/meilisearch.html.twig" id="meilisearch"/>
         </service>

@@ -14,6 +14,10 @@
             <b>Multi Search Requests</b>
             <span class="sf-toolbar-status">{{ multiSearchRequestCount }}</span>
         </div>
+        <div class="sf-toolbar-info-piece">
+            <b>Indexes</b>
+            <span class="sf-toolbar-status">{{ collector.indexes|length }}</span>
+        </div>
     {% endset %}
 
     {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { 'link': true }) }}
@@ -41,7 +45,7 @@
 
 {% block menu %}
     {# This left-hand menu appears when using the full-screen profiler. #}
-    <span class="label{{ collector.hasMultiSearchRequests ? '' : ' disabled' }}">
+    <span class="label">
         <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="m6.505 18.998l4.434-11.345a4.17 4.17 0 0 1 3.882-2.651h2.674l-4.434 11.345a4.17 4.17 0 0 1-3.883 2.651zm6.505 0l4.434-11.345a4.17 4.17 0 0 1 3.883-2.651H24l-4.434 11.345a4.17 4.17 0 0 1-3.882 2.651zm-13.01 0L4.434 7.653a4.17 4.17 0 0 1 3.882-2.651h2.674L6.556 16.347a4.17 4.17 0 0 1-3.883 2.651z"/></svg></span>
         <strong>Meilisearch</strong>
         {% if collector.hasMultiSearchRequests %}
@@ -79,4 +83,83 @@
             <p>No multi search requests.</p>
         </div>
     {% endif %}
+
+    <h2>Indexes</h2>
+
+    {% if collector.statsError %}
+        <div class="empty">
+            <p>Could not fetch stats from Meilisearch: {{ collector.statsError }}</p>
+        </div>
+    {% endif %}
+
+    {% for name, index in collector.indexes %}
+        <h3>{{ name }}</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="2">Configuration</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>Document</th>
+                    <td>{{ index.document }}</td>
+                </tr>
+                <tr>
+                    <th>Entities</th>
+                    <td>{{ index.entities|join(', ') }}</td>
+                </tr>
+                <tr>
+                    <th>Searchable attributes</th>
+                    <td>{{ index.searchableAttributes|join(', ') }}</td>
+                </tr>
+                <tr>
+                    <th>Filterable attributes</th>
+                    <td>{{ index.filterableAttributes|join(', ') }}</td>
+                </tr>
+                <tr>
+                    <th>Sortable attributes</th>
+                    <td>{{ index.sortableAttributes|join(', ') }}</td>
+                </tr>
+                <tr>
+                    <th>Facetable attributes</th>
+                    <td>{{ index.facetableAttributes|join(', ') }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Index uid</th>
+                    <th>Documents</th>
+                    <th>Indexing?</th>
+                    <th>Field distribution</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for uid, stats in index.uids %}
+                    <tr>
+                        <td>{{ uid }}</td>
+                        {% if stats is null %}
+                            <td colspan="3">{{ collector.statsError ? 'Unknown (stats unavailable)' : 'Not found in Meilisearch' }}</td>
+                        {% else %}
+                            <td>{{ stats.numberOfDocuments ?? 'n/a' }}</td>
+                            <td>{{ stats.isIndexing is null ? 'n/a' : (stats.isIndexing ? 'yes' : 'no') }}</td>
+                            <td>{{ profiler_dump(stats.fieldDistribution, maxDepth=1) }}</td>
+                        {% endif %}
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4">No index uids resolved</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty empty-panel">
+            <p>No indexes configured.</p>
+        </div>
+    {% endfor %}
 {% endblock %}

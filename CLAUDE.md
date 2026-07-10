@@ -38,6 +38,10 @@ Note: repeated fixture loads accumulate stale documents in a long-lived local Me
 
 Browser tests for the shop search page and autocomplete widget live in `tests/Application/e2e/*.spec.ts` and run with `(cd tests/Application && yarn e2e)` (single-cell `e2e-tests` job in `build.yaml`). Prerequisites are the same DB/fixtures/index chain as Functional, plus `yarn install && yarn build && bin/console assets:install` and the Symfony CLI. `yarn e2e` auto-starts the app via `e2e/serve.sh`, which resolves `MEILISEARCH_SEARCH_KEY` from the running Meilisearch (the browser queries Meilisearch directly for autocomplete) and runs `symfony serve` in `APP_ENV=test`. The search form is AJAX-driven (`src/Resources/public/js/search.js` swaps the `#search-form` node + `history.pushState`), so specs wait on `toHaveURL(...)` after each interaction. Note: the untracked `.mcp.json` configures the Playwright MCP server for agent-driven browsing — unrelated to this suite.
 
+### Running the test app locally
+
+Serve the app with `symfony serve` from `tests/Application` — not PHP's built-in server (`php -S` can hide real env vars from Symfony Dotenv depending on `variables_order`, so `.env.local` silently wins over exported overrides). `e2e/serve.sh` wraps `symfony serve` for the e2e suite and resolves `MEILISEARCH_SEARCH_KEY` first.
+
 ### Dependency extremes
 
 CI tests both `lowest` and `highest` deps (PHP 8.1/8.2/8.3 × Symfony ~6.4.0). Before pushing dependency-related changes, sanity-check lowest: `composer update --prefer-lowest && composer analyse && composer phpunit`, then restore with `composer update`. Version floors that only matter for this repo's toolchain belong in `require-dev` — never add `conflict` entries for them, since conflicts constrain end users.
