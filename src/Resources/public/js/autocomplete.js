@@ -7,6 +7,7 @@ const { meilisearchAutocompleteClient, getMeilisearchResults } = window['@meilis
  * @property {string} index
  * @property {?string} urlAttribute
  * @property {object} templates
+ * @property {number} limit
  *
  * @type {object} configuration
  * @property {string} host
@@ -42,6 +43,7 @@ const autocompleteConfig = {
                             {
                                 indexName: source.index,
                                 query,
+                                params: { hitsPerPage: source.limit },
                             },
                         ],
                     })

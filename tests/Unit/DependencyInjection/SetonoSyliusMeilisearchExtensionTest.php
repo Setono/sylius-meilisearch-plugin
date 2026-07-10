@@ -135,4 +135,47 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.search.enabled', true);
         $this->assertContainerBuilderHasService(SearchAction::class);
     }
+
+    /**
+     * @test
+     */
+    public function it_configures_autocomplete_with_default_limit(): void
+    {
+        $this->load([
+            'indexes' => [
+                'products' => [
+                    'document' => ProductDocument::class,
+                    'entities' => [ProductEntity::class],
+                ],
+            ],
+            'autocomplete' => [
+                'enabled' => true,
+                'indexes' => ['products'],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.autocomplete.limit', 5);
+    }
+
+    /**
+     * @test
+     */
+    public function it_configures_a_custom_autocomplete_limit(): void
+    {
+        $this->load([
+            'indexes' => [
+                'products' => [
+                    'document' => ProductDocument::class,
+                    'entities' => [ProductEntity::class],
+                ],
+            ],
+            'autocomplete' => [
+                'enabled' => true,
+                'indexes' => ['products'],
+                'limit' => 8,
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.autocomplete.limit', 8);
+    }
 }
