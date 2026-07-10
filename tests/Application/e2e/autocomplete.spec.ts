@@ -42,4 +42,29 @@ test.describe('autocomplete widget', () => {
         await expect(page).toHaveURL(/\/en_US\/products\//);
         await expect(page.locator('h1')).toBeVisible();
     });
+
+    test('encodes special characters when submitting the search', async ({ page }) => {
+        await page.goto('/en_US/');
+
+        const input = page.locator('#autocomplete .aa-Input');
+        await input.click();
+        await input.fill('jeans & co #1');
+        await input.press('Enter');
+
+        // onSubmit builds the URL with URLSearchParams: space -> +, & -> %26, # -> %23
+        await expect(page).toHaveURL(/\/en_US\/search\?q=jeans\+%26\+co\+%231/);
+    });
+
+    test('lets window.ssmAutocomplete override the configuration', async ({ page }) => {
+        // Injected before any page script runs, so it exists when autocomplete.js reads it.
+        await page.addInitScript(() => {
+            (window as unknown as { ssmAutocomplete: Record<string, unknown> }).ssmAutocomplete = {
+                placeholder: 'OVERRIDDEN',
+            };
+        });
+        await page.goto('/en_US/');
+
+        // User options must win over the plugin's config (previously the config clobbered them).
+        await expect(page.locator('#autocomplete .aa-Input')).toHaveAttribute('placeholder', 'OVERRIDDEN');
+    });
 });

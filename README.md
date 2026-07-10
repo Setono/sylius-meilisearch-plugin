@@ -256,6 +256,77 @@ setono_sylius_meilisearch:
 
 The widget talks to Meilisearch directly from the browser using the (read-only) `MEILISEARCH_SEARCH_KEY`, so make sure that key is a search-only key.
 
+## Customizing the JavaScript
+
+The plugin ships two first-party scripts, both served as plain browser JavaScript (no build step). You customize them by defining a global options object **before** the script runs — put the `<script>` that sets it above the plugin's scripts, or in a `javascripts` block that renders earlier. The plugin's scripts are loaded with `defer`, so a normal inline `<script>` in `<head>` or the body runs first.
+
+### The search results page (`search.js`)
+
+Set `window.ssmSearch` to override any option. Your values are merged over the defaults (the `loader` object is merged one level deep, so you can override just `show` or just `hide`):
+
+```html
+<script>
+    window.ssmSearch = {
+        form: '#search-form',             // CSS selector of the search form (must be a selector, not an element)
+        contentSelector: '#search-form',  // the markup replaced on each search
+        loader: {
+            selector: '#ssm-overlay',
+            show(selector) { document.querySelector(selector).style.display = 'block'; },
+            hide(selector) { document.querySelector(selector).style.display = 'none'; },
+        },
+        // Callbacks receive the field that changed (onSubmit receives nothing); `this` is the manager.
+        onFilterChange(field) { /* ... */ },
+        onPageChange(field) { /* ... */ },
+        onSortChange(field) { /* ... */ },
+        onSubmit() { this.submit(); },
+    };
+</script>
+```
+
+> **Note:** `form` must be a **selector string**, not a DOM element — the form node is replaced on every search, so a stored element reference would go stale.
+
+The created instance is exposed as `window.ssmSearchManager`, with a small public API:
+
+- `window.ssmSearchManager.form` — the current results `<form>`, or `null` when the "no results" block is shown.
+- `window.ssmSearchManager.submit()` — runs the background search immediately; returns a `Promise`.
+
+As the form is used, it emits these bubbling events (all fire on the changed field / new content):
+
+| Event | When |
+| --- | --- |
+| `search:form-changed` | any filter/page/sort field changes |
+| `search:filter-changed` | a filter field changes |
+| `search:page-changed` | the page field changes |
+| `search:sort-changed` | the sort field changes |
+| `search:content-updated` | the results markup was swapped in (AJAX **or** back/forward) |
+
+Use `search:content-updated` to re-initialize your own widgets after the results are replaced:
+
+```html
+<script>
+    document.addEventListener('search:content-updated', (event) => {
+        // event.detail.content is the freshly inserted element
+        myLazyImages.observe(event.detail.content);
+    });
+</script>
+```
+
+### The autocomplete widget (`autocomplete.js`)
+
+Set `window.ssmAutocomplete` to override any [autocomplete-js](https://www.algolia.com/doc/ui-libraries/autocomplete/api/) option. **Your options win** over the plugin's:
+
+```html
+<script>
+    window.ssmAutocomplete = {
+        placeholder: 'Search the shop…',
+        // Supplying your own getSources replaces the default Meilisearch sources entirely.
+        // getSources({ query }) { return [...]; },
+    };
+</script>
+```
+
+> **Content Security Policy:** the default item templates are compiled with `new Function`, which requires `script-src 'unsafe-eval'`. If your CSP forbids that, supply your own `getSources` via `window.ssmAutocomplete` — that path never compiles a template, so no `'unsafe-eval'` is needed.
+
 ## Synonyms
 
 Synonyms are managed in the Sylius admin (the plugin adds its own menu section) and synced to Meilisearch automatically when created, updated, or removed. A synonym can be scoped to specific channels and a locale.
@@ -330,6 +401,15 @@ yarn e2e                                          # or: yarn e2e:ui
 ```
 
 `yarn e2e` starts the app itself via `e2e/serve.sh` (which runs `symfony serve` on `127.0.0.1:8080` with `APP_ENV=test` and resolves the Meilisearch search key the autocomplete widget needs), so you don't start a server yourself.
+
+### Updating the vendored JavaScript libraries
+
+`src/Resources/public/js/` contains two vendored third-party bundles (their file headers record the exact version, source, and reproduction command):
+
+- `algolia.autocomplete.js` — [`@algolia/autocomplete-js`](https://www.jsdelivr.com/package/npm/@algolia/autocomplete-js) UMD production build, downloaded from jsDelivr.
+- `meilisearch.autocomplete.js` — [`@meilisearch/autocomplete-client`](https://www.npmjs.com/package/@meilisearch/autocomplete-client). This package ships ES modules only, so the vendored file is a single self-contained browser IIFE produced by bundling it once with esbuild. That is a one-off step at update time — no build tooling is added to the plugin or to consuming applications; only the produced file is committed.
+
+To update one, follow the command in its header (bump the version), overwrite everything below the banner comment, and run the end-to-end suite. `autocomplete.js` resolves the Meilisearch client's global name defensively, so a version that renames it still works.
 
 See [CLAUDE.md](CLAUDE.md) for a deeper tour of the architecture and conventions.
 
