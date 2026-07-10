@@ -13,6 +13,7 @@ use Setono\SyliusMeilisearchPlugin\Document\Product;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Component\Core\OrderPaymentStates;
 use Sylius\Component\Product\Model\ProductVariantInterface;
 use Webmozart\Assert\Assert;
 
@@ -49,14 +50,19 @@ final class PopularityDataMapper implements DataMapperInterface
 
         $orderIdLowerBound = $this->getOrderIdLowerBound();
 
-        // Notice that the order state is not taken into account here because that gives us more data to work with
+        // Count the number of distinct *paid* orders in which one of the product's
+        // enabled variants appears. We count distinct orders (not SUM(quantity)) so a
+        // single large-quantity order does not skew popularity — see issue #39.
         $qb = $this->getManager($this->orderItemClass)
             ->createQueryBuilder()
-            ->select('SUM(o.quantity)')
+            ->select('COUNT(DISTINCT IDENTITY(o.order))')
             ->from($this->orderItemClass, 'o')
-            ->andWhere('IDENTITY(o.order) >= :orderIdLowerBound')
+            ->innerJoin('o.order', 'ord')
+            ->andWhere('ord.id >= :orderIdLowerBound')
+            ->andWhere('ord.paymentState = :paymentState')
             ->andWhere('o.variant IN (:variants)')
             ->setParameter('orderIdLowerBound', $orderIdLowerBound)
+            ->setParameter('paymentState', OrderPaymentStates::STATE_PAID)
             ->setParameter('variants', $variants)
         ;
 
