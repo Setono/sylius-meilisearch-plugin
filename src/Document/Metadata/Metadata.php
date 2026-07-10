@@ -106,4 +106,24 @@ final class Metadata
     {
         return array_keys($this->sortableAttributes);
     }
+
+    /**
+     * Returns every valid sort value (`<attribute>:<asc|desc>`) for the sortable attributes,
+     * respecting any direction restriction declared via #[Sortable(direction:)]. This is the
+     * whitelist a user-supplied sort parameter must match before it is passed to Meilisearch.
+     *
+     * @return list<string>
+     */
+    public function getSortableValues(): array
+    {
+        $values = [];
+
+        foreach ($this->sortableAttributes as $sortable) {
+            foreach ($sortable->directions() as $direction) {
+                $values[] = sprintf('%s:%s', $sortable->name, $direction);
+            }
+        }
+
+        return $values;
+    }
 }

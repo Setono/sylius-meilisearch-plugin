@@ -28,8 +28,16 @@ final class MultiSearchBuilder implements MultiSearchBuilderInterface
 
         $filters = $this->filterBuilder->build($facets, $searchRequest->filters);
 
+        // The sort parameter comes straight from the request. Validate it against the document's
+        // sortable attributes before it reaches Meilisearch: an unknown attribute or an invalid
+        // direction would otherwise make Meilisearch reject the whole query and error the page.
+        // Anything that doesn't match silently falls back to relevance (no sort).
+        $sort = null !== $searchRequest->sort && in_array($searchRequest->sort, $metadata->getSortableValues(), true)
+            ? $searchRequest->sort
+            : null;
+
         return array_merge(
-            [$this->buildSearchQuery($index, $searchRequest, $facetsNames, $filters)],
+            [$this->buildSearchQuery($index, $searchRequest, $facetsNames, $filters, $sort)],
             $this->buildFacetQueries($index, $searchRequest, $facets, $searchRequest->filters),
         );
     }
@@ -38,7 +46,7 @@ final class MultiSearchBuilder implements MultiSearchBuilderInterface
      * @param list<string> $facetNames
      * @param list<string> $filters
      */
-    private function buildSearchQuery(Index $index, SearchRequest $searchRequest, array $facetNames, array $filters): SearchQuery
+    private function buildSearchQuery(Index $index, SearchRequest $searchRequest, array $facetNames, array $filters, ?string $sort): SearchQuery
     {
         $query = $this->searchQueryBuilder
             ->build($index->uid(), $searchRequest->query, $facetNames, $filters)
@@ -46,8 +54,8 @@ final class MultiSearchBuilder implements MultiSearchBuilderInterface
             ->setPage($searchRequest->page)
         ;
 
-        if (null !== $searchRequest->sort) {
-            $query->setSort([$searchRequest->sort]);
+        if (null !== $sort) {
+            $query->setSort([$sort]);
         }
 
         return $query;
