@@ -231,6 +231,8 @@ class Product extends Document
 }
 ```
 
+> **Point the config at your subclass.** `indexes.<name>.document` must reference **your** document class, not the built-in `Setono\SyliusMeilisearchPlugin\Document\Product`. It's easy to add a property to a subclass that is never indexed because the config still points at the base document.
+
 ### Data mappers
 
 Data mappers move data from your entities onto the document. Implement `Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface` and the service is picked up automatically through autoconfiguration. The plugin ships mappers for the basics (name, url, image, prices, taxons, product attributes/options, popularity).
@@ -289,6 +291,54 @@ class Product extends BaseProduct implements IndexableInterface, FilterableInter
 ```
 
 The plugin also ships default entity filters (e.g. an `enabled` filter for `ToggleableInterface` entities and a channel filter for channel-aware entities). Toggle them per index under `indexes.<name>.default_filters`, or add your own by implementing `Filter\Entity\EntityFilterInterface`.
+
+### Reacting to related-entity changes
+
+Incremental indexing reacts to changes on the indexed entity and its translations. To also reindex when an **associated** entity changes (a custom brand entity, a supplier, …), implement `Setono\SyliusMeilisearchPlugin\Resolver\Indexable\IndexableEntityResolverInterface` and tag it with `setono_sylius_meilisearch.indexable_entity_resolver` (autoconfiguration adds the tag). It receives every changed object and returns the indexable entities that should be reindexed. The plugin ships resolvers for `ChannelPricing` → product (price changes) and `ProductVariant` → product (stock changes).
+
+## Indexing a custom entity
+
+Indexing something other than products is the plugin's flagship extensibility story. Here is the whole path, mirroring the built-in **taxon** index (which the test application configures end to end).
+
+**1. Configure the index.** Add it under `indexes`, pointing at a document class and the entity/entities that feed it:
+
+```yaml
+setono_sylius_meilisearch:
+    indexes:
+        taxons:
+            document: 'Setono\SyliusMeilisearchPlugin\Document\Taxon'
+            entities: [ 'App\Entity\Taxonomy\Taxon' ]
+```
+
+**2. Make the entity indexable.** Implement `IndexableInterface` on the entity (the `IndexableAwareTrait` gives you the default id-based document identifier), exactly as for products.
+
+**3. Create a document** (or reuse the shipped `Document\Taxon`) with the attributes describing the record — see [The document](#the-document).
+
+**4. Provide a URL generator** so search results link somewhere. Implement `Setono\SyliusMeilisearchPlugin\UrlGenerator\EntityUrlGeneratorInterface` (extend `AbstractEntityUrlGenerator` for the injected router) and tag it with `setono_sylius_meilisearch.url_generator` (autoconfigured):
+
+```php
+final class TaxonUrlGenerator extends AbstractEntityUrlGenerator
+{
+    public function generate(IndexableInterface $entity, array $context = []): string
+    {
+        Assert::true($this->supports($entity, $context));
+        // build the URL for $entity (e.g. via $this->router->generate(...))
+    }
+
+    public function supports(IndexableInterface $entity, array $context = []): bool
+    {
+        return $entity instanceof TaxonInterface;
+    }
+}
+```
+
+**5. (Optional) Provide a scope provider.** If your index doesn't need the full channel/locale/currency matrix that products use, implement `Provider\IndexScope\IndexScopeProviderInterface` and tag it with `setono_sylius_meilisearch.index_scope_provider`; otherwise the `DefaultIndexScopeProvider` is used.
+
+Then reindex (`setono:sylius-meilisearch:index`) and your entity is searchable with clickable results.
+
+### Custom facet widgets
+
+Facets are rendered by tagged `Setono\SyliusMeilisearchPlugin\Form\Builder\FilterFormBuilderInterface` services. The shipped builders cover checkbox (boolean), multi-choice (array) and range (numeric) facets. To render a facet differently, implement the interface and tag the service with `setono_sylius_meilisearch.filter_form_builder` (autoconfigured). `supports()` decides whether your builder handles a given facet; `build()` adds the form child (named after the facet). Builders are tried in tag-priority order, so give a more specific builder a higher priority than the shipped ones.
 
 ## The search widget
 
