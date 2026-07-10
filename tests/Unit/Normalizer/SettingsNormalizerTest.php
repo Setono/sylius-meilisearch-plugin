@@ -38,14 +38,33 @@ final class SettingsNormalizerTest extends TestCase
 
         $result = $normalizer->normalize($settings);
 
-        // empty arrays are preserved (sending [] resets a partial-update setting)
+        // empty list-valued settings are preserved (sending [] resets a partial-update setting)
         self::assertArrayHasKey('filterableAttributes', $result);
         self::assertSame([], $result['filterableAttributes']);
         self::assertSame([], $result['sortableAttributes']);
         self::assertSame([], $result['stopWords']);
-        self::assertSame([], $result['synonyms']);
+
+        // synonyms is a map, not a list: empty must be an object so Meilisearch accepts it as {} (not [])
+        self::assertInstanceOf(\stdClass::class, $result['synonyms']);
 
         // null values are still stripped
         self::assertArrayNotHasKey('distinctAttribute', $result);
+    }
+
+    /**
+     * @test
+     */
+    public function it_keeps_a_populated_synonyms_map_as_is(): void
+    {
+        $settings = new Settings();
+
+        $inner = $this->prophesize(NormalizerInterface::class);
+        $inner->normalize($settings, null, [])->willReturn([
+            'synonyms' => ['sneakers' => ['trainers']],
+        ]);
+
+        $result = (new SettingsNormalizer($inner->reveal()))->normalize($settings);
+
+        self::assertSame(['sneakers' => ['trainers']], $result['synonyms']);
     }
 }
