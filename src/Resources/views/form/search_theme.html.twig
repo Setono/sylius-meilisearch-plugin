@@ -1,6 +1,5 @@
 {% block setono_sylius_meilisearch_facet_checkbox_row %}
     <div class="ssm-filter ssm-filter-checkbox">
-        {{ form_label(form) }}
         <ul>
             <li>{{- form_widget(form) -}}{{ form_label(form) }}</li>
         </ul>
@@ -10,15 +9,16 @@
 {% block setono_sylius_meilisearch_facet_range_row %}
     <div class="ssm-filter ssm-filter-range">
         {{ form_label(form) }}
-        {# todo these input fields should be prefilled with min and max values, but should not be submitted if those values are equal to the default value #}
+        {# The inputs are prefilled with the current result set's bounds (via data-default). search.js
+           drops any value that still equals its default, so untouched inputs add no params to the URL. #}
         <div class="ssm-filter-range-widget">
             <div>
                 {{ form_label(form.min) }}
-                {{ form_widget(form.min) }}
+                {{ form_widget(form.min, { 'value': form.min.vars.value ?: form.min.vars.attr['data-default']|default('') }) }}
             </div>
             <div>
                 {{ form_label(form.max) }}
-                {{ form_widget(form.max) }}
+                {{ form_widget(form.max, { 'value': form.max.vars.value ?: form.max.vars.attr['data-default']|default('') }) }}
             </div>
         </div>
     </div>

@@ -87,6 +87,8 @@ test.describe('shop search page', () => {
         await min.fill(String(threshold));
         await min.blur();
         await expect(page).toHaveURL(/f%5Bprice%5D%5Bmin%5D/);
+        // The untouched max input still equals its default, so it contributes no param to the URL
+        await expect(page).not.toHaveURL(/f%5Bprice%5D%5Bmax%5D/);
 
         await expect(names(page).first()).toBeVisible();
         for (const price of await prices(page)) {

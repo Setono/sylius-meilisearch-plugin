@@ -1,1 +1,2 @@
-{{ form_widget(searchForm.s, { 'attr': { 'class': 'ssm-sort' } }) }}
+{# aria-label gives the select a programmatic label without a visible one (placeholder-only UI) #}
+{{ form_widget(searchForm.s, { 'attr': { 'class': 'ssm-sort', 'aria-label': 'setono_sylius_meilisearch.form.search.sorting.placeholder'|trans } }) }}

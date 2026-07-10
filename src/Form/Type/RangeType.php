@@ -17,10 +17,14 @@ final class RangeType extends AbstractType
             ->add('min', NumberType::class, [
                 'label' => 'setono_sylius_meilisearch.form.search.range.min',
                 'empty_data' => $options['min'] ?? null,
+                // data-default lets search.js drop the value when it equals the default bound,
+                // so an untouched range filter contributes no f[<facet>][min] param to the URL.
+                'attr' => ['data-default' => $options['min']],
             ])
             ->add('max', NumberType::class, [
                 'label' => 'setono_sylius_meilisearch.form.search.range.max',
                 'empty_data' => $options['max'] ?? null,
+                'attr' => ['data-default' => $options['max']],
             ])
         ;
     }
