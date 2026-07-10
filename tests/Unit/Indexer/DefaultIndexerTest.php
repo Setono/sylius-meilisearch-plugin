@@ -139,6 +139,26 @@ final class DefaultIndexerTest extends TestCase
     /**
      * @test
      */
+    public function it_does_not_create_an_add_documents_task_for_an_empty_batch(): void
+    {
+        $logger = new SpyLogger();
+
+        // The single entity is filtered out, so no documents remain to index. createIndexer stubs
+        // addDocuments, but here we assert that a valid-but-empty batch issues no addDocuments task.
+        $indexer = $this->createIndexer($logger, passesFilter: true, violations: new ConstraintViolationList([
+            new ConstraintViolation('invalid', null, [], '', 'name', null),
+        ]));
+
+        $indexer->indexEntities([$this->createEntity()]);
+
+        $summary = $logger->firstOfLevel('info');
+        self::assertNotNull($summary);
+        self::assertSame(0, $summary['context']['indexed']);
+    }
+
+    /**
+     * @test
+     */
     public function it_removes_a_filtered_out_entity_from_the_index(): void
     {
         $index = new Index('products', ProductDocument::class, [Product::class], new Container());
@@ -154,7 +174,8 @@ final class DefaultIndexerTest extends TestCase
         $objectFilter->filter(Argument::cetera())->willReturn(false);
 
         $indexes = $this->prophesize(Indexes::class);
-        $indexes->addDocuments([], 'id')->shouldBeCalled()->willReturn([]);
+        // Nothing to index (the only entity was filtered out), so no addDocuments task is created
+        $indexes->addDocuments(Argument::cetera())->shouldNotBeCalled();
         // The filtered-out entity is removed from the index
         $indexes->deleteDocuments(['42'])->shouldBeCalledOnce()->willReturn([]);
 

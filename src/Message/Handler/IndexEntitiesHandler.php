@@ -37,5 +37,9 @@ final class IndexEntitiesHandler
         foreach ($this->indexRegistry->getByEntity($message->class) as $index) {
             $index->indexer()->indexEntities($entities);
         }
+
+        // Detach the batch's entities so a synchronous full reindex does not accumulate the whole
+        // catalog in memory in one process.
+        $this->getManager($message->class)->clear();
     }
 }
