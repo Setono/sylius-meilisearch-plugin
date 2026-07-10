@@ -12,7 +12,7 @@ use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable;
 
 class Product extends Document implements UrlAwareInterface
 {
-    #[Searchable]
+    #[Searchable(priority: 100)]
     public ?string $name = null;
 
     #[Sortable(direction: Sortable::DESC)]
@@ -33,6 +33,7 @@ class Product extends Document implements UrlAwareInterface
 
     /** @var list<string> */
     #[Facetable]
+    #[Searchable(priority: 50)]
     public array $taxons = [];
 
     public ?string $currency = null;
