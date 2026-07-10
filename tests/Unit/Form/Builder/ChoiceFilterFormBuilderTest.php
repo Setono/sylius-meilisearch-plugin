@@ -14,6 +14,7 @@ use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\FilterValuesSorterInterfa
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * A reversing sorter referenced by its FQCN (not registered as a service) to exercise
@@ -39,7 +40,7 @@ final class ChoiceFilterFormBuilderTest extends TestCase
      */
     private function buildChoices(Container $locator, ?string $sorter): array
     {
-        $builder = new ChoiceFilterFormBuilder($locator);
+        $builder = new ChoiceFilterFormBuilder($locator, $this->prophesize(TranslatorInterface::class)->reveal());
         $facet = new Facet('brand', 'array', 0, $sorter);
         $facetValues = new FacetValues('brand', ['a' => 1, 'b' => 1, 'c' => 1]);
 

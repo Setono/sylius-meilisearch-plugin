@@ -49,7 +49,7 @@ test.describe('shop search page', () => {
         // Checking the box auto-submits (there is no submit button in the form)
         await page.locator('.ssm-filters input[name="f[brand][]"][value="Celsius Small"]').check();
         await expect(page).toHaveURL(/f%5Bbrand%5D%5B%5D=Celsius/);
-        await expect(page.getByText('1 results')).toBeVisible();
+        await expect(page.getByText('1 result', { exact: true })).toBeVisible();
         await expect(names(page)).toHaveCount(1);
     });
 
@@ -119,7 +119,7 @@ test.describe('shop search page — history & resilience', () => {
         await expect(names(page)).toHaveCount(3);
         await page.locator('.ssm-filters input[name="f[brand][]"][value="Celsius Small"]').check();
         await expect(page).toHaveURL(/f%5Bbrand%5D%5B%5D=Celsius/);
-        await expect(page.getByText('1 results')).toBeVisible();
+        await expect(page.getByText('1 result', { exact: true })).toBeVisible();
     });
 
     test('submits a typed range filter only once on blur', async ({ page }) => {

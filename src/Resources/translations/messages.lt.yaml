@@ -7,10 +7,17 @@ setono_sylius_meilisearch:
                 price: Price
                 size: Size
                 taxons: Category
+            no_results:
+                body: 'Pabandykite ieškoti ko nors kito'
+                header: 'Rezultatų nerasta'
             pagination:
                 next: Next
                 previous: Previous
             q_placeholder: Search...
+            range:
+                max: 'Maks'
+                min: 'Min'
+            results_count: '{0}%count% rezultatai|{1}%count% rezultatas|]1,Inf[ %count% rezultatai'
             sorting:
                 createdAt:
                     asc: "Oldest"
