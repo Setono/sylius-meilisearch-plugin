@@ -7,6 +7,8 @@ namespace Setono\SyliusMeilisearchPlugin\Indexer;
 use Doctrine\Persistence\ManagerRegistry;
 use Meilisearch\Client;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
@@ -38,6 +40,7 @@ class DefaultIndexer extends AbstractIndexer
         protected readonly EventDispatcherInterface $eventDispatcher,
         protected readonly MessageBusInterface $commandBus,
         protected readonly ValidatorInterface $validator,
+        protected readonly LoggerInterface $logger = new NullLogger(),
     ) {
         $this->managerRegistry = $managerRegistry;
     }
@@ -69,17 +72,43 @@ class DefaultIndexer extends AbstractIndexer
         }
 
         foreach ($this->indexScopeProvider->getAll($this->index) as $indexScope) {
+            $uid = $this->indexNameResolver->resolveFromIndexScope($indexScope);
+
             $documents = [];
+            $filtered = 0;
+            $invalid = 0;
 
             foreach ($entities as $entity) {
                 $document = new $this->index->document();
                 $this->dataMapper->map($entity, $document, $indexScope);
 
                 if (!$this->objectFilter->filter($entity, $document, $indexScope)) {
+                    ++$filtered;
+                    $this->logger->debug('Entity was filtered out during indexing and will not be indexed', [
+                        'index' => $uid,
+                        'entity' => $entity::class,
+                        'id' => $entity->getDocumentIdentifier(),
+                    ]);
+
                     continue;
                 }
 
-                if ($this->validator->validate($document)->count() > 0) {
+                $violations = $this->validator->validate($document);
+                if ($violations->count() > 0) {
+                    ++$invalid;
+
+                    $messages = [];
+                    foreach ($violations as $violation) {
+                        $messages[] = sprintf('%s: %s', $violation->getPropertyPath(), (string) $violation->getMessage());
+                    }
+
+                    $this->logger->warning('Document failed validation during indexing and was skipped', [
+                        'index' => $uid,
+                        'entity' => $entity::class,
+                        'id' => $entity->getDocumentIdentifier(),
+                        'violations' => $messages,
+                    ]);
+
                     continue;
                 }
 
@@ -89,7 +118,15 @@ class DefaultIndexer extends AbstractIndexer
                 $documents[] = $data;
             }
 
-            $this->client->index($this->indexNameResolver->resolveFromIndexScope($indexScope))->addDocuments($documents, 'id');
+            $this->client->index($uid)->addDocuments($documents, 'id');
+
+            $this->logger->info('Indexed a batch of entities', [
+                'index' => $uid,
+                'mapped' => count($entities),
+                'filtered' => $filtered,
+                'invalid' => $invalid,
+                'indexed' => count($documents),
+            ]);
         }
     }
 

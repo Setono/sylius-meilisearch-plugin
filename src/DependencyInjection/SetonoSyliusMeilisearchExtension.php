@@ -376,7 +376,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     {
         $indexerServiceId = sprintf('setono_sylius_meilisearch.indexer.%s', $indexName);
 
-        $container->setDefinition($indexerServiceId, new Definition(DefaultIndexer::class, [
+        $definition = new Definition(DefaultIndexer::class, [
             new Reference($indexServiceId),
             new Reference('doctrine'),
             new Reference(IndexScopeProviderInterface::class),
@@ -388,7 +388,13 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
             new Reference('event_dispatcher'),
             new Reference('setono_sylius_meilisearch.command_bus'),
             new Reference('validator'),
-        ]));
+            new Reference('logger'),
+        ]);
+        // Routes the logger to a dedicated "setono_sylius_meilisearch" monolog channel when
+        // MonologBundle is installed; falls back to the default logger otherwise.
+        $definition->addTag('monolog.logger', ['channel' => 'setono_sylius_meilisearch']);
+
+        $container->setDefinition($indexerServiceId, $definition);
 
         return $indexerServiceId;
     }
