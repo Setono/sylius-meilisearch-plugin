@@ -2,15 +2,22 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="Setono\SyliusMeilisearchPlugin\Twig\AutocompleteRuntime">
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Autocomplete\DefaultSourceResolver">
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface"/>
+            <argument type="service" id="twig"/>
+            <argument>%setono_sylius_meilisearch.autocomplete.limit%</argument>
+        </service>
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Autocomplete\SourceResolverInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Meilisearch\Autocomplete\DefaultSourceResolver"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Twig\AutocompleteRuntime">
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\Autocomplete\SourceResolverInterface"/>
             <argument type="service" id="translator"/>
             <argument type="service" id="router"/>
             <argument>%setono_sylius_meilisearch.server.public_url%</argument>
             <argument>%setono_sylius_meilisearch.server.search_key%</argument>
             <argument>%setono_sylius_meilisearch.autocomplete.container%</argument>
             <argument>%setono_sylius_meilisearch.autocomplete.placeholder%</argument>
-            <argument>%setono_sylius_meilisearch.autocomplete.limit%</argument>
             <argument type="collection"/> <!-- Gets set in the extension -->
             <argument>%kernel.debug%</argument>
 
