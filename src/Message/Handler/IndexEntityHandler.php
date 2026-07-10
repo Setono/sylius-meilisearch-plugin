@@ -4,14 +4,34 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Message\Handler;
 
-use Setono\SyliusMeilisearchPlugin\Config\Index;
+use Doctrine\Persistence\ManagerRegistry;
+use Setono\Doctrine\ORMTrait;
+use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntity;
-use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
+use Webmozart\Assert\Assert;
 
-final class IndexEntityHandler extends AbstractEntityHandler
+final class IndexEntityHandler
 {
+    use ORMTrait;
+
+    public function __construct(ManagerRegistry $managerRegistry, private readonly IndexRegistryInterface $indexRegistry)
+    {
+        $this->managerRegistry = $managerRegistry;
+    }
+
     public function __invoke(IndexEntity $message): void
     {
-        $this->handle($message, static fn (IndexableInterface $entity, Index $index) => $index->indexer()->indexEntity($entity));
+        $entity = $this->getManager($message->class)->find($message->class, $message->id);
+        if (null === $entity) {
+            $id = $message->id;
+            Assert::scalar($id);
+
+            throw new UnrecoverableMessageHandlingException(sprintf('Entity (%s) with id %s not found', $message->class, (string) $id));
+        }
+
+        foreach ($this->indexRegistry->getByEntity($message->class) as $index) {
+            $index->indexer()->indexEntity($entity);
+        }
     }
 }

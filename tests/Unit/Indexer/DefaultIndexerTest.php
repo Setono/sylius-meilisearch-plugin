@@ -134,4 +134,43 @@ final class DefaultIndexerTest extends TestCase
         self::assertSame(0, $summary['context']['invalid']);
         self::assertSame(0, $summary['context']['indexed']);
     }
+
+    /**
+     * @test
+     */
+    public function it_removes_documents_with_one_batch_delete_task_per_scope(): void
+    {
+        $index = new Index('products', ProductDocument::class, [Product::class], new Container());
+        $indexScope = new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD');
+
+        $indexScopeProvider = $this->prophesize(IndexScopeProviderInterface::class);
+        $indexScopeProvider->getAll($index)->willReturn([$indexScope]);
+
+        $uidResolver = $this->prophesize(IndexUidResolverInterface::class);
+        $uidResolver->resolveFromIndexScope($indexScope)->willReturn('products__test');
+
+        $indexes = $this->prophesize(Indexes::class);
+        // A single batch deleteDocuments call for the whole set of ids, not one call per id
+        $indexes->deleteDocuments(['1', '2', '3'])->shouldBeCalledOnce()->willReturn([]);
+
+        $client = $this->prophesize(Client::class);
+        $client->index('products__test')->willReturn($indexes->reveal());
+
+        $indexer = new DefaultIndexer(
+            $index,
+            $this->prophesize(ManagerRegistry::class)->reveal(),
+            $indexScopeProvider->reveal(),
+            $uidResolver->reveal(),
+            $this->prophesize(DataMapperInterface::class)->reveal(),
+            $this->prophesize(\Symfony\Component\Serializer\Normalizer\NormalizerInterface::class)->reveal(),
+            $client->reveal(),
+            $this->prophesize(EntityFilterInterface::class)->reveal(),
+            $this->prophesize(EventDispatcherInterface::class)->reveal(),
+            $this->prophesize(MessageBusInterface::class)->reveal(),
+            $this->prophesize(ValidatorInterface::class)->reveal(),
+            new SpyLogger(),
+        );
+
+        $indexer->removeDocuments(['1', '2', '3']);
+    }
 }

@@ -13,11 +13,12 @@ abstract class EntityAwareCommand implements CommandInterface
         public readonly string $class,
         /** @var mixed $id */
         public readonly mixed $id,
+        public readonly ?string $documentIdentifier,
     ) {
     }
 
     public static function new(IndexableInterface $object): static
     {
-        return new static($object::class, $object->getId());
+        return new static($object::class, $object->getId(), $object->getDocumentIdentifier());
     }
 }
