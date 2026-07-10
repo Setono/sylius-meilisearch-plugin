@@ -8,9 +8,7 @@ use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchRequest;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchResult;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 
@@ -59,33 +57,9 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
 
         $this->sortingFormBuilder->build($searchFormBuilder, $metadata);
 
-        $this->buildPagination($searchResult, $searchFormBuilder);
+        // Pagination is rendered as accessible anchor links (see search/_pagination.html.twig),
+        // not as a form field. The `p` query parameter is read straight from the request.
 
         return $searchFormBuilder->getForm();
-    }
-
-    private function buildPagination(SearchResult $searchResult, FormBuilderInterface $builder): void
-    {
-        $choices = [];
-
-        // current is a special choice that we need to keep the page query parameter in the url on form submission
-        $choices['__current'] = $searchResult->page;
-
-        if ($searchResult->page > 1) {
-            $choices['setono_sylius_meilisearch.form.search.pagination.previous'] = $searchResult->page - 1;
-        }
-
-        if ($searchResult->page < $searchResult->totalPages) {
-            $choices['setono_sylius_meilisearch.form.search.pagination.next'] = $searchResult->page + 1;
-        }
-
-        $builder->add('p', ChoiceType::class, [
-            'choices' => $choices,
-            'choice_attr' => fn (string $page) => ['style' => 'display: none'], // we only want to display the labels
-            'required' => false,
-            'expanded' => true,
-            'placeholder' => false,
-            'block_prefix' => 'setono_sylius_meilisearch_page_choice',
-        ]);
     }
 }

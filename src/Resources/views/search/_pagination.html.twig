@@ -1,3 +1,53 @@
-{% if searchForm.p is defined %}
-    {{ form_widget(searchForm.p) }}
+{# @var searchResult \Setono\SyliusMeilisearchPlugin\Engine\SearchResult #}
+{% set current = searchResult.page %}
+{% set total = searchResult.totalPages %}
+
+{% if total > 1 %}
+    {# Preserve the current route (search or taxon), its params (e.g. _locale, slug) and the
+       current query (q, f, s), only overriding the page. #}
+    {% set route = app.request.attributes.get('_route') %}
+    {% set routeParams = (app.request.attributes.get('_route_params')|default({}))|merge(app.request.query.all) %}
+
+    {# Build a windowed list of page numbers: first, last and a window around the current page. #}
+    {% set pages = [] %}
+    {% for page in 1..total %}
+        {% if page == 1 or page == total or (page >= current - 2 and page <= current + 2) %}
+            {% set pages = pages|merge([page]) %}
+        {% endif %}
+    {% endfor %}
+
+    <nav class="ssm-pagination" aria-label="{{ 'setono_sylius_meilisearch.form.search.pagination.label'|trans }}">
+        <ul>
+            {% if current > 1 %}
+                <li class="ssm-pagination-previous">
+                    <a rel="prev" href="{{ path(route, routeParams|merge({'p': current - 1})) }}">
+                        {{ 'setono_sylius_meilisearch.form.search.pagination.previous'|trans }}
+                    </a>
+                </li>
+            {% endif %}
+
+            {% set previousPage = 0 %}
+            {% for page in pages %}
+                {% if previousPage and page > previousPage + 1 %}
+                    <li class="ssm-pagination-ellipsis" aria-hidden="true">&hellip;</li>
+                {% endif %}
+
+                <li>
+                    <a href="{{ path(route, routeParams|merge({'p': page})) }}"{{ page == current ? ' aria-current="page"' : '' }}>
+                        {{ page }}
+                    </a>
+                </li>
+
+                {% set previousPage = page %}
+            {% endfor %}
+
+            {% if current < total %}
+                <li class="ssm-pagination-next">
+                    <a rel="next" href="{{ path(route, routeParams|merge({'p': current + 1})) }}">
+                        {{ 'setono_sylius_meilisearch.form.search.pagination.next'|trans }}
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
 {% endif %}

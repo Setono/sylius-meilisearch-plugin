@@ -215,13 +215,35 @@ class SearchManager {
         this.#form.addEventListener('search:filter-changed', (event) => this.#options.onFilterChange(event.target));
         this.#form.addEventListener('search:page-changed', (event) => this.#options.onPageChange(event.target));
         this.#form.addEventListener('search:sort-changed', (event) => this.#options.onSortChange(event.target));
+
+        // Pagination is a set of anchor links (accessible + crawlable). Intercept plain
+        // left-clicks and navigate via the background search instead of a full page load;
+        // modified clicks (new tab, etc.) fall through to normal navigation.
+        this.#form.addEventListener('click', (event) => {
+            const link = event.target instanceof Element ? event.target.closest('.ssm-pagination a') : null;
+            if (link === null || !this.#form.contains(link)) {
+                return;
+            }
+            if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+                return;
+            }
+
+            event.preventDefault();
+
+            // Scroll the new results into view once swapped, as with the old page control.
+            document.addEventListener('search:content-updated', (updated) => {
+                updated.detail.content.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, { once: true });
+
+            this.#submitForm(link.href);
+        });
         this.#form.addEventListener('submit', (event) => {
             event.preventDefault();
             this.#options.onSubmit();
         });
     }
 
-    async #submitForm() {
+    async #submitForm(targetUrl = null) {
         // Nothing to submit on the "no results" page.
         if (this.#form === null) {
             return;
@@ -233,8 +255,8 @@ class SearchManager {
         const controller = new AbortController();
         this.#abortController = controller;
 
-        // Build the URL up front so the catch block can reuse it for the fallback.
-        const url = this.#buildUrl();
+        // Pagination links pass their own URL; the form controls build the URL from form state.
+        const url = targetUrl ?? this.#buildUrl();
         let navigating = false;
 
         this.#options.loader.show(this.#options.loader.selector);

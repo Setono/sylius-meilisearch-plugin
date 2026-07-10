@@ -11,6 +11,7 @@ setono_sylius_meilisearch:
                 body: 'Prøv å søke etter noe annet'
                 header: 'Ingen resultater funnet'
             pagination:
+                label: 'Paginering'
                 next: Next
                 previous: Previous
             q_placeholder: Search...
