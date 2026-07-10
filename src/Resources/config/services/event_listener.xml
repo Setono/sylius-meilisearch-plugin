@@ -5,6 +5,7 @@
         <!-- Doctrine specific event subscribers -->
         <service id="Setono\SyliusMeilisearchPlugin\EventListener\Doctrine\EntityListener">
             <argument type="service" id="setono_sylius_meilisearch.command_bus"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Resolver\Indexable\IndexableEntityResolverInterface"/>
             <argument type="service" id="logger"/>
 
             <tag name="doctrine.event_listener" event="postPersist"/>

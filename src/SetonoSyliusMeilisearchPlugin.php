@@ -11,6 +11,7 @@ use Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFilterFormBuilder;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\CompositeFilterBuilder;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\CompositeIndexScopeProvider;
 use Setono\SyliusMeilisearchPlugin\Provider\Settings\CompositeSettingsProvider;
+use Setono\SyliusMeilisearchPlugin\Resolver\Indexable\CompositeIndexableEntityResolver;
 use Sylius\Bundle\CoreBundle\Application\SyliusPluginTrait;
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
@@ -68,6 +69,11 @@ final class SetonoSyliusMeilisearchPlugin extends AbstractResourceBundle
         $container->addCompilerPass(new CompositeCompilerPass(
             CompositeFilterBuilder::class,
             'setono_sylius_meilisearch.filter_builder',
+        ));
+
+        $container->addCompilerPass(new CompositeCompilerPass(
+            CompositeIndexableEntityResolver::class,
+            'setono_sylius_meilisearch.indexable_entity_resolver',
         ));
     }
 }

@@ -10,9 +10,16 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusMeilisearchPlugin\EventListener\Doctrine\EntityListener;
+use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntity;
 use Setono\SyliusMeilisearchPlugin\Message\Command\RemoveEntity;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\Indexable\ChannelPricingIndexableEntityResolver;
+use Setono\SyliusMeilisearchPlugin\Resolver\Indexable\CompositeIndexableEntityResolver;
+use Setono\SyliusMeilisearchPlugin\Resolver\Indexable\IndexableEntityResolver;
 use Setono\SyliusMeilisearchPlugin\Tests\Unit\Indexer\SpyLogger;
+use Sylius\Component\Core\Model\ChannelPricingInterface;
+use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Component\Core\Model\ProductVariantInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -41,7 +48,7 @@ final class EntityListenerTest extends TestCase
             ->willReturn(new Envelope(new \stdClass()))
             ->shouldBeCalledOnce();
 
-        $listener = new EntityListener($commandBus->reveal());
+        $listener = new EntityListener($commandBus->reveal(), new IndexableEntityResolver());
         $listener->preRemove($eventArgs);
         $listener->postRemove($eventArgs);
 
@@ -67,12 +74,54 @@ final class EntityListenerTest extends TestCase
         $commandBus->dispatch(Argument::any())->willThrow(new \RuntimeException('Meilisearch is down'));
 
         $logger = new SpyLogger();
-        $listener = new EntityListener($commandBus->reveal(), $logger);
+        $listener = new EntityListener($commandBus->reveal(), new IndexableEntityResolver(), $logger);
 
         // Must not throw, even though the dispatch fails
         $listener->postPersist($eventArgs);
 
         $error = $logger->firstOfLevel('error');
         self::assertNotNull($error);
+    }
+
+    /**
+     * @test
+     */
+    public function it_reindexes_the_owning_product_when_a_channel_price_changes(): void
+    {
+        $product = $this->prophesize(ProductInterface::class);
+        $product->willImplement(IndexableInterface::class);
+        $product->getId()->willReturn(11);
+        $product->getDocumentIdentifier()->willReturn('11');
+
+        $variant = $this->prophesize(ProductVariantInterface::class);
+        $variant->getProduct()->willReturn($product->reveal());
+
+        $channelPricing = $this->prophesize(ChannelPricingInterface::class);
+        $channelPricing->getProductVariant()->willReturn($variant->reveal());
+
+        $eventArgs = new LifecycleEventArgs($channelPricing->reveal(), $this->prophesize(ObjectManager::class)->reveal());
+
+        /** @var list<IndexEntity> $dispatched */
+        $dispatched = [];
+        $commandBus = $this->prophesize(MessageBusInterface::class);
+        $commandBus->dispatch(Argument::type(IndexEntity::class))->will(
+            static function (array $args) use (&$dispatched): Envelope {
+                /** @var IndexEntity $message */
+                $message = $args[0];
+                $dispatched[] = $message;
+
+                return new Envelope($message);
+            },
+        );
+
+        $composite = new CompositeIndexableEntityResolver();
+        $composite->add(new IndexableEntityResolver());
+        $composite->add(new ChannelPricingIndexableEntityResolver());
+
+        $listener = new EntityListener($commandBus->reveal(), $composite);
+        $listener->postUpdate($eventArgs);
+
+        self::assertCount(1, $dispatched);
+        self::assertSame(11, $dispatched[0]->id);
     }
 }

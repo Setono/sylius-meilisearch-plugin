@@ -10,8 +10,8 @@ use Psr\Log\NullLogger;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntity;
 use Setono\SyliusMeilisearchPlugin\Message\Command\RemoveEntity;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\Indexable\IndexableEntityResolverInterface;
 use SplObjectStorage;
-use Sylius\Component\Resource\Model\TranslationInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 final class EntityListener
@@ -26,6 +26,7 @@ final class EntityListener
 
     public function __construct(
         private readonly MessageBusInterface $commandBus,
+        private readonly IndexableEntityResolverInterface $indexableEntityResolver,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
         $this->removeIndexableStorage = new SplObjectStorage();
@@ -33,84 +34,70 @@ final class EntityListener
 
     public function postPersist(LifecycleEventArgs $eventArgs): void
     {
-        $this->dispatch($eventArgs, static fn (IndexableInterface $entity) => IndexEntity::new($entity));
+        $this->index($eventArgs->getObject());
     }
 
     public function postUpdate(LifecycleEventArgs $eventArgs): void
     {
-        $this->dispatch($eventArgs, static fn (IndexableInterface $entity) => IndexEntity::new($entity));
+        $this->index($eventArgs->getObject());
     }
 
     public function preRemove(LifecycleEventArgs $eventArgs): void
     {
-        $indexable = self::extractIndexableFromEvent($eventArgs);
+        $object = $eventArgs->getObject();
 
-        if (null !== $indexable) {
-            $this->removeIndexableStorage->attach($indexable, [$indexable->getId(), $indexable->getDocumentIdentifier()]);
+        // Only the indexable entity itself needs its id and document identifier captured for a document
+        // removal. They are captured here because they are no longer available once the row is deleted.
+        if ($object instanceof IndexableInterface) {
+            $this->removeIndexableStorage->attach($object, [$object->getId(), $object->getDocumentIdentifier()]);
         }
     }
 
     public function postRemove(LifecycleEventArgs $eventArgs): void
     {
-        $indexable = self::extractIndexableFromEvent($eventArgs);
+        $object = $eventArgs->getObject();
 
-        if (null === $indexable) {
-            return;
+        foreach ($this->indexableEntityResolver->resolve($object) as $indexable) {
+            if ($object instanceof IndexableInterface && $indexable === $object) {
+                // The indexable entity itself was removed: delete its document using the identifier
+                // captured before deletion, so no reload of the (now gone) entity is needed.
+                [$entityId, $documentIdentifier] = $this->removeIndexableStorage[$object] ?? [null, null];
+                if (null !== $documentIdentifier) {
+                    $this->dispatch(new RemoveEntity($object::class, $entityId, $documentIdentifier));
+                }
+
+                continue;
+            }
+
+            // A related entity was removed (e.g. a channel price or a variant): reindex the owner
+            $this->dispatch(IndexEntity::new($indexable));
         }
 
-        [$entityId, $documentIdentifier] = $this->removeIndexableStorage[$indexable] ?? [null, null];
-
-        // Always detach so the SplObjectStorage does not grow unbounded in long-running workers
-        // (it is attach-only in preRemove).
-        $this->removeIndexableStorage->detach($indexable);
-
-        // Without a document identifier there is nothing to remove from the index.
-        if (null === $documentIdentifier) {
-            return;
+        if ($object instanceof IndexableInterface) {
+            // Always detach so the SplObjectStorage does not grow unbounded in long-running workers
+            $this->removeIndexableStorage->detach($object);
         }
-
-        $this->dispatch(
-            $eventArgs,
-            fn (IndexableInterface $entity) => new RemoveEntity($entity::class, $entityId, $documentIdentifier),
-        );
     }
 
-    /**
-     * @param callable(IndexableInterface):object $message
-     */
-    private function dispatch(LifecycleEventArgs $eventArgs, callable $message): void
+    private function index(object $object): void
     {
-        $indexable = self::extractIndexableFromEvent($eventArgs);
-
-        if (null === $indexable) {
-            return;
+        foreach ($this->indexableEntityResolver->resolve($object) as $indexable) {
+            $this->dispatch(IndexEntity::new($indexable));
         }
+    }
 
+    private function dispatch(object $message): void
+    {
         try {
-            $this->commandBus->dispatch($message($indexable));
+            $this->commandBus->dispatch($message);
         } catch (\Throwable $e) {
             // A search-index update (or its transport being unavailable) must never break the
             // entity save it is reacting to. Swallow and log instead.
             $this->logger->error('Failed to dispatch a Meilisearch indexing command for an entity change: {message}', [
                 'message' => $e->getMessage(),
-                'entity' => $indexable::class,
+                'command' => $message::class,
                 'exception' => $e,
             ]);
         }
-    }
-
-    private static function extractIndexableFromEvent(LifecycleEventArgs $eventArgs): ?IndexableInterface
-    {
-        $obj = $eventArgs->getObject();
-
-        if ($obj instanceof TranslationInterface) {
-            $obj = $obj->getTranslatable();
-        }
-
-        if (!$obj instanceof IndexableInterface) {
-            return null;
-        }
-
-        return $obj;
     }
 }
