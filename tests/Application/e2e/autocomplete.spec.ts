@@ -29,6 +29,42 @@ test.describe('autocomplete widget', () => {
         await expect(page.locator('.aa-ItemContentTitle').filter({ hasText: /jeans/i }).first()).toBeVisible();
     });
 
+    test('shows the price and a see-all link in the suggestions', async ({ page }) => {
+        await page.goto('/en_US/');
+
+        const input = page.locator('#autocomplete .aa-Input');
+        await input.click();
+        await input.pressSequentially('jeans', { delay: 50 });
+
+        // Each product suggestion shows a formatted price
+        await expect(page.locator('.aa-ItemContentDescription').first()).toHaveText(/\d/);
+
+        // A "see all results" footer links to the full search page for the current query
+        const seeAll = page.locator('.aa-SeeAllLink').first();
+        await expect(seeAll).toBeVisible();
+        await expect(seeAll).toHaveAttribute('href', /\/en_US\/search\?q=jeans/);
+    });
+
+    test('debounces Meilisearch requests while typing', async ({ page }) => {
+        await page.goto('/en_US/');
+
+        let meilisearchRequests = 0;
+        page.on('request', (req) => {
+            // The browser queries Meilisearch directly via its multi-search endpoint
+            if (/\/multi-search/.test(req.url())) {
+                meilisearchRequests++;
+            }
+        });
+
+        const input = page.locator('#autocomplete .aa-Input');
+        await input.click();
+        await input.pressSequentially('jeanstrous', { delay: 20 }); // 10 characters typed quickly
+
+        // Let the debounce settle, then assert we didn't fire one request per character
+        await page.waitForTimeout(500);
+        expect(meilisearchRequests).toBeLessThanOrEqual(3);
+    });
+
     test('navigates to the product on selection', async ({ page }) => {
         await page.goto('/en_US/');
 

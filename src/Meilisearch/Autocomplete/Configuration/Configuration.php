@@ -20,6 +20,9 @@ final class Configuration
         public readonly string $placeholder,
         public readonly ?string $searchPath = null,
         public readonly ?string $searchParameter = 'q',
+
+        /** Label for the "see all results" link in each source footer */
+        public readonly ?string $seeAllLabel = null,
         public readonly bool $debug = false,
     ) {
     }
