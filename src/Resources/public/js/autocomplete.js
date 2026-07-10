@@ -54,7 +54,12 @@ const autocompleteConfig = {
                 s.templates = {};
 
                 for (const [key, template] of Object.entries(source.templates)) {
-                    s.templates[key] = ({item, components, html}) => eval('html`' + template + '`');
+                    // Compile the template once per source instead of eval'ing on every item render
+                    // (which is once per keystroke × per hit, and requires CSP unsafe-eval each time).
+                    // The template body is spliced into a tagged template literal, so it must not
+                    // contain a backtick or a stray ${ outside an expression.
+                    const render = new Function('item', 'components', 'html', 'return html`' + template + '`');
+                    s.templates[key] = ({item, components, html}) => render(item, components, html);
                 }
             }
 

@@ -1,6 +1,11 @@
 <div class="aa-ItemWrapper">
     <div class="aa-ItemContent">
-        {# item.image is nullable (products without an image), so only render the icon when it is set — otherwise the browser shows a broken-image icon. Notice that _ALL_ tags must have a closing tag or be self closing, so do not remove the slash (/) in the image tag #}
+        {#
+            This template is spliced into a JavaScript tagged template literal (html``) and compiled with `new Function`, so:
+            - _ALL_ tags must have a closing tag or be self closing (do not remove the slash (/) in the image tag);
+            - it must not contain a backtick (`) or a stray ${ outside an expression, or compilation will fail.
+            item.image is nullable (products without an image), so only render the icon when it is set — otherwise the browser shows a broken-image icon.
+        #}
         ${item.image ? html`<div class="aa-ItemIcon aa-ItemIcon--alignTop"><img src="${item.image}" alt="${item.name}" width="100"/></div>` : ''}
         <div class="aa-ItemContentBody">
             <div class="aa-ItemContentTitle">${components.Highlight({hit: item, attribute: 'name'})}</div>
