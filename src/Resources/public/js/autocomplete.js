@@ -85,4 +85,6 @@ if(configuration.searchParameter) {
     }
 }
 
-autocomplete(Object.assign(window.ssmAutocomplete || {}, autocompleteConfig));
+// window.ssmAutocomplete is the customization seam: its values win over the plugin's defaults,
+// so projects can override any plugin-set option (debug, container, placeholder, getSources, ...).
+autocomplete(Object.assign(autocompleteConfig, window.ssmAutocomplete || {}));
