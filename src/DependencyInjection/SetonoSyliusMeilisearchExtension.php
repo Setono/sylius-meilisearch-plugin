@@ -18,6 +18,7 @@ use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableDataFilter\StockAvai
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\ChannelsAwareEntityFilter;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\FilterFormBuilderInterface;
+use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\FilterValuesSorterInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FilterBuilderInterface;
@@ -93,6 +94,9 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
 
         $container->registerForAutoconfiguration(FilterFormBuilderInterface::class)
             ->addTag('setono_sylius_meilisearch.filter_form_builder');
+
+        $container->registerForAutoconfiguration(FilterValuesSorterInterface::class)
+            ->addTag('setono_sylius_meilisearch.filter_values_sorter');
 
         self::registerIndexesConfiguration($config['indexes'], $container);
         self::registerSearchConfiguration($config['search'], $container, $loader);
