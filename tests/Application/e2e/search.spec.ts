@@ -90,3 +90,81 @@ test.describe('shop search page', () => {
         expect(shown).toEqual([...shown].sort((a, b) => a - b));
     });
 });
+
+test.describe('shop search page — history & resilience', () => {
+    test('restores a working form when navigating back and forward across a no-results state', async ({ page }) => {
+        await page.goto('/en_US/search?q=jeans');
+        await expect(names(page)).toHaveCount(3);
+
+        // Force a no-results state via an impossible price floor (the typeable input submits on blur).
+        // The results markup is a <form>, the no-results markup is a <div> reusing the same id — the
+        // history state stores outerHTML so back/forward can swap one element type for the other.
+        await page.locator('#f_price_min').fill('999999');
+        await page.locator('#f_price_min').blur();
+        await expect(page).toHaveURL(/f%5Bprice%5D%5Bmin%5D=999999/);
+        await expect(page.locator('.ui.message .header')).toHaveText('No results found');
+
+        // Back: the results form (with products) must be restored, not left as the no-results div.
+        await page.goBack();
+        await expect(page).toHaveURL(/\/search\?q=jeans$/);
+        await expect(names(page)).toHaveCount(3);
+
+        // Forward: the no-results block must come back.
+        await page.goForward();
+        await expect(page).toHaveURL(/f%5Bprice%5D%5Bmin%5D=999999/);
+        await expect(page.locator('.ui.message .header')).toHaveText('No results found');
+
+        // Back once more and prove the restored form is still interactive (its listeners were re-wired).
+        await page.goBack();
+        await expect(names(page)).toHaveCount(3);
+        await page.locator('.ssm-filters input[name="f[brand][]"][value="Celsius Small"]').check();
+        await expect(page).toHaveURL(/f%5Bbrand%5D%5B%5D=Celsius/);
+        await expect(page.getByText('1 results')).toBeVisible();
+    });
+
+    test('submits a typed range filter only once on blur', async ({ page }) => {
+        await page.goto('/en_US/search?q=jeans');
+
+        // Count only the AJAX search submits (same path, fetch/xhr) — not the document nav or
+        // the browser's direct Meilisearch calls (those go to a different host).
+        let searchRequests = 0;
+        page.on('request', (req) => {
+            if (['fetch', 'xhr'].includes(req.resourceType()) && /\/en_US\/search/.test(req.url())) {
+                searchRequests++;
+            }
+        });
+
+        // Type several characters (each fires an input event). The buggy version added one
+        // blur listener per keystroke, so blur triggered several duplicate submits.
+        const min = page.locator('#f_price_min');
+        await min.click();
+        await min.pressSequentially('123', { delay: 30 });
+        await min.blur();
+
+        await expect(page).toHaveURL(/f%5Bprice%5D%5Bmin%5D=/);
+        await page.waitForTimeout(500); // let any duplicate submits fire before asserting
+        expect(searchRequests).toBe(1);
+    });
+
+    test('falls back to a full page navigation when the AJAX request fails', async ({ page }) => {
+        await page.goto('/en_US/search?q=jeans');
+
+        // Abort only the first AJAX (fetch) submit; the fallback full-page navigation is a
+        // document request and is allowed through.
+        let aborted = false;
+        await page.route('**/en_US/search**', async (route) => {
+            if (!aborted && route.request().resourceType() === 'fetch') {
+                aborted = true;
+                await route.abort();
+            } else {
+                await route.continue();
+            }
+        });
+
+        await page.locator('select.ssm-sort').selectOption('price:asc');
+
+        // search.js catches the failed fetch and does window.location.assign(url) → full load.
+        await expect(page).toHaveURL(/s=price%3Aasc/);
+        await expect(names(page).first()).toBeVisible();
+    });
+});
