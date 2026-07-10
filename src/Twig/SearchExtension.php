@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Twig;
 
+use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -23,11 +24,20 @@ final class SearchExtension extends AbstractExtension
     {
         return [
             new TwigFunction('ssm_search_enabled', $this->isEnabled(...)),
+            new TwigFunction('ssm_search_widget', $this->renderWidget(...), [
+                'needs_environment' => true,
+                'is_safe' => ['html'],
+            ]),
         ];
     }
 
     public function isEnabled(): bool
     {
         return $this->enabled;
+    }
+
+    public function renderWidget(Environment $twig): string
+    {
+        return $twig->render('@SetonoSyliusMeilisearchPlugin/search_widget/widget.html.twig');
     }
 }
