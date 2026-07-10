@@ -20,7 +20,10 @@ final class ArrayFilterBuilder implements FilterBuilderInterface
                         continue;
                     }
 
-                    $query[] = sprintf('%s = "%s"', $facet->name, $value);
+                    // Escape backslashes and double quotes per Meilisearch's filter-expression
+                    // rules so a value coming straight from the request cannot break out of the
+                    // quoted string or inject filter syntax.
+                    $query[] = sprintf('%s = "%s"', $facet->name, addcslashes($value, '\\"'));
                 }
             }
 
