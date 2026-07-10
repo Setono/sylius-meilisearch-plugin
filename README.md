@@ -256,6 +256,16 @@ setono_sylius_meilisearch:
 
 The widget talks to Meilisearch directly from the browser using the (read-only) `MEILISEARCH_SEARCH_KEY`, so make sure that key is a search-only key.
 
+Because the browser connects to Meilisearch directly, it needs a URL it can actually reach. In containerized setups (Docker Swarm/Kubernetes) `MEILISEARCH_URL` is often an internal hostname like `http://meilisearch:7700` that browsers can't resolve. Configure the public, browser-facing URL separately in that case:
+
+```yaml
+setono_sylius_meilisearch:
+    server:
+        public_url: '%env(MEILISEARCH_PUBLIC_URL)%' # falls back to server.url when null/empty
+```
+
+The server-side indexing and search keep using `server.url`; only the autocomplete widget uses `server.public_url`.
+
 ## Customizing the JavaScript
 
 The plugin ships two first-party scripts, both served as plain browser JavaScript (no build step). You customize them by defining a global options object **before** the script runs — put the `<script>` that sets it above the plugin's scripts, or in a `javascripts` block that renders earlier. The plugin's scripts are loaded with `defer`, so a normal inline `<script>` in `<head>` or the body runs first.

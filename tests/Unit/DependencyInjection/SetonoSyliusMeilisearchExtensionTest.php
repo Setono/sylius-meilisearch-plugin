@@ -43,6 +43,47 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
     /**
      * @test
      */
+    public function it_falls_back_public_url_to_server_url_when_not_configured(): void
+    {
+        $this->load();
+
+        $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.server.public_url', 'http://localhost:7700');
+    }
+
+    /**
+     * @test
+     */
+    public function it_falls_back_public_url_to_server_url_when_empty(): void
+    {
+        $this->load([
+            'server' => [
+                'public_url' => '',
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.server.public_url', 'http://localhost:7700');
+    }
+
+    /**
+     * @test
+     */
+    public function it_uses_and_normalizes_the_configured_public_url(): void
+    {
+        $this->load([
+            'server' => [
+                // protocol-relative to also assert the scheme is coerced to http, just like the server url
+                'public_url' => '//search.example.com',
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.server.public_url', 'http://search.example.com');
+        // The server-side url is untouched by the public url
+        $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.server.url', 'http://localhost:7700');
+    }
+
+    /**
+     * @test
+     */
     public function it_throws_exception_if_search_index_is_not_set(): void
     {
         $this->expectException(\RuntimeException::class);
