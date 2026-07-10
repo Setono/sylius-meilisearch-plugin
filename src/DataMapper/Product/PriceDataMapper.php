@@ -57,7 +57,10 @@ final class PriceDataMapper implements DataMapperInterface
      */
     public function supports(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
     {
-        return $source instanceof ProductInterface && $target instanceof ProductDocument && $indexScope->channelCode !== null;
+        return $source instanceof ProductInterface &&
+            $target instanceof ProductDocument &&
+            $indexScope->channelCode !== null &&
+            $indexScope->currencyCode !== null;
     }
 
     private static function getBaseCurrencyCode(ChannelInterface $channel): string
