@@ -35,6 +35,7 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Exception\EnvNotFoundException;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -63,6 +64,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         $this->registerResources('setono_sylius_meilisearch', SyliusResourceBundle::DRIVER_DOCTRINE_ORM, $config['resources'], $container);
 
         self::setServerParameters($config['server'], $container);
+        self::assertSearchKeyIsNotMasterKey($config['server'], $config['autocomplete']['enabled'], $container);
 
         // cache
         $metadataCacheEnabled = $config['metadata']['cache'];
@@ -457,6 +459,36 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                 $config['indexes'],
             ),
         );
+    }
+
+    /**
+     * The autocomplete widget embeds the search key in the public page source and the browser queries
+     * Meilisearch directly with it, so the search key must never equal the master key — otherwise the
+     * master key (full read/write/key-management access) would be published to the world. We fail the
+     * build here rather than at runtime, so the misconfiguration can never ship in the first place.
+     *
+     * This only matters when autocomplete is enabled (that is the only thing that exposes the search
+     * key to the browser). Keys are resolved from the environment; if they cannot be resolved at compile
+     * time (e.g. injected only at runtime) the check is skipped, since we cannot compare unknown values.
+     *
+     * @param array{ url: string, public_url: string|null, master_key: string, search_key: string } $serverConfig
+     */
+    private static function assertSearchKeyIsNotMasterKey(array $serverConfig, bool $autocompleteEnabled, ContainerBuilder $container): void
+    {
+        if (!$autocompleteEnabled) {
+            return;
+        }
+
+        try {
+            $searchKey = $container->resolveEnvPlaceholders($serverConfig['search_key'], true);
+            $masterKey = $container->resolveEnvPlaceholders($serverConfig['master_key'], true);
+        } catch (EnvNotFoundException) {
+            return;
+        }
+
+        if (is_string($searchKey) && '' !== $searchKey && $searchKey === $masterKey) {
+            throw new InvalidArgumentException('The Meilisearch search key (MEILISEARCH_SEARCH_KEY) is identical to the master key (MEILISEARCH_MASTER_KEY). With autocomplete enabled, the search key is embedded in the public page source and the browser queries Meilisearch directly with it, so this would publish your master key — full read/write/key-management access to the instance — to the world. Configure a dedicated, search-only key for MEILISEARCH_SEARCH_KEY.');
+        }
     }
 
     private static function getIndexServiceId(string $indexName): string
