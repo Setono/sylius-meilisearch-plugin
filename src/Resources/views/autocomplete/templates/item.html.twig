@@ -1,8 +1,7 @@
 <div class="aa-ItemWrapper">
     <div class="aa-ItemContent">
-        <div class="aa-ItemIcon aa-ItemIcon--alignTop">
-            <img src="${item.image}" alt="${item.name}" width="100"/>{# Notice that _ALL_ tags must have a closing tag or be self closing, so do not remove the slash (/) in this image tag #}
-        </div>
+        {# item.image is nullable (products without an image), so only render the icon when it is set — otherwise the browser shows a broken-image icon. Notice that _ALL_ tags must have a closing tag or be self closing, so do not remove the slash (/) in the image tag #}
+        ${item.image ? html`<div class="aa-ItemIcon aa-ItemIcon--alignTop"><img src="${item.image}" alt="${item.name}" width="100"/></div>` : ''}
         <div class="aa-ItemContentBody">
             <div class="aa-ItemContentTitle">${components.Highlight({hit: item, attribute: 'name'})}</div>
         </div>
