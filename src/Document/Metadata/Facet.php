@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Document\Metadata;
 
-use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\FilterValuesSorterInterface;
-
 final class Facet
 {
-    /** @param class-string<FilterValuesSorterInterface>|null $sorter */
+    /** @param string|null $sorter A FilterValuesSorterInterface service id, or (BC) a FQCN */
     public function __construct(
         public readonly string $name,
         public readonly string $type,
