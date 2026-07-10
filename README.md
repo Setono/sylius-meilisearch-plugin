@@ -257,6 +257,9 @@ setono_sylius_meilisearch:
 
 The widget talks to Meilisearch directly from the browser using the (read-only) `MEILISEARCH_SEARCH_KEY`, so make sure that key is a search-only key.
 
+> [!WARNING]
+> The search key is embedded in the public page source of every shop page and the browser queries Meilisearch directly with it. **Never** set `MEILISEARCH_SEARCH_KEY` to the master key — that would publish full read/write/key-management access to the world. The plugin guards against this: with autocomplete enabled, the container fails to compile when the search key resolves to the same non-empty value as the master key. Ideally, scope the search key to exactly the indexes used by autocomplete (Meilisearch key `indexes` patterns + `actions: ["search"]`), since anything it can reach is fully queryable — including fields hidden in the UI (prices etc. are extractable via `facetStats`/filters even when excluded from `displayedAttributes`).
+
 Because the browser connects to Meilisearch directly, it needs a URL it can actually reach. In containerized setups (Docker Swarm/Kubernetes) `MEILISEARCH_URL` is often an internal hostname like `http://meilisearch:7700` that browsers can't resolve. Configure the public, browser-facing URL separately in that case:
 
 ```yaml

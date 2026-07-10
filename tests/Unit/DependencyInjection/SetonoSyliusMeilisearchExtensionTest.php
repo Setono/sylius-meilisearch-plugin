@@ -178,4 +178,71 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
 
         $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.autocomplete.limit', 8);
     }
+
+    /**
+     * @test
+     */
+    public function it_throws_when_the_search_key_equals_the_master_key_and_autocomplete_is_enabled(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/master key/');
+
+        $this->load([
+            'server' => [
+                'search_key' => 'the-same-key',
+                'master_key' => 'the-same-key',
+            ],
+            'indexes' => [
+                'products' => [
+                    'document' => ProductDocument::class,
+                    'entities' => [ProductEntity::class],
+                ],
+            ],
+            'autocomplete' => [
+                'enabled' => true,
+                'indexes' => ['products'],
+            ],
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_allows_equal_search_and_master_keys_when_autocomplete_is_disabled(): void
+    {
+        // The key is only exposed to the browser through autocomplete, so the guard does not apply here
+        $this->load([
+            'server' => [
+                'search_key' => 'the-same-key',
+                'master_key' => 'the-same-key',
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.autocomplete.enabled', false);
+    }
+
+    /**
+     * @test
+     */
+    public function it_allows_distinct_search_and_master_keys_with_autocomplete_enabled(): void
+    {
+        $this->load([
+            'server' => [
+                'search_key' => 'search-only-key',
+                'master_key' => 'master-key',
+            ],
+            'indexes' => [
+                'products' => [
+                    'document' => ProductDocument::class,
+                    'entities' => [ProductEntity::class],
+                ],
+            ],
+            'autocomplete' => [
+                'enabled' => true,
+                'indexes' => ['products'],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.autocomplete.enabled', true);
+    }
 }
