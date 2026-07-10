@@ -29,13 +29,12 @@ final class SettingsNormalizer implements NormalizerInterface
             throw new LogicException('The normalized settings data must be an array or an ArrayObject');
         }
 
-        return array_filter($data, static function (mixed $value): bool {
-            if (is_array($value)) {
-                return [] !== $value;
-            }
-
-            return null !== $value;
-        });
+        // Only strip null values. Empty arrays are meaningful for list-valued settings
+        // (filterableAttributes, sortableAttributes, stopWords, synonyms, …): because
+        // updateSettings is a *partial* update, sending [] is exactly how you reset such a
+        // setting. Keys that must be omitted when "not configured" are modelled as null in
+        // Settings, not as [].
+        return array_filter($data, static fn (mixed $value): bool => null !== $value);
     }
 
     /**
