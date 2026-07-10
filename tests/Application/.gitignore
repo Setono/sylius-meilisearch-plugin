@@ -16,6 +16,12 @@
 /meilisearch
 ###< meilisearch ###
 
+###> playwright ###
+/test-results/
+/playwright-report/
+/playwright/.cache/
+###< playwright ###
+
 ###> symfony/framework-bundle ###
 /.env.*.local
 /.env.local

@@ -279,11 +279,13 @@ vendor/bin/rector process --dry-run
 
 ### Running the functional tests
 
-The Functional suite needs MySQL/MariaDB and a Meilisearch instance on `localhost:7700`. You can start Meilisearch with the bundled helper (uses master key `aSampleMasterKey`, matching the defaults in `tests/Application/.env`):
+The Functional suite needs MySQL/MariaDB and a Meilisearch instance on `localhost:7700` (master key `aSampleMasterKey`, matching the defaults in `tests/Application/.env`). Start Meilisearch with the bundled compose file:
 
 ```shell
-tests/Application/meilisearch.sh
+cd tests/Application && docker compose up -d --wait   # `docker compose down` resets it to a clean state
 ```
+
+Without Docker, `tests/Application/meilisearch.sh` downloads and runs the Meilisearch binary instead.
 
 Then set up the test application and run the suite:
 
@@ -310,6 +312,24 @@ bin/console sylius:fixtures:load -n
 bin/console setono:sylius-meilisearch:index --wait
 symfony serve
 ```
+
+### Running the end-to-end tests
+
+The Playwright suite drives the shop search page and the autocomplete widget in a real browser. It needs the same MySQL/MariaDB + Meilisearch + fixtures + index setup as the Functional suite, plus built assets and the [Symfony CLI](https://symfony.com/download):
+
+```shell
+cd tests/Application
+docker compose up -d --wait
+yarn install && yarn build
+bin/console assets:install                       # APP_ENV=test for all console commands
+bin/console doctrine:database:create && bin/console doctrine:schema:create
+bin/console sylius:fixtures:load -n
+bin/console setono:sylius-meilisearch:index --wait
+npx playwright install chromium                  # first time only
+yarn e2e                                          # or: yarn e2e:ui
+```
+
+`yarn e2e` starts the app itself via `e2e/serve.sh` (which runs `symfony serve` on `127.0.0.1:8080` with `APP_ENV=test` and resolves the Meilisearch search key the autocomplete widget needs), so you don't start a server yourself.
 
 See [CLAUDE.md](CLAUDE.md) for a deeper tour of the architecture and conventions.
 
