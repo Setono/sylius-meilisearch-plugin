@@ -4,11 +4,10 @@
 {% block content %}
     {{ include('@SetonoSyliusMeilisearchPlugin/search/_header.html.twig') }}
 
-    {% if items|length > 0 %}
-        {{ include('@SetonoSyliusMeilisearchPlugin/search/_results.html.twig') }}
-    {% else %}
-        {{ include('@SetonoSyliusMeilisearchPlugin/search/_no_results.html.twig') }}
-    {% endif %}
+    {# Always render the results form (facets + sorting + pagination) so a shopper who over-filters
+       into an empty result set keeps the controls they need to recover. The "no results" message is
+       shown in the items slot (see _items.html.twig). #}
+    {{ include('@SetonoSyliusMeilisearchPlugin/search/_results.html.twig') }}
 {% endblock %}
 
 {# todo this part should also be removed by adding it via the sylius_ui events system #}

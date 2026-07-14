@@ -75,7 +75,11 @@ final class ChoiceFilterFormBuilder implements FilterFormBuilderInterface
             return false;
         }
 
-        if (count($values) < 2) {
+        // Render as soon as there is at least one value. A single value is usually a currently
+        // selected filter that the current result set no longer contains (see SearchEngine, which
+        // keeps selected values present with a zero count): it must stay visible so the shopper can
+        // uncheck it and recover from an empty result set.
+        if (count($values) < 1) {
             return false;
         }
 
