@@ -1,5 +1,8 @@
-setono_sylius_meilisearch_shop:
-    resource: "@SetonoSyliusMeilisearchPlugin/Resources/config/routes/shop.yaml"
+# The search routes (routes/search.yaml) are loaded through a custom loader so they are only
+# registered when search is enabled (search.enabled). See Routing\SearchRouteLoader.
+setono_sylius_meilisearch_search:
+    resource: .
+    type: setono_sylius_meilisearch_search
     prefix: /{_locale}
     requirements:
         _locale: ^[A-Za-z]{2,4}(_([A-Za-z]{4}|[0-9]{3}))?(_([A-Za-z]{2}|[0-9]{3}))?$
