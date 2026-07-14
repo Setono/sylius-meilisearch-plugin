@@ -136,10 +136,33 @@ class DefaultIndexer extends AbstractIndexer
             return;
         }
 
-        foreach ($this->indexScopeProvider->getAll($this->index) as $indexScope) {
-            foreach ($entities as $entity) {
-                $this->client->index($this->indexNameResolver->resolveFromIndexScope($indexScope))->deleteDocument($entity->getDocumentIdentifier());
+        $ids = [];
+        foreach ($entities as $entity) {
+            $documentIdentifier = $entity->getDocumentIdentifier();
+            if (null !== $documentIdentifier) {
+                $ids[] = $documentIdentifier;
             }
+        }
+
+        $this->removeDocuments($ids);
+    }
+
+    public function removeDocuments(array $documentIds): void
+    {
+        if ([] === $documentIds) {
+            return;
+        }
+
+        foreach ($this->indexScopeProvider->getAll($this->index) as $indexScope) {
+            $uid = $this->indexNameResolver->resolveFromIndexScope($indexScope);
+
+            // One batch deleteDocuments task per scope instead of one deleteDocument task per id
+            $this->client->index($uid)->deleteDocuments($documentIds);
+
+            $this->logger->info('Removed documents from index', [
+                'index' => $uid,
+                'ids' => $documentIds,
+            ]);
         }
     }
 }

@@ -14,7 +14,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final class EntityListener
 {
-    /** @var SplObjectStorage<IndexableInterface, int|string|null> */
+    /**
+     * The id and document identifier are captured in preRemove — while the row still exists — because
+     * postRemove runs after deletion, when the entity can no longer yield them reliably.
+     *
+     * @var SplObjectStorage<IndexableInterface, array{0: int|string|null, 1: string|null}>
+     */
     private readonly SplObjectStorage $removeIndexableStorage;
 
     public function __construct(
@@ -38,7 +43,7 @@ final class EntityListener
         $indexable = self::extractIndexableFromEvent($eventArgs);
 
         if (null !== $indexable) {
-            $this->removeIndexableStorage->attach($indexable, $indexable->getId());
+            $this->removeIndexableStorage->attach($indexable, [$indexable->getId(), $indexable->getDocumentIdentifier()]);
         }
     }
 
@@ -50,15 +55,20 @@ final class EntityListener
             return;
         }
 
-        $entityId = $this->removeIndexableStorage[$indexable] ?? null;
+        [$entityId, $documentIdentifier] = $this->removeIndexableStorage[$indexable] ?? [null, null];
 
-        if (null === $entityId) {
+        // Always detach so the SplObjectStorage does not grow unbounded in long-running workers
+        // (it is attach-only in preRemove).
+        $this->removeIndexableStorage->detach($indexable);
+
+        // Without a document identifier there is nothing to remove from the index.
+        if (null === $documentIdentifier) {
             return;
         }
 
         $this->dispatch(
             $eventArgs,
-            fn (IndexableInterface $entity) => new RemoveEntity($entity::class, $entityId),
+            fn (IndexableInterface $entity) => new RemoveEntity($entity::class, $entityId, $documentIdentifier),
         );
     }
 
