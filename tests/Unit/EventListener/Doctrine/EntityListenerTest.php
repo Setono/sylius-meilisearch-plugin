@@ -12,6 +12,7 @@ use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusMeilisearchPlugin\EventListener\Doctrine\EntityListener;
 use Setono\SyliusMeilisearchPlugin\Message\Command\RemoveEntity;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
+use Setono\SyliusMeilisearchPlugin\Tests\Unit\Indexer\SpyLogger;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -49,5 +50,29 @@ final class EntityListenerTest extends TestCase
 
         self::assertInstanceOf(\Countable::class, $storage);
         self::assertCount(0, $storage, 'The SplObjectStorage must not retain the entity after postRemove');
+    }
+
+    /**
+     * @test
+     */
+    public function it_swallows_and_logs_a_failing_dispatch_so_the_entity_save_still_succeeds(): void
+    {
+        $entity = $this->prophesize(IndexableInterface::class);
+        $entity->getId()->willReturn(7);
+        $entity->getDocumentIdentifier()->willReturn('7');
+
+        $eventArgs = new LifecycleEventArgs($entity->reveal(), $this->prophesize(ObjectManager::class)->reveal());
+
+        $commandBus = $this->prophesize(MessageBusInterface::class);
+        $commandBus->dispatch(Argument::any())->willThrow(new \RuntimeException('Meilisearch is down'));
+
+        $logger = new SpyLogger();
+        $listener = new EntityListener($commandBus->reveal(), $logger);
+
+        // Must not throw, even though the dispatch fails
+        $listener->postPersist($eventArgs);
+
+        $error = $logger->firstOfLevel('error');
+        self::assertNotNull($error);
     }
 }

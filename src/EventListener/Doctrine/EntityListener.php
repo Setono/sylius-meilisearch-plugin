@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\EventListener\Doctrine;
 
 use Doctrine\Persistence\Event\LifecycleEventArgs;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntity;
 use Setono\SyliusMeilisearchPlugin\Message\Command\RemoveEntity;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
@@ -24,6 +26,7 @@ final class EntityListener
 
     public function __construct(
         private readonly MessageBusInterface $commandBus,
+        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
         $this->removeIndexableStorage = new SplObjectStorage();
     }
@@ -79,8 +82,20 @@ final class EntityListener
     {
         $indexable = self::extractIndexableFromEvent($eventArgs);
 
-        if (null !== $indexable) {
+        if (null === $indexable) {
+            return;
+        }
+
+        try {
             $this->commandBus->dispatch($message($indexable));
+        } catch (\Throwable $e) {
+            // A search-index update (or its transport being unavailable) must never break the
+            // entity save it is reacting to. Swallow and log instead.
+            $this->logger->error('Failed to dispatch a Meilisearch indexing command for an entity change: {message}', [
+                'message' => $e->getMessage(),
+                'entity' => $indexable::class,
+                'exception' => $e,
+            ]);
         }
     }
 
