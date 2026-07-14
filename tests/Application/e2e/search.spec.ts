@@ -56,6 +56,22 @@ test.describe('shop search page', () => {
         await expect(names(page)).toHaveCount(1);
     });
 
+    test('announces the result count and restores focus after an AJAX swap', async ({ page }) => {
+        await page.goto('/en_US/search?q=jeans');
+
+        // The hits count is an aria-live region so screen readers announce updates
+        await expect(page.locator('.ssm-hits-count[role="status"][aria-live="polite"]')).toBeVisible();
+
+        const checkbox = page.locator('.ssm-filters input[name="f[brand][]"][value="Celsius Small"]');
+        await checkbox.focus();
+        await checkbox.check();
+        await expect(page).toHaveURL(/f%5Bbrand%5D%5B%5D=Celsius/);
+
+        // After the swap, focus is restored to the equivalent field (not lost to <body>)
+        const focusedName = await page.evaluate(() => document.activeElement?.getAttribute('name'));
+        expect(focusedName).toBe('f[brand][]');
+    });
+
     test('filters by a price range', async ({ page }) => {
         await page.goto('/en_US/search?q=jeans');
 

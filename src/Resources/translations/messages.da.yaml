@@ -7,6 +7,7 @@ setono_sylius_meilisearch:
                 price: Price
                 size: Size
                 taxons: Category
+            loading: 'Indlæser resultater…'
             no_results:
                 body: 'Prøv at søge efter noget andet'
                 header: 'Ingen resultater fundet'
