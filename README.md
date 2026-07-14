@@ -241,9 +241,9 @@ Data mappers move data from your entities onto the document. Implement `Setono\S
 
 ### Filtering entities out of the index
 
-There are two hooks, and you can combine them:
+There are two hooks, and you can combine them.
 
-**1. At the database level (most efficient)** — listen to `QueryBuilderForDataProvisionCreated` and restrict the query:
+**1. At the database level (preferred)** — listen to `QueryBuilderForDataProvisionCreated` and restrict the query:
 
 ```php
 <?php
@@ -271,28 +271,42 @@ final class FilterDisabledEntitiesSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $queryBuilder = $event->getQueryBuilder();
-        $alias = $queryBuilder->getRootAliases()[0];
-        $queryBuilder->andWhere($alias . '.enabled = true');
+        $alias = $event->qb->getRootAliases()[0];
+        $event->qb->andWhere($alias . '.enabled = true');
     }
 }
 ```
 
-**2. Per entity during indexing** — implement `FilterableInterface`:
+This event is the single source of truth for what belongs in an index. It shapes both a full reindex
+**and** every incremental (entity save) update: when an entity is saved, the plugin re-runs this query
+constrained to that one entity to decide whether to (re)index it or remove its document. So an entity
+that stops matching your query gets its document deleted on its next save — no separate rule needed. The
+one caveat is eventual consistency: because indexing runs through Messenger, a document can briefly lag
+its entity until the change is consumed.
+
+**2. Per entity during indexing** — implement `FilterableInterface`. Use this for rules that cannot be
+expressed in SQL, or that depend on the index scope (channel/locale/currency), since the query above has
+no scope context:
 
 ```php
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
+
 class Product extends BaseProduct implements IndexableInterface, FilterableInterface
 {
     use IndexableAwareTrait;
 
-    public function filter(): bool
+    public function filter(IndexScope $indexScope): bool
     {
         return $this->isEnabled();
     }
 }
 ```
 
-The plugin also ships default entity filters (e.g. an `enabled` filter for `ToggleableInterface` entities and a channel filter for channel-aware entities). Toggle them per index under `indexes.<name>.default_filters`, or add your own by implementing `Filter\Entity\EntityFilterInterface`.
+The plugin also ships default filters — `enabled` and `stock_available` (query-builder subscribers) and
+`channels_aware` (which additionally checks per-channel membership during indexing). Toggle them per
+index under `indexes.<name>.default_filters`. For a scope-dependent rule of your own that shouldn't live
+on the entity, implement `Filter\Entity\EntityFilterInterface` and tag it (autoconfiguration adds the
+tag); it runs per scope during indexing.
 
 ### Reacting to related-entity changes
 
