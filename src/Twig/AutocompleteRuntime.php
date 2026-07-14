@@ -35,6 +35,7 @@ final class AutocompleteRuntime implements RuntimeExtensionInterface
             container: $this->container,
             placeholder: $this->translator->trans($this->placeholder),
             searchPath: $this->urlGenerator->generate('setono_sylius_meilisearch_shop_search'),
+            seeAllLabel: $this->translator->trans('setono_sylius_meilisearch.autocomplete.see_all_results'),
             debug: $this->debug,
         );
 

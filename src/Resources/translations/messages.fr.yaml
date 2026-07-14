@@ -1,4 +1,6 @@
 setono_sylius_meilisearch:
+    autocomplete:
+        see_all_results: 'Voir tous les résultats'
     form:
         search:
             facet:

@@ -25,6 +25,7 @@ final class AutocompleteRuntimeTest extends TestCase
     {
         $translator = $this->prophesize(TranslatorInterface::class);
         $translator->trans('placeholder')->willReturn('Search...');
+        $translator->trans('setono_sylius_meilisearch.autocomplete.see_all_results')->willReturn('See all results');
 
         $urlGenerator = $this->prophesize(UrlGeneratorInterface::class);
         $urlGenerator->generate('setono_sylius_meilisearch_shop_search')->willReturn('/search');
@@ -46,5 +47,6 @@ final class AutocompleteRuntimeTest extends TestCase
         self::assertStringContainsString('ssm-autocomplete-configuration', $configuration);
         self::assertStringContainsString('search-only-key', $configuration);
         self::assertStringContainsString('Search...', $configuration);
+        self::assertStringContainsString('See all results', $configuration);
     }
 }

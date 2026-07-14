@@ -4,6 +4,8 @@
         ${item.image ? html`<div class="aa-ItemIcon aa-ItemIcon--alignTop"><img src="${item.image}" alt="${item.name}" width="100"/></div>` : ''}
         <div class="aa-ItemContentBody">
             <div class="aa-ItemContentTitle">${components.Highlight({hit: item, attribute: 'name'})}</div>
+            {# item.price is set on product documents (channel/currency-scoped). Guard it so non-product sources render nothing. #}
+            ${item.price != null ? html`<div class="aa-ItemContentDescription">${new Intl.NumberFormat(undefined, { style: 'currency', currency: item.currency || 'USD' }).format(item.price)}</div>` : ''}
         </div>
     </div>
 </div>

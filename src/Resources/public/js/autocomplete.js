@@ -26,8 +26,9 @@
      * @property {string} searchKey - Search-only Meilisearch API key.
      * @property {string} container - CSS selector the autocomplete mounts into.
      * @property {string} placeholder - Input placeholder text.
-     * @property {?string} searchPath - URL of the search results page (used by onSubmit).
+     * @property {?string} searchPath - URL of the search results page (used by onSubmit and the see-all footer).
      * @property {?string} searchParameter - Query-string parameter carrying the search query.
+     * @property {?string} seeAllLabel - Label for the "see all results" footer link.
      * @property {boolean} debug - Keeps the panel open for inspection when true.
      * @property {Source[]} sources - Sources to search.
      */
@@ -74,6 +75,27 @@
     const compileTemplate = (template) =>
         new Function('{ item, components, html }', 'return html`' + template + '`;');
 
+    /**
+     * Debounces a promise-returning function: only the most recent call within `time` ms resolves.
+     * Used so a fast typer doesn't fire one Meilisearch request per character (stale-response
+     * ordering is already handled by the library, so this is purely a load win).
+     */
+    function debouncePromise(fn, time) {
+        let timer;
+
+        return (...args) => {
+            if (timer) {
+                clearTimeout(timer);
+            }
+
+            return new Promise((resolve) => {
+                timer = setTimeout(() => resolve(fn(...args)), time);
+            });
+        };
+    }
+
+    const debounced = debouncePromise((sources) => sources, 200);
+
     const autocompleteConfig = {
         debug: configuration.debug,
         container: configuration.container,
@@ -99,7 +121,7 @@
             return { source, templates };
         });
 
-        autocompleteConfig.getSources = ({ query }) => compiledSources.map(({ source, templates }) => {
+        autocompleteConfig.getSources = ({ query }) => debounced(compiledSources.map(({ source, templates }) => {
             const s = {
                 sourceId: source.id,
                 getItems() {
@@ -116,8 +138,26 @@
                 },
             };
 
-            if (Object.keys(templates).length !== 0) {
-                s.templates = templates;
+            const sourceTemplates = { ...templates };
+
+            // A "see all results" footer linking to the full search page for the current query.
+            if (configuration.searchPath && configuration.searchParameter && query !== '') {
+                const seeAllUrl = new URL(configuration.searchPath, window.location.origin);
+                seeAllUrl.searchParams.set(configuration.searchParameter, query);
+
+                sourceTemplates.footer = ({ items, html }) => {
+                    if (items.length === 0) {
+                        return '';
+                    }
+
+                    return html`<div class="aa-SourceFooter">
+                        <a class="aa-SeeAllLink" href="${seeAllUrl.toString()}">${configuration.seeAllLabel || 'See all results'}</a>
+                    </div>`;
+                };
+            }
+
+            if (Object.keys(sourceTemplates).length !== 0) {
+                s.templates = sourceTemplates;
             }
 
             if (source.urlAttribute) {
@@ -127,7 +167,7 @@
             }
 
             return s;
-        });
+        }));
     }
 
     if (configuration.searchParameter) {
