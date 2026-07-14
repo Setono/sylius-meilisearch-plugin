@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Tests\Functional\DataMapper\Product;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\Product\PopularityDataMapper;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
@@ -85,6 +86,12 @@ final class PopularityDataMapperTest extends FunctionalTestCase
 
         $this->manager->flush();
 
+        // Reload the product from the database so it is a fully-hydrated managed entity, exactly
+        // as it is when the indexer maps it in production. Constructing entities in memory and
+        // flushing does not reliably back-populate generated ids on every supported Doctrine ORM
+        // version (e.g. 2.14), which would leave the variant id null and skew the query.
+        $product = $this->reloadProductByCode('popularity-test-product');
+
         /** @var PopularityDataMapper $dataMapper */
         $dataMapper = self::getContainer()->get(PopularityDataMapper::class);
 
@@ -99,6 +106,76 @@ final class PopularityDataMapperTest extends FunctionalTestCase
         // unpaid order is excluded, so the old SUM(quantity) implementation would have
         // produced 203 here.
         self::assertSame(4.0, $document->popularity);
+    }
+
+    public function testItMemoizesPopularityAcrossScopes(): void
+    {
+        /** @var ChannelRepositoryInterface $channelRepository */
+        $channelRepository = self::getContainer()->get('sylius.repository.channel');
+        /** @var ChannelInterface $channel */
+        $channel = $channelRepository->findOneByCode('FASHION_WEB');
+
+        $product = new Product();
+        $product->setCode('popularity-memoization-product');
+        $product->setEnabled(true);
+
+        $variant = new ProductVariant();
+        $variant->setCode('popularity-memoization-variant');
+        $variant->setEnabled(true);
+        $variant->setPosition(0);
+        $product->addVariant($variant);
+
+        $this->manager->persist($product);
+        $this->manager->persist($variant);
+
+        $this->createOrder($channel, $variant, 1, OrderPaymentStates::STATE_PAID);
+        $this->manager->flush();
+
+        // See the note in testItCountsDistinctPaidOrdersAndIgnoresQuantity: reload so the product
+        // is a managed entity with populated ids, mirroring how the indexer maps it in production.
+        $product = $this->reloadProductByCode('popularity-memoization-product');
+
+        // Use a dedicated mapper instance so this white-box assertion on the private memoization
+        // cache is isolated: the container-shared mapper is also invoked by the Doctrine flush
+        // listener when it reindexes the flushed product, which would leave extra cache entries.
+        /** @var ManagerRegistry $managerRegistry */
+        $managerRegistry = self::getContainer()->get('doctrine');
+        /** @var class-string $orderClass */
+        $orderClass = self::getContainer()->getParameter('sylius.model.order.class');
+        /** @var class-string $orderItemClass */
+        $orderItemClass = self::getContainer()->getParameter('sylius.model.order_item.class');
+        $dataMapper = new PopularityDataMapper($managerRegistry, $orderClass, $orderItemClass);
+
+        /** @var Index $index */
+        $index = self::getContainer()->get('setono_sylius_meilisearch.index.products');
+
+        // Popularity does not vary by scope, so mapping the same product for two currency scopes
+        // must produce the same value and only compute it once (memoized per product object).
+        $document1 = new ProductDocument();
+        $dataMapper->map($product, $document1, new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD'));
+
+        $document2 = new ProductDocument();
+        $dataMapper->map($product, $document2, new IndexScope($index, 'FASHION_WEB', 'en_US', 'EUR'));
+
+        self::assertSame(1.0, $document1->popularity);
+        self::assertSame($document1->popularity, $document2->popularity);
+
+        $cacheProperty = new \ReflectionProperty(PopularityDataMapper::class, 'popularityCache');
+        $cache = $cacheProperty->getValue($dataMapper);
+        self::assertInstanceOf(\Countable::class, $cache);
+        self::assertCount(1, $cache, 'The popularity must be computed and cached once per product, not once per scope');
+    }
+
+    private function reloadProductByCode(string $code): Product
+    {
+        // Detach the in-memory graph so the lookup hydrates a fresh managed entity from the
+        // database (with generated ids) rather than returning the identity-mapped instance.
+        $this->manager->clear();
+
+        $product = $this->manager->getRepository(Product::class)->findOneBy(['code' => $code]);
+        self::assertInstanceOf(Product::class, $product);
+
+        return $product;
     }
 
     private function createOrder(

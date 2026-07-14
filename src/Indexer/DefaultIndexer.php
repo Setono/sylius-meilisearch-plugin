@@ -128,7 +128,12 @@ class DefaultIndexer extends AbstractIndexer
             }
 
             $meilisearchIndex = $this->client->index($uid);
-            $meilisearchIndex->addDocuments($documents, 'id');
+
+            // Skip the addDocuments call for an empty batch (e.g. everything was filtered out)
+            // so we don't create pointless empty Meilisearch tasks.
+            if ([] !== $documents) {
+                $meilisearchIndex->addDocuments($documents, 'id');
+            }
 
             if ([] !== $documentsToRemove) {
                 $meilisearchIndex->deleteDocuments($documentsToRemove);

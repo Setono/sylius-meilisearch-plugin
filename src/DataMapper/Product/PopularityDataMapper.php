@@ -21,6 +21,17 @@ final class PopularityDataMapper implements DataMapperInterface
 {
     use ORMTrait;
 
+    /**
+     * Popularity does not vary by scope (channel/locale/currency), but map() is called once per
+     * scope for every entity in a batch. Memoize the computed value per product object so the
+     * COUNT query runs once per product rather than once per product × scope. Keying on the object
+     * (via a WeakMap) means the cache is bounded and drops entries automatically once a batch's
+     * entities are detached by EntityManager::clear() and garbage collected.
+     *
+     * @var \WeakMap<object, int>
+     */
+    private \WeakMap $popularityCache;
+
     public function __construct(
         ManagerRegistry $managerRegistry,
         /** @var class-string $orderClass */
@@ -30,6 +41,7 @@ final class PopularityDataMapper implements DataMapperInterface
         private readonly string $popularityLookBackPeriod = '3 months',
     ) {
         $this->managerRegistry = $managerRegistry;
+        $this->popularityCache = new \WeakMap();
     }
 
     /**
@@ -43,9 +55,18 @@ final class PopularityDataMapper implements DataMapperInterface
             'The given $source and $target is not supported',
         );
 
+        if (!isset($this->popularityCache[$source])) {
+            $this->popularityCache[$source] = $this->calculatePopularity($source);
+        }
+
+        $target->popularity = $this->popularityCache[$source];
+    }
+
+    private function calculatePopularity(ProductInterface $source): int
+    {
         $variants = $source->getEnabledVariants()->map(static fn (ProductVariantInterface $variant): int => (int) $variant->getId())->toArray();
         if ([] === $variants) {
-            return;
+            return 0;
         }
 
         $orderIdLowerBound = $this->getOrderIdLowerBound();
@@ -66,7 +87,7 @@ final class PopularityDataMapper implements DataMapperInterface
             ->setParameter('variants', $variants)
         ;
 
-        $target->popularity = (int) $qb->getQuery()->getSingleScalarResult();
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     /**
