@@ -72,8 +72,16 @@ final class MultiSearchBuilder implements MultiSearchBuilderInterface
         $searchQueries = [];
 
         foreach ($facets as $facet) {
+            // A dedicated disjunctive sub-query is only needed for facets the user has actively
+            // filtered on — only there must the facet's own filter be excluded to show its full
+            // distribution. Every other facet reads its counts from the main query's
+            // facetDistribution for free, so we skip its sub-query.
+            if (!self::hasActiveSelection($facet, $filters)) {
+                continue;
+            }
+
             /** @var array<string, mixed> $filteredFacets */
-            $filteredFacets = array_filter($filters, static fn ($value) => $value !== $facet->name, \ARRAY_FILTER_USE_KEY);
+            $filteredFacets = array_filter($filters, static fn ($key) => $key !== $facet->name, \ARRAY_FILTER_USE_KEY);
 
             $searchQueries[] = $this->searchQueryBuilder->build(
                 indexName: $index->uid(),
@@ -86,5 +94,28 @@ final class MultiSearchBuilder implements MultiSearchBuilderInterface
         }
 
         return $searchQueries;
+    }
+
+    /**
+     * Whether the request carries a non-empty selection for the given facet.
+     *
+     * @param array<string, mixed> $filters
+     */
+    private static function hasActiveSelection(Facet $facet, array $filters): bool
+    {
+        if (!isset($filters[$facet->name])) {
+            return false;
+        }
+
+        $value = $filters[$facet->name];
+
+        if (is_array($value)) {
+            $value = array_filter($value, static fn ($v): bool => $v !== '' && $v !== null && $v !== []);
+
+            return [] !== $value;
+        }
+
+        // isset() above already guarantees a non-null value here
+        return $value !== '';
     }
 }
