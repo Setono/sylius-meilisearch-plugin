@@ -11,6 +11,7 @@ setono_sylius_meilisearch:
                 body: 'Spróbuj wyszukać coś innego'
                 header: 'Nie znaleziono wyników'
             pagination:
+                label: 'Paginacja'
                 next: Next
                 previous: Previous
             q_placeholder: Search...

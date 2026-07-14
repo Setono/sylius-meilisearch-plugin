@@ -32,15 +32,18 @@ test.describe('shop search page', () => {
         await page.goto('/en_US/search?q=jeans');
         const firstOnPage1 = await names(page).first().textContent();
 
-        // Pagination is Previous/Next; clicking "Next" fires an AJAX submit + pushState
-        await page.locator('nav.ssm-pagination label', { hasText: 'Next' }).click();
+        // Pagination is anchor links; clicking "Next" (rel=next) fires an AJAX submit + pushState
+        await page.locator('nav.ssm-pagination a[rel="next"]').click();
         await expect(page).toHaveURL(/[?&]p=2(&|$)/);
         await expect(names(page).first()).not.toHaveText(firstOnPage1 ?? '');
+
+        // The current page link is marked aria-current
+        await expect(page.locator('nav.ssm-pagination a[aria-current="page"]')).toHaveText('2');
 
         // Last page holds the remaining 2 of 8 hits and has no "Next" control
         await page.goto('/en_US/search?q=jeans&p=3');
         await expect(names(page)).toHaveCount(2);
-        await expect(page.locator('nav.ssm-pagination label', { hasText: 'Next' })).toHaveCount(0);
+        await expect(page.locator('nav.ssm-pagination a[rel="next"]')).toHaveCount(0);
     });
 
     test('filters by a brand facet', async ({ page }) => {
