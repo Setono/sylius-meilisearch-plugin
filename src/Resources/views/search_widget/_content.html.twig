@@ -3,7 +3,8 @@
 <div class="ui center aligned column">
     {{ form_start(form, { 'action': path('setono_sylius_meilisearch_shop_search'), 'attr': { 'class': 'ui form' } }) }}
         <div class="two fields">
-            {{ form_row(form.q) }}
+            {# aria-label gives the placeholder-only search input a programmatic label #}
+            {{ form_row(form.q, { 'attr': { 'aria-label': 'setono_sylius_meilisearch.form.search.q_placeholder'|trans } }) }}
             <button type="submit" class="ui icon button">
                 {{ 'setono_sylius_meilisearch.ui.search'|trans }}
                 <i class="search icon"></i>

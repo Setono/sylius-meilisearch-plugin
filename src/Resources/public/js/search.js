@@ -386,9 +386,18 @@ class SearchManager {
         url.search = '';
 
         formData.forEach((value, key) => {
-            if (value !== '') {
-                url.searchParams.append(key, value);
+            if (value === '') {
+                return;
             }
+
+            // Drop a value that still equals its default (e.g. an untouched range bound), so an
+            // unchanged range filter doesn't clutter the URL or force a needless round-trip.
+            const field = this.#form.elements.namedItem(key);
+            if (field instanceof HTMLInputElement && field.dataset.default !== undefined && field.dataset.default === value) {
+                return;
+            }
+
+            url.searchParams.append(key, value);
         });
 
         return url.toString();
