@@ -32,7 +32,9 @@ composer require setono/sylius-meilisearch-plugin
 
 ### 2. Register the plugin
 
-If you don't use Symfony Flex, add the plugin to your `config/bundles.php` before `SyliusGridBundle`:
+> **No Symfony Flex recipe ships yet** ([#74](https://github.com/Setono/sylius-meilisearch-plugin/issues/74) tracks adding one), so every step in this installation guide is manual — Flex will not register the bundle, configure it, or import the routing for you.
+
+Add the plugin to your `config/bundles.php` before `SyliusGridBundle`:
 
 ```php
 Setono\SyliusMeilisearchPlugin\SetonoSyliusMeilisearchPlugin::class => ['all' => true],
