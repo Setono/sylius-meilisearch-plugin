@@ -14,11 +14,14 @@
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFilterFormBuilder"/>
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\CheckboxFilterFormBuilder">
+            <argument type="service" id="translator"/>
+
             <tag name="setono_sylius_meilisearch.filter_form_builder" priority="100"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\ChoiceFilterFormBuilder">
             <argument type="tagged_locator" tag="setono_sylius_meilisearch.filter_values_sorter"/>
+            <argument type="service" id="translator"/>
 
             <tag name="setono_sylius_meilisearch.filter_form_builder" priority="90"/>
         </service>
@@ -29,6 +32,8 @@
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\RangeFilterFormBuilder">
+            <argument type="service" id="translator"/>
+
             <tag name="setono_sylius_meilisearch.filter_form_builder" priority="80"/>
         </service>
 

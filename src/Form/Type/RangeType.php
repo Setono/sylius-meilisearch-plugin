@@ -15,11 +15,11 @@ final class RangeType extends AbstractType
     {
         $builder
             ->add('min', NumberType::class, [
-                'label' => 'Min',
+                'label' => 'setono_sylius_meilisearch.form.search.range.min',
                 'empty_data' => $options['min'] ?? null,
             ])
             ->add('max', NumberType::class, [
-                'label' => 'Max',
+                'label' => 'setono_sylius_meilisearch.form.search.range.max',
                 'empty_data' => $options['max'] ?? null,
             ])
         ;

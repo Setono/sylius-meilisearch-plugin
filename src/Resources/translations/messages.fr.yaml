@@ -7,10 +7,17 @@ setono_sylius_meilisearch:
                 price: Price
                 size: Size
                 taxons: Category
+            no_results:
+                body: 'Essayez de rechercher autre chose'
+                header: 'Aucun résultat trouvé'
             pagination:
                 next: Next
                 previous: Previous
             q_placeholder: Search...
+            range:
+                max: 'Max'
+                min: 'Min'
+            results_count: '{0}%count% résultats|{1}%count% résultat|]1,Inf[ %count% résultats'
             sorting:
                 createdAt:
                     asc: "Oldest"
