@@ -25,6 +25,7 @@ use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FilterBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\Indexable\IndexableEntityResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Twig\AutocompleteRuntime;
 use Setono\SyliusMeilisearchPlugin\UrlGenerator\EntityUrlGeneratorInterface;
@@ -99,6 +100,9 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
 
         $container->registerForAutoconfiguration(FilterValuesSorterInterface::class)
             ->addTag('setono_sylius_meilisearch.filter_values_sorter');
+
+        $container->registerForAutoconfiguration(IndexableEntityResolverInterface::class)
+            ->addTag('setono_sylius_meilisearch.indexable_entity_resolver');
 
         self::registerIndexesConfiguration($config['indexes'], $container);
         self::registerSearchConfiguration($config['search'], $container, $loader);
