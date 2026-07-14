@@ -75,6 +75,7 @@ class DefaultIndexer extends AbstractIndexer
             $uid = $this->indexNameResolver->resolveFromIndexScope($indexScope);
 
             $documents = [];
+            $documentsToRemove = [];
             $filtered = 0;
             $invalid = 0;
 
@@ -84,7 +85,15 @@ class DefaultIndexer extends AbstractIndexer
 
                 if (!$this->objectFilter->filter($entity, $document, $indexScope)) {
                     ++$filtered;
-                    $this->logger->debug('Entity was filtered out during indexing and will not be indexed', [
+
+                    // Actively remove a filtered-out entity from the index (e.g. a product that was
+                    // just disabled or went out of stock) instead of silently leaving a stale document.
+                    $documentIdentifier = $entity->getDocumentIdentifier();
+                    if (null !== $documentIdentifier) {
+                        $documentsToRemove[] = $documentIdentifier;
+                    }
+
+                    $this->logger->debug('Entity was filtered out during indexing and removed from the index if present', [
                         'index' => $uid,
                         'entity' => $entity::class,
                         'id' => $entity->getDocumentIdentifier(),
@@ -118,7 +127,12 @@ class DefaultIndexer extends AbstractIndexer
                 $documents[] = $data;
             }
 
-            $this->client->index($uid)->addDocuments($documents, 'id');
+            $meilisearchIndex = $this->client->index($uid);
+            $meilisearchIndex->addDocuments($documents, 'id');
+
+            if ([] !== $documentsToRemove) {
+                $meilisearchIndex->deleteDocuments($documentsToRemove);
+            }
 
             $this->logger->info('Indexed a batch of entities', [
                 'index' => $uid,
@@ -126,6 +140,7 @@ class DefaultIndexer extends AbstractIndexer
                 'filtered' => $filtered,
                 'invalid' => $invalid,
                 'indexed' => count($documents),
+                'removed' => count($documentsToRemove),
             ]);
         }
     }

@@ -55,6 +55,7 @@ final class DefaultIndexerTest extends TestCase
 
         $indexes = $this->prophesize(Indexes::class);
         $indexes->addDocuments(Argument::cetera())->willReturn([]);
+        $indexes->deleteDocuments(Argument::cetera())->willReturn([]);
 
         $client = $this->prophesize(Client::class);
         $client->index('products__test')->willReturn($indexes->reveal());
@@ -133,6 +134,49 @@ final class DefaultIndexerTest extends TestCase
         self::assertSame(1, $summary['context']['filtered']);
         self::assertSame(0, $summary['context']['invalid']);
         self::assertSame(0, $summary['context']['indexed']);
+    }
+
+    /**
+     * @test
+     */
+    public function it_removes_a_filtered_out_entity_from_the_index(): void
+    {
+        $index = new Index('products', ProductDocument::class, [Product::class], new Container());
+        $indexScope = new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD');
+
+        $indexScopeProvider = $this->prophesize(IndexScopeProviderInterface::class);
+        $indexScopeProvider->getAll($index)->willReturn([$indexScope]);
+
+        $uidResolver = $this->prophesize(IndexUidResolverInterface::class);
+        $uidResolver->resolveFromIndexScope($indexScope)->willReturn('products__test');
+
+        $objectFilter = $this->prophesize(EntityFilterInterface::class);
+        $objectFilter->filter(Argument::cetera())->willReturn(false);
+
+        $indexes = $this->prophesize(Indexes::class);
+        $indexes->addDocuments([], 'id')->shouldBeCalled()->willReturn([]);
+        // The filtered-out entity is removed from the index
+        $indexes->deleteDocuments(['42'])->shouldBeCalledOnce()->willReturn([]);
+
+        $client = $this->prophesize(Client::class);
+        $client->index('products__test')->willReturn($indexes->reveal());
+
+        $indexer = new DefaultIndexer(
+            $index,
+            $this->prophesize(ManagerRegistry::class)->reveal(),
+            $indexScopeProvider->reveal(),
+            $uidResolver->reveal(),
+            $this->prophesize(DataMapperInterface::class)->reveal(),
+            $this->prophesize(\Symfony\Component\Serializer\Normalizer\NormalizerInterface::class)->reveal(),
+            $client->reveal(),
+            $objectFilter->reveal(),
+            $this->prophesize(EventDispatcherInterface::class)->reveal(),
+            $this->prophesize(MessageBusInterface::class)->reveal(),
+            $this->prophesize(ValidatorInterface::class)->reveal(),
+            new SpyLogger(),
+        );
+
+        $indexer->indexEntities([$this->createEntity()]);
     }
 
     /**
