@@ -56,10 +56,11 @@ Add your Meilisearch credentials to `.env.local`:
 
 ```dotenv
 ###> setono/sylius-meilisearch-plugin ###
-MEILISEARCH_URL=http://localhost:7700
-MEILISEARCH_MASTER_KEY=YOUR_MASTER_KEY
-MEILISEARCH_SEARCH_KEY=YOUR_SEARCH_KEY
-MEILISEARCH_PREFIX= # optional; useful when developers share a Meilisearch instance
+MEILISEARCH_URL=http://localhost:7700       # required; server-side URL the PHP SDK connects to
+MEILISEARCH_MASTER_KEY=YOUR_MASTER_KEY       # required; used for indexing and settings
+MEILISEARCH_SEARCH_KEY=YOUR_SEARCH_KEY       # required for search/autocomplete (search-only key)
+MEILISEARCH_PUBLIC_URL=                       # optional; browser-facing URL for the autocomplete widget when MEILISEARCH_URL is an internal hostname. Falls back to MEILISEARCH_URL when empty
+MEILISEARCH_PREFIX=                           # optional; useful when developers share a Meilisearch instance
 ###< setono/sylius-meilisearch-plugin ###
 ```
 
@@ -137,7 +138,54 @@ php bin/console setono:sylius-meilisearch:index          # index everything
 php bin/console setono:sylius-meilisearch:index --wait   # ...and wait for Meilisearch to finish processing
 ```
 
-After the initial population, the plugin keeps the index up to date as entities change. Changes in *associations* are not detected, though, so consider reindexing periodically (e.g. a nightly cron).
+After the initial population, the plugin keeps the index up to date as entities change — including related changes such as channel prices and variant stock (via tagged `IndexableEntityResolver` services).
+
+## Operational model
+
+Read this before going to production — it covers how indexing actually runs, when index settings are pushed, and a deploy checklist.
+
+### Asynchronous indexing (strongly recommended)
+
+Out of the box every save of an indexable entity indexes **synchronously inside the request**: the plugin dispatches its messages on a dedicated `setono_sylius_meilisearch.command_bus`, which — with no transport routing — runs the handlers inline, issuing one blocking Meilisearch HTTP call per index scope. That makes admin product saves slower the more channels/locales/currencies you have. (A failed index update never breaks the save — the plugin catches and logs it — but it does add latency.)
+
+Route the plugin's messages to an async transport instead. All plugin messages implement `Setono\SyliusMeilisearchPlugin\Message\Command\CommandInterface`, so a single routing entry covers everything:
+
+```yaml
+# config/packages/messenger.yaml
+framework:
+    messenger:
+        transports:
+            setono_sylius_meilisearch: '%env(MESSENGER_TRANSPORT_DSN)%'
+        routing:
+            'Setono\SyliusMeilisearchPlugin\Message\Command\CommandInterface': setono_sylius_meilisearch
+```
+
+Then run a worker (supervised, e.g. with Supervisor or systemd) and configure a failure transport:
+
+```shell
+php bin/console messenger:consume setono_sylius_meilisearch --time-limit=3600
+```
+
+### How settings sync works
+
+Meilisearch index settings — `filterableAttributes` (from `#[Facetable]`), `sortableAttributes` (from `#[Sortable]`), `searchableAttributes` (from `#[Searchable]`), synonyms, etc. — are pushed **only** by the full `setono:sylius-meilisearch:index` command. Incremental Doctrine-event indexing updates documents, never settings.
+
+> **After changing document attributes** (adding/removing a `#[Facetable]`, `#[Sortable]`, `#[Searchable]`, changing a priority, …) **run `setono:sylius-meilisearch:index`.** Waiting for auto-indexing leaves the new facet/sort silently non-functional because its setting was never applied.
+
+### Production checklist
+
+- **Run the index command on deploy** so document/settings changes take effect: `php bin/console setono:sylius-meilisearch:index --wait`.
+- **Reindex on a schedule.** Incremental indexing keeps documents fresh under normal operation, but a nightly reindex guarantees the index converges with the database (e.g. after bulk SQL / fixtures that bypass Doctrine events). One line in cron:
+  ```
+  0 3 * * *  php /path/to/app/bin/console setono:sylius-meilisearch:index --wait
+  ```
+  (`--wait` makes the command block until Meilisearch has finished processing this run's tasks.)
+- **Supervise the worker(s)** running `messenger:consume` (see above) and monitor the failure transport.
+- **Environment variables:** `MEILISEARCH_URL` and `MEILISEARCH_MASTER_KEY` are required; `MEILISEARCH_SEARCH_KEY` is required for search/autocomplete; `MEILISEARCH_PUBLIC_URL` and `MEILISEARCH_PREFIX` are optional.
+
+### Reference configuration
+
+The plugin's [test application config](tests/Application/config/packages/setono_sylius_meilisearch.yaml) is the best worked example of a multi-index setup (a product index and a custom `taxons` index).
 
 ## Customizing what gets indexed
 
