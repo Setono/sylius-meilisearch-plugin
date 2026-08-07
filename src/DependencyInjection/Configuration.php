@@ -76,8 +76,13 @@ The plugin comes with a few filters out of the box based on the entities you con
 - "enabled": excludes entities that implement %s and are disabled
 - "channels_aware": excludes entities that are not enabled for the current channel
 - "stock_available": excludes products that are out of stock
-You can enable/disable them here. If you want to create your own filters, you can do so by implementing the %s or by listening to the %s event
-INFO, ToggleableInterface::class, EntityFilterInterface::class, QueryBuilderForDataProvisionCreated::class),
+The "enabled" and "stock_available" rules are applied at the database level via the data provider, so
+they shape both a full reindex and incremental (entity save) updates equally. "channels_aware" adds a
+per-channel check during indexing on top of that. Whichever rule applies, an entity that no longer
+matches has its document removed on its next save. You can enable/disable them here. To add your own
+rules, listen to the %s event (applied on both paths) or, for rules that cannot be expressed in SQL or
+depend on the channel/locale/currency scope, implement the %s
+INFO, ToggleableInterface::class, QueryBuilderForDataProvisionCreated::class, EntityFilterInterface::class),
                                 )
                                 ->addDefaultsIfNotSet()
                                 ->children()
