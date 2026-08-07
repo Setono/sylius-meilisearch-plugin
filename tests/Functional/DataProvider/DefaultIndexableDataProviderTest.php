@@ -33,7 +33,13 @@ final class DefaultIndexableDataProviderTest extends KernelTestCase
         $dataProvider = $index->dataProvider();
         $entityClass = $index->entities[0];
 
-        $ids = iterator_to_array($dataProvider->getIds($entityClass, $index), false);
+        // getIds() returns an iterable (not necessarily a Traversable), so collect it by hand instead of
+        // using iterator_to_array(), which only accepts iterable from PHP 8.2 onwards
+        $ids = [];
+        foreach ($dataProvider->getIds($entityClass, $index) as $providedId) {
+            $ids[] = $providedId;
+        }
+
         self::assertNotEmpty($ids, 'Expected the fixtures to contain at least one indexable product');
         $id = (int) reset($ids);
 
