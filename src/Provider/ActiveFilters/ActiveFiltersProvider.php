@@ -23,10 +23,15 @@ final class ActiveFiltersProvider implements ActiveFiltersProviderInterface
 
     public function provide(Request $request, ?SearchResult $searchResult = null): ActiveFilterCollection
     {
+        // The chips are derived from the query string because that is what a remove link can change.
+        // Which of them are actually active is decided by the request the search was executed with:
+        // listeners of the SearchRequestCreated event may change the filters before the search runs
         $filters = $request->query->all(SearchRequest::QUERY_PARAMETER_FILTER);
         if ([] === $filters) {
             return new ActiveFilterCollection();
         }
+
+        $appliedFilters = $searchResult?->request?->filters;
 
         $facets = $this->index->metadata()->facetableAttributes;
 
@@ -41,10 +46,18 @@ final class ActiveFiltersProvider implements ActiveFiltersProviderInterface
                 continue;
             }
 
+            /** @var mixed $applied */
+            $applied = null === $appliedFilters ? $values : ($appliedFilters[$name] ?? null);
+
+            // the filter is in the url, but the search did not use it, so it constrains nothing
+            if (null === $applied) {
+                continue;
+            }
+
             $activeFilters[] = match ($facet->type) {
-                'array' => $this->provideChoiceFilters($request, $filters, $facet, $values),
-                'bool' => $this->provideBooleanFilters($request, $filters, $facet, $values),
-                'float', 'int' => $this->provideRangeFilters($request, $filters, $facet, $values, $searchResult),
+                'array' => $this->provideChoiceFilters($request, $filters, $facet, $values, $applied),
+                'bool' => $this->provideBooleanFilters($request, $filters, $facet, $applied),
+                'float', 'int' => $this->provideRangeFilters($request, $filters, $facet, $applied, $searchResult),
                 default => [],
             };
         }
@@ -63,27 +76,14 @@ final class ActiveFiltersProvider implements ActiveFiltersProviderInterface
      *
      * @return list<ActiveFilter>
      */
-    private function provideChoiceFilters(Request $request, array $filters, Facet $facet, mixed $values): array
+    private function provideChoiceFilters(Request $request, array $filters, Facet $facet, mixed $values, mixed $appliedValues): array
     {
-        if (is_string($values)) {
-            $values = [$values];
-        }
+        $selectedValues = self::choiceValues($values);
+        $appliedValues = self::choiceValues($appliedValues);
 
-        if (!is_array($values)) {
-            return [];
-        }
-
-        // mirrors the guards in \Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\ArrayFilterBuilder
-        $selectedValues = [];
-
-        /** @var mixed $value */
-        foreach ($values as $value) {
-            if (!is_string($value) || '' === $value) {
-                continue;
-            }
-
-            $selectedValues[] = $value;
-        }
+        // a value the search did not use constrains nothing, and a value that is not in the url
+        // cannot be removed through one either, so only the values in both get a chip
+        $selectedValues = array_values(array_intersect($selectedValues, $appliedValues));
 
         $activeFilters = [];
 
@@ -102,15 +102,45 @@ final class ActiveFiltersProvider implements ActiveFiltersProviderInterface
     }
 
     /**
+     * Normalizes a choice facet's filter value to the list of values the search engine filters on.
+     * Mirrors the guards in \Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\ArrayFilterBuilder
+     *
+     * @return list<string>
+     */
+    private static function choiceValues(mixed $values): array
+    {
+        if (is_string($values)) {
+            $values = [$values];
+        }
+
+        if (!is_array($values)) {
+            return [];
+        }
+
+        $choiceValues = [];
+
+        /** @var mixed $value */
+        foreach ($values as $value) {
+            if (!is_string($value) || '' === $value) {
+                continue;
+            }
+
+            $choiceValues[] = $value;
+        }
+
+        return $choiceValues;
+    }
+
+    /**
      * @param array<array-key, mixed> $filters
      *
      * @return list<ActiveFilter>
      */
-    private function provideBooleanFilters(Request $request, array $filters, Facet $facet, mixed $values): array
+    private function provideBooleanFilters(Request $request, array $filters, Facet $facet, mixed $appliedValue): array
     {
         // mirrors \Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\BooleanFilterBuilder: only the truthy
         // state is reachable through the search form, so only that state produces a filter chip
-        if ('1' !== $values && 'true' !== $values && true !== $values && 1 !== $values) {
+        if ('1' !== $appliedValue && 'true' !== $appliedValue && true !== $appliedValue && 1 !== $appliedValue) {
             return [];
         }
 
@@ -130,16 +160,16 @@ final class ActiveFiltersProvider implements ActiveFiltersProviderInterface
         Request $request,
         array $filters,
         Facet $facet,
-        mixed $values,
+        mixed $appliedValues,
         ?SearchResult $searchResult,
     ): array {
-        if (!is_array($values)) {
+        if (!is_array($appliedValues)) {
             return [];
         }
 
         // mirrors the guards in \Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FloatFilterBuilder
-        $min = isset($values['min']) && '' !== $values['min'] && is_numeric($values['min']) ? (string) $values['min'] : null;
-        $max = isset($values['max']) && '' !== $values['max'] && is_numeric($values['max']) ? (string) $values['max'] : null;
+        $min = isset($appliedValues['min']) && '' !== $appliedValues['min'] && is_numeric($appliedValues['min']) ? (string) $appliedValues['min'] : null;
+        $max = isset($appliedValues['max']) && '' !== $appliedValues['max'] && is_numeric($appliedValues['max']) ? (string) $appliedValues['max'] : null;
 
         if (null === $min && null === $max) {
             return [];

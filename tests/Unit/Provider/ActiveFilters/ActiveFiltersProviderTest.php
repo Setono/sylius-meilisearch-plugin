@@ -14,6 +14,7 @@ use Setono\SyliusMeilisearchPlugin\Document\Metadata\Metadata;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Product;
 use Setono\SyliusMeilisearchPlugin\Engine\FacetDistribution;
+use Setono\SyliusMeilisearchPlugin\Engine\SearchRequest;
 use Setono\SyliusMeilisearchPlugin\Engine\SearchResult;
 use Setono\SyliusMeilisearchPlugin\Provider\ActiveFilters\ActiveFiltersProvider;
 use Symfony\Component\HttpFoundation\Request;
@@ -127,7 +128,7 @@ final class ActiveFiltersProviderTest extends TestCase
     {
         $request = Request::create('/search?q=jeans&f[price][min]=10&f[price][max]=50');
 
-        $activeFilters = $this->createProvider()->provide($request, $this->createSearchResult(5.49, 99.99));
+        $activeFilters = $this->createProvider()->provide($request, $this->createSearchResult(SearchRequest::fromRequest($request)));
 
         self::assertCount(1, $activeFilters);
         self::assertSame('price', $activeFilters->filters[0]->facet);
@@ -143,7 +144,7 @@ final class ActiveFiltersProviderTest extends TestCase
         // the max equals the facet's upper bound, i.e. the untouched, prefilled value submitted by the search form
         $request = Request::create('/search?q=jeans&f[price][min]=50&f[price][max]=99.99');
 
-        $activeFilters = $this->createProvider()->provide($request, $this->createSearchResult(5.49, 99.99));
+        $activeFilters = $this->createProvider()->provide($request, $this->createSearchResult(SearchRequest::fromRequest($request)));
 
         self::assertCount(1, $activeFilters);
         self::assertSame('Price: from 50', $activeFilters->filters[0]->label);
@@ -157,7 +158,7 @@ final class ActiveFiltersProviderTest extends TestCase
         // both bounds equal the facet's bounds, i.e. the untouched, prefilled values submitted by the search form
         $request = Request::create('/search?q=jeans&f[price][min]=5.49&f[price][max]=99.99');
 
-        $activeFilters = $this->createProvider()->provide($request, $this->createSearchResult(5.49, 99.99));
+        $activeFilters = $this->createProvider()->provide($request, $this->createSearchResult(SearchRequest::fromRequest($request)));
 
         self::assertTrue($activeFilters->isEmpty());
         self::assertNull($activeFilters->resetUrl);
@@ -194,6 +195,39 @@ final class ActiveFiltersProviderTest extends TestCase
         $activeFilters = $this->createProvider()->provide(Request::create('/search?f[unknown][]=value'));
 
         self::assertTrue($activeFilters->isEmpty());
+    }
+
+    /**
+     * @test
+     */
+    public function it_ignores_filters_the_search_was_not_executed_with(): void
+    {
+        $request = Request::create('/search?q=jeans&f[brand][]=Celsius Small&f[brand][]=Modern Wear&f[onSale]=1');
+
+        // a listener of the SearchRequestCreated event dropped a brand and the on sale filter
+        $searchResult = $this->createSearchResult(new SearchRequest('jeans', ['brand' => ['Modern Wear']]));
+
+        $activeFilters = $this->createProvider()->provide($request, $searchResult);
+
+        self::assertCount(1, $activeFilters);
+        self::assertSame('Modern Wear', $activeFilters->filters[0]->label);
+    }
+
+    /**
+     * @test
+     */
+    public function it_ignores_filters_that_were_added_after_the_request_was_created(): void
+    {
+        $request = Request::create('/search?q=jeans&f[brand][]=Modern Wear');
+
+        // a listener of the SearchRequestCreated event forced a filter that is not in the url,
+        // so no remove url could ever get rid of it
+        $searchResult = $this->createSearchResult(new SearchRequest('jeans', ['brand' => ['Modern Wear'], 'onSale' => '1']));
+
+        $activeFilters = $this->createProvider()->provide($request, $searchResult);
+
+        self::assertCount(1, $activeFilters);
+        self::assertSame('Modern Wear', $activeFilters->filters[0]->label);
     }
 
     /**
@@ -269,7 +303,7 @@ final class ActiveFiltersProviderTest extends TestCase
         );
     }
 
-    private function createSearchResult(float $min, float $max): SearchResult
+    private function createSearchResult(SearchRequest $searchRequest, float $min = 5.49, float $max = 99.99): SearchResult
     {
         return new SearchResult(
             new Index('search', Product::class, [], $this->prophesize(ContainerInterface::class)->reveal()),
@@ -282,6 +316,7 @@ final class ActiveFiltersProviderTest extends TestCase
                 ['price' => ['5.49' => 1, '99.99' => 1]],
                 ['price' => ['min' => $min, 'max' => $max]],
             ),
+            $searchRequest,
         );
     }
 }
