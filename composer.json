@@ -122,6 +122,7 @@
         "check-style": "ecs check",
         "fix-style": "ecs check --fix",
         "phpunit": "phpunit --testsuite Unit",
+        "phpunit-functional": "cd tests/Application && APP_ENV=test symfony php ../../vendor/bin/phpunit -c ../.. --testsuite Functional",
         "rector": "rector"
     }
 }

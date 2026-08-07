@@ -478,39 +478,46 @@ vendor/bin/rector process --dry-run
 
 ### Running the functional tests
 
-The Functional suite needs MySQL/MariaDB and a Meilisearch instance on `localhost:7700` (master key `aSampleMasterKey`, matching the defaults in `tests/Application/.env`). Start Meilisearch with the bundled compose file:
+The Functional suite needs MySQL/MariaDB and a Meilisearch instance (master key `aSampleMasterKey`, matching the defaults in `tests/Application/.env`). Start Meilisearch with the bundled compose file:
 
 ```shell
 cd tests/Application && docker compose up -d --wait   # `docker compose down` resets it to a clean state
 ```
 
-Without Docker, `tests/Application/meilisearch.sh` downloads and runs the Meilisearch binary instead.
+The compose file binds Meilisearch to a **random host port** so it can never be confused with another Meilisearch running on the standard `7700` — otherwise that instance answers instead, and the suite quietly indexes into and searches it. The [Symfony CLI](https://symfony.com/download) detects the container and injects the resolved `MEILISEARCH_URL` automatically, so run the commands below through it (`symfony console`, and `composer phpunit-functional`, which runs PHPUnit through the CLI from `tests/Application`, where the compose file is). Plain `bin/console`/`vendor/bin/phpunit` fall back to the `localhost:7700` in `tests/Application/.env`, which is what CI and `meilisearch.sh` use.
+
+Without Docker, `tests/Application/meilisearch.sh` downloads and runs the Meilisearch binary on the standard port instead.
 
 Then set up the test application and run the suite:
 
 ```shell
 cd tests/Application
 export APP_ENV=test
-bin/console doctrine:database:create
-bin/console doctrine:schema:create
-bin/console sylius:fixtures:load -n
-bin/console setono:sylius-meilisearch:index --wait
+symfony console doctrine:database:create
+symfony console doctrine:schema:create
+symfony console sylius:fixtures:load -n
+symfony console cache:clear                             # the port changes whenever the container is recreated
+symfony console setono:sylius-meilisearch:index --wait
 cd ../..
-vendor/bin/phpunit --testsuite Functional
+composer phpunit-functional
 ```
+
+> The plugin resolves `MEILISEARCH_URL` when the container is compiled, so after `docker compose up` recreates Meilisearch on a new port, clear the cache — otherwise the app keeps calling the old one (it fails loudly with a connection error).
 
 ### Running the test application in a browser
 
 ```shell
 cd tests/Application
 yarn install && yarn build          # Node 20, see .nvmrc
-bin/console assets:install
-bin/console doctrine:database:create
-bin/console doctrine:schema:create
-bin/console sylius:fixtures:load -n
-bin/console setono:sylius-meilisearch:index --wait
+symfony console assets:install
+symfony console doctrine:database:create
+symfony console doctrine:schema:create
+symfony console sylius:fixtures:load -n
+symfony console setono:sylius-meilisearch:index --wait
 symfony serve
 ```
+
+Use `symfony console` rather than `bin/console`: loading fixtures and indexing both write to Meilisearch, and only the Symfony CLI knows the random port the compose stack is on.
 
 ### Running the end-to-end tests
 
@@ -520,10 +527,11 @@ The Playwright suite drives the shop search page and the autocomplete widget in 
 cd tests/Application
 docker compose up -d --wait
 yarn install && yarn build
-bin/console assets:install                       # APP_ENV=test for all console commands
-bin/console doctrine:database:create && bin/console doctrine:schema:create
-bin/console sylius:fixtures:load -n
-bin/console setono:sylius-meilisearch:index --wait
+symfony console assets:install                   # APP_ENV=test for all console commands
+symfony console doctrine:database:create && symfony console doctrine:schema:create
+symfony console sylius:fixtures:load -n
+symfony console cache:clear
+symfony console setono:sylius-meilisearch:index --wait
 npx playwright install chromium                  # first time only
 yarn e2e                                          # or: yarn e2e:ui
 ```
