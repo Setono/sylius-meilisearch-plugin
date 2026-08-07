@@ -26,7 +26,7 @@ final class ActiveFiltersProvider implements ActiveFiltersProviderInterface
         // The chips are derived from the query string because that is what a remove link can change.
         // Which of them are actually active is decided by the request the search was executed with:
         // listeners of the SearchRequestCreated event may change the filters before the search runs
-        $filters = $request->query->all(SearchRequest::QUERY_PARAMETER_FILTER);
+        $filters = SearchRequest::fromRequest($request)->filters;
         if ([] === $filters) {
             return new ActiveFilterCollection();
         }
