@@ -3,6 +3,15 @@ setono_sylius_meilisearch:
         see_all_results: 'Alle Ergebnisse anzeigen'
     form:
         search:
+            active_filters:
+                facet:
+                    on_sale: Im Angebot
+                range: '%facet%: %min%–%max%'
+                range_max: '%facet%: bis %max%'
+                range_min: '%facet%: ab %min%'
+                remove: Filter "%filter%" entfernen
+                reset: Alle Filter zurücksetzen
+                title: Aktive Filter
             facet:
                 color: Color
                 on_sale: On sale (%count%)

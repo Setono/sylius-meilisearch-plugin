@@ -128,6 +128,106 @@ test.describe('shop search page', () => {
     });
 });
 
+test.describe('shop search page — active filters', () => {
+    const chips = (page: Page) => page.locator('[data-ssm-filter-remove]');
+
+    test('shows no chips when no filters are active', async ({ page }) => {
+        await page.goto('/en_US/search?q=jeans');
+
+        await expect(page.locator('.ssm-active-filters')).toHaveCount(0);
+    });
+
+    test('shows a single chip for a brand filter and removes it on click', async ({ page }) => {
+        await page.goto('/en_US/search?q=jeans');
+
+        await page.locator('.ssm-filters input[name="f[brand][]"][value="Celsius Small"]').check();
+        await expect(page).toHaveURL(/f%5Bbrand%5D%5B%5D=Celsius/);
+        await expect(page.getByText('1 result', { exact: true })).toBeVisible();
+
+        await expect(chips(page)).toHaveCount(1);
+        await expect(chips(page).first()).toContainText('Celsius Small');
+
+        // Clicking the chip removes the filter via AJAX (URL updates, results restored)
+        await chips(page).first().click();
+        await expect(page).not.toHaveURL(/f%5Bbrand%5D/);
+        await expect(page.getByText('8 results')).toBeVisible();
+        await expect(chips(page)).toHaveCount(0);
+    });
+
+    test('keeps the other chips when removing one of several', async ({ page }) => {
+        await page.goto('/en_US/search?q=jeans');
+
+        // Apply the first two brand filters, whatever the fixture-generated names are
+        const brandBoxes = page.locator('.ssm-filters input[name="f[brand][]"]');
+        const firstBrand = (await brandBoxes.nth(0).getAttribute('value')) ?? '';
+        const secondBrand = (await brandBoxes.nth(1).getAttribute('value')) ?? '';
+
+        await brandBoxes.nth(0).check();
+        await expect(page).toHaveURL(/f%5Bbrand%5D/);
+        await brandBoxes.nth(1).check();
+        await expect(chips(page)).toHaveCount(2);
+
+        await chips(page).filter({ hasText: firstBrand }).click();
+        await expect(chips(page)).toHaveCount(1);
+        await expect(chips(page).first()).toContainText(secondBrand);
+    });
+
+    test('shows a chip for a narrowed price range and removes it on click', async ({ page }) => {
+        await page.goto('/en_US/search?q=jeans');
+
+        const min = page.locator('#f_price_min');
+        const lo = parseFloat((await min.inputValue()) || '0');
+        const hi = parseFloat((await page.locator('#f_price_max').inputValue()) || '0');
+        const threshold = Math.ceil((lo + hi) / 2);
+
+        await min.fill(String(threshold));
+        await min.blur();
+        await expect(page).toHaveURL(/f%5Bprice%5D%5Bmin%5D/);
+
+        // Only the narrowed lower bound is mentioned; the untouched upper bound is not
+        await expect(chips(page)).toHaveCount(1);
+        await expect(chips(page).first()).toContainText(`Price: from ${threshold}`);
+
+        await chips(page).first().click();
+        await expect(page).not.toHaveURL(/f%5Bprice%5D/);
+        await expect(page.getByText('8 results')).toBeVisible();
+        await expect(chips(page)).toHaveCount(0);
+    });
+
+    test('offers removable chips on the no-results page', async ({ page }) => {
+        // An impossible price floor (e.g. from a stale bookmark) empties the result set;
+        // the chip removes the offending filter in one click
+        await page.goto('/en_US/search?q=jeans&f[price][min]=999999');
+        await expect(page.locator('.ui.message .header')).toHaveText('No results found');
+
+        await expect(chips(page)).toHaveCount(1);
+        await expect(chips(page).first()).toContainText('Price: from 999999');
+
+        await chips(page).first().click();
+        await expect(page).not.toHaveURL(/f%5Bprice%5D/);
+        await expect(page.getByText('8 results')).toBeVisible();
+    });
+
+    test('resets all filters but keeps the query and the sorting', async ({ page }) => {
+        await page.goto('/en_US/search?q=jeans');
+
+        await page.locator('select.ssm-sort').selectOption('price:asc');
+        await expect(page).toHaveURL(/s=price%3Aasc/);
+
+        await page.locator('.ssm-filters input[name="f[brand][]"]').first().check();
+        await expect(page).toHaveURL(/f%5Bbrand%5D/);
+
+        await page.locator('[data-ssm-filters-reset]').click();
+        await expect(page).toHaveURL(/q=jeans/);
+        await expect(page).toHaveURL(/s=price%3Aasc/);
+        await expect(page).not.toHaveURL(/f%5B/);
+        await expect(page.getByText('8 results')).toBeVisible();
+
+        const shown = await prices(page);
+        expect(shown).toEqual([...shown].sort((a, b) => a - b));
+    });
+});
+
 test.describe('shop search page — history & resilience', () => {
     test('restores a working form when navigating back and forward across a no-results state', async ({ page }) => {
         await page.goto('/en_US/search?q=jeans');

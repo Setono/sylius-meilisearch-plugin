@@ -13,6 +13,7 @@ Integrate [Meilisearch](https://www.meilisearch.com/) — the lightning-fast, op
 - **Search page** — a ready-made, faceted search experience for your shop, including taxon pages backed by Meilisearch
 - **Autocomplete** — an instant-search widget powered by Meilisearch's official autocomplete library
 - **Facets & filters** — declare facets, filters, and sortable fields with PHP attributes on a plain document class
+- **Active filters** — applied filters show as removable chips on the search page, with a one-click "Reset all filters" link
 - **Synonyms** — manage search synonyms in the Sylius admin; they are synced to Meilisearch automatically
 - **Extensible by design** — data mappers, URL generators, entity filters, index scopes, and facet sorters are all pluggable services
 

@@ -21,14 +21,27 @@ final class SearchResult
         public readonly int $pageSize,
         public readonly int $totalPages,
         public readonly FacetDistribution $facetDistribution,
+
+        /**
+         * The request this result was produced from. Notice this is the request as it was executed,
+         * which is not necessarily the one parsed from the query string: listeners of the
+         * SearchRequestCreated event are allowed to change it before the search runs.
+         *
+         * It is null when the result was not created by the search engine, and last in the
+         * parameter list because it was added after the other parameters
+         */
+        public readonly ?SearchRequest $request = null,
     ) {
     }
 
     /**
      * @throws \InvalidArgumentException
      */
-    public static function fromMeilisearchSearchResult(Index $index, MeilisearchSearchResult $meilisearchSearchResult): self
-    {
+    public static function fromMeilisearchSearchResult(
+        Index $index,
+        MeilisearchSearchResult $meilisearchSearchResult,
+        ?SearchRequest $searchRequest = null,
+    ): self {
         // TODO support estimated total number of search results. See https://www.meilisearch.com/docs/reference/api/search#exhaustive-and-estimated-total-number-of-search-results
         $page = $meilisearchSearchResult->getPage();
         Assert::notNull($page);
@@ -50,6 +63,7 @@ final class SearchResult
             $pageSize,
             $totalPages,
             new FacetDistribution($meilisearchSearchResult->getFacetDistribution(), $meilisearchSearchResult->getFacetStats()),
+            $searchRequest,
         );
     }
 }

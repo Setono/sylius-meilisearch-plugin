@@ -31,7 +31,7 @@ final class SearchEngine implements SearchEngineInterface
 
         $result = $this->provideSearchResult($results, $searchRequest);
 
-        return SearchResult::fromMeilisearchSearchResult($this->index, $result);
+        return SearchResult::fromMeilisearchSearchResult($this->index, $result, $searchRequest);
     }
 
     /**
