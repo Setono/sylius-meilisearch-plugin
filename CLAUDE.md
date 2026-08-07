@@ -22,17 +22,26 @@ After changing code, run `composer fix-style`, `composer analyse`, and `(cd test
 
 ### Functional tests
 
-The Functional suite needs MariaDB/MySQL and Meilisearch on `:7700` with master key `aSampleMasterKey`. Start Meilisearch with `cd tests/Application && docker compose up -d --wait` (or `tests/Application/meilisearch.sh` without Docker; the CI service container is in `.github/workflows/build.yaml`). Keep the compose image version in sync with the CI service containers. Setup chain (all from `tests/Application`, with `APP_ENV=test` — the test env ignores `.env.local`, which may hold real cloud credentials):
+The Functional suite needs MariaDB/MySQL and Meilisearch with master key `aSampleMasterKey`. Start Meilisearch with `cd tests/Application && docker compose up -d --wait` (or `tests/Application/meilisearch.sh` without Docker; the CI service container is in `.github/workflows/build.yaml`). Keep the compose image version in sync with the CI service containers.
+
+**The compose stack binds Meilisearch to a random host port**, so it can never collide with another Meilisearch you happen to run — a fixed `:7700` meant a neighbouring project's container would answer instead, and the suite would silently index into and search *that* instance. The Symfony CLI resolves the port automatically: because the compose service is named `meilisearch`, it injects `MEILISEARCH_URL` (plus `MEILISEARCH_HOST`/`MEILISEARCH_PORT`) pointing at the published port, which overrides the `MEILISEARCH_URL` in `tests/Application/.env`. The CLI reports the scheme as `tcp://` for a Docker service on a port it does not recognise; `SetonoSyliusMeilisearchExtension::normalizeServerUrl()` already coerces that to `http`, so nothing extra is needed. The `.env` value (`:7700`) stays as the fallback for CI's service container and `meilisearch.sh`.
+
+**This means every command that talks to Meilisearch must run through the Symfony CLI** (`symfony console`, `symfony php`) — plain `bin/console`/`vendor/bin/phpunit` fall back to `:7700` and will miss the container. The CLI matches containers by Docker Compose project name and resolves the project from the *script's* location, so it only finds the stack when the compose file is in scope: `vendor/bin/phpunit` lives at the repo root, so it has to be run from `tests/Application` (`symfony php ../../vendor/bin/phpunit -c ../..`). `composer phpunit-functional` wraps exactly that. Setup chain (from `tests/Application`, with `APP_ENV=test` — the test env ignores `.env.local`, which may hold real cloud credentials):
 
 ```shell
-bin/console doctrine:database:create
-bin/console doctrine:schema:create
-bin/console sylius:fixtures:load -n
-bin/console setono:sylius-meilisearch:index --wait
-cd ../.. && vendor/bin/phpunit --testsuite Functional
+symfony console doctrine:database:create
+symfony console doctrine:schema:create
+symfony console sylius:fixtures:load -n
+symfony console cache:clear                          # see the port caveat below
+symfony console setono:sylius-meilisearch:index --wait
+cd ../.. && composer phpunit-functional
 ```
 
-Note: repeated fixture loads accumulate stale documents in a long-lived local Meilisearch (indexes are only added to, never purged), which can make index-vs-database comparisons drift. `docker compose down && docker compose up -d` resets the instance (the compose service has no volume); CI uses a fresh container per run.
+Note `APP_ENV`: under the Symfony CLI the value comes from the CLI's own dotenv handling, so PHPUnit's `<env name="APP_ENV">` in `phpunit.xml.dist` does *not* win — pass `APP_ENV=test` explicitly (the composer script does).
+
+**The port changes whenever the container is recreated, and the plugin bakes the URL into the compiled container** (the extension calls `resolveEnvPlaceholders()` at compile time), so run `symfony console cache:clear` after `docker compose up`, or the app keeps calling the previous port. A stale cache fails loudly with a connection error rather than silently hitting another instance.
+
+Note: repeated fixture loads accumulate stale documents in a long-lived local Meilisearch (indexes are only added to, never purged), which can make index-vs-database comparisons drift. `docker compose down && docker compose up -d` resets the instance (the compose service has no volume) — remember it comes back on a new port and empty, so clear the cache and re-run the index command. CI uses a fresh container per run.
 
 ### E2E tests (Playwright)
 
@@ -40,7 +49,7 @@ Browser tests for the shop search page and autocomplete widget live in `tests/Ap
 
 ### Running the test app locally
 
-Serve the app with `symfony serve` from `tests/Application` — not PHP's built-in server (`php -S` can hide real env vars from Symfony Dotenv depending on `variables_order`, so `.env.local` silently wins over exported overrides). `e2e/serve.sh` wraps `symfony serve` for the e2e suite and resolves `MEILISEARCH_SEARCH_KEY` first.
+Serve the app with `symfony serve` from `tests/Application` — not PHP's built-in server (`php -S` can hide real env vars from Symfony Dotenv depending on `variables_order`, so `.env.local` silently wins over exported overrides). Running through the Symfony CLI is also what injects `MEILISEARCH_URL` for the containerized Meilisearch on its random port (see Functional tests above). `e2e/serve.sh` wraps `symfony serve` for the e2e suite; it `eval`s `symfony var:export` so its own health check and `MEILISEARCH_SEARCH_KEY` lookup hit the same instance the app will use (rewriting the CLI's `tcp://` scheme, which curl cannot use).
 
 ### Dependency extremes
 

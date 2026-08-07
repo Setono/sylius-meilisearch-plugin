@@ -10,7 +10,21 @@ set -eu
 # Always run from tests/Application, regardless of the caller's working directory
 cd "$(dirname "$0")/.."
 
-MEILISEARCH_URL="${MEILISEARCH_URL:-http://localhost:7700}"
+# The compose stack binds Meilisearch to a random host port. `symfony serve` resolves it and injects
+# MEILISEARCH_URL into the app on its own, but the health check and the search-key lookup below run in
+# this plain shell, so resolve it here too. Falls back to the standard 7700, which is what CI's service
+# container and meilisearch.sh listen on.
+if command -v symfony >/dev/null 2>&1; then
+    eval "$(symfony var:export 2>/dev/null || true)"
+fi
+
+MEILISEARCH_URL="${MEILISEARCH_URL:-http://127.0.0.1:7700}"
+
+# The Symfony CLI reports the scheme of a Docker service on an unknown port as tcp://. The plugin
+# coerces that to http itself (see normalizeServerUrl), but curl below needs a real URL.
+case "$MEILISEARCH_URL" in
+    tcp://*) MEILISEARCH_URL="http://${MEILISEARCH_URL#tcp://}" ;;
+esac
 MEILISEARCH_MASTER_KEY="${MEILISEARCH_MASTER_KEY:-aSampleMasterKey}"
 PORT="${E2E_PORT:-8080}"
 
@@ -21,6 +35,7 @@ until curl -fsS "$MEILISEARCH_URL/health" >/dev/null 2>&1; do
     if [ "$tries" -gt 30 ]; then
         echo "Meilisearch is not reachable at $MEILISEARCH_URL." >&2
         echo "Start it with: docker compose up -d --wait   (from tests/Application)" >&2
+        echo "If it is running, make sure the Symfony CLI is installed so the random host port can be resolved." >&2
         exit 1
     fi
     sleep 1

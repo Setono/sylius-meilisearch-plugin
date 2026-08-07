@@ -10,7 +10,12 @@ services:
             MEILI_MASTER_KEY: "aSampleMasterKey" # matches MEILISEARCH_MASTER_KEY in .env
             MEILI_NO_ANALYTICS: "true"
         ports:
-            - "7700:7700"
+            # Random host port on purpose: a fixed 7700 collides with any other Meilisearch you happen
+            # to run (another project's compose stack, a local install), and then this test suite
+            # silently indexes into — and searches — that instance instead of its own.
+            # Run commands through the Symfony CLI (symfony console/php) and it injects the resolved
+            # port as MEILISEARCH_URL, overriding the fallback in .env.
+            - "7700"
         # No volume on purpose: `docker compose down && docker compose up -d` gives a fresh
         # instance, which avoids the stale-document drift you get from a long-lived index.
         # localhost resolves to IPv6 inside the container, but Meilisearch binds IPv4 only, so use 127.0.0.1
