@@ -1,0 +1,6 @@
+# The Integration CI jobs run the Functional suite without building the frontend (no yarn build),
+# so Encore's entrypoints.json does not exist. Non-strict mode makes encore_entry_*_tags render
+# nothing instead of throwing, letting full-page functional tests assert markup without built assets.
+# The e2e job builds real assets and is unaffected.
+webpack_encore:
+    strict_mode: false
