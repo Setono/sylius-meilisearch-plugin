@@ -90,7 +90,40 @@ setono_sylius_meilisearch:
     resource: "@SetonoSyliusMeilisearchPlugin/Resources/config/routes_no_locale.yaml"
 ```
 
-This registers the shop search page (`/search`), the taxon search page (`/taxons/{slug}`), the search widget endpoint, and the synonym CRUD in the admin.
+This registers the shop search page (`/search`), the search widget endpoint, and the synonym CRUD in the admin.
+
+#### Taxon pages
+
+The taxon page adds no route of its own. When search is enabled, the plugin serves Sylius' existing
+`sylius_shop_product_index` route (`/taxons/{slug}`) with the Meilisearch search page, so every link Sylius
+generates for that route (taxon menus, breadcrumbs) points at the Meilisearch backed page — no extra
+configuration and no dependence on the order your routing files are imported in.
+
+To change the taxon page URL, override the route in your application like you would in any Sylius project —
+all links follow automatically because they are generated from the route name:
+
+```yaml
+# config/routes.yaml
+sylius_shop_product_index:
+    path: /categories/{slug}
+    methods: [GET]
+    defaults:
+        _controller: sylius.controller.product::indexAction   # replaced at runtime by the plugin
+    requirements:
+        slug: .+(?<!/)
+```
+
+To keep Sylius' stock taxon pages instead, disable the feature:
+
+```yaml
+setono_sylius_meilisearch:
+    search:
+        taxon:
+            enabled: false
+```
+
+If your application does not import the Sylius shop routing, the takeover is inert — define a route named
+`sylius_shop_product_index` yourself to opt in.
 
 ### 5. Implement `IndexableInterface` in your entities
 

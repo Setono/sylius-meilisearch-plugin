@@ -8,6 +8,8 @@ use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
 use Setono\SyliusMeilisearchPlugin\Controller\Action\SearchAction;
 use Setono\SyliusMeilisearchPlugin\DependencyInjection\SetonoSyliusMeilisearchExtension;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
+use Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\ReplaceTaxonControllerSubscriber;
+use Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\TaxonSearchSubscriber;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product as ProductEntity;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
@@ -39,6 +41,8 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
 
         $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.search.enabled', false);
         $this->assertContainerBuilderNotHasService(SearchAction::class);
+        $this->assertContainerBuilderNotHasService(ReplaceTaxonControllerSubscriber::class);
+        $this->assertContainerBuilderNotHasService(TaxonSearchSubscriber::class);
     }
 
     /**
@@ -175,6 +179,37 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.search.hits_per_page', 120);
         $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.search.enabled', true);
         $this->assertContainerBuilderHasService(SearchAction::class);
+
+        // The taxon takeover is enabled by default when search is enabled
+        $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.search.taxon.enabled', true);
+        $this->assertContainerBuilderHasService(ReplaceTaxonControllerSubscriber::class);
+        $this->assertContainerBuilderHasService(TaxonSearchSubscriber::class);
+    }
+
+    /**
+     * @test
+     */
+    public function it_disables_the_taxon_takeover(): void
+    {
+        $this->load([
+            'indexes' => [
+                'products' => [
+                    'document' => ProductDocument::class,
+                    'entities' => [ProductEntity::class],
+                ],
+            ],
+            'search' => [
+                'index' => 'products',
+                'taxon' => [
+                    'enabled' => false,
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.search.taxon.enabled', false);
+        $this->assertContainerBuilderHasService(SearchAction::class);
+        $this->assertContainerBuilderNotHasService(ReplaceTaxonControllerSubscriber::class);
+        $this->assertContainerBuilderNotHasService(TaxonSearchSubscriber::class);
     }
 
     /**

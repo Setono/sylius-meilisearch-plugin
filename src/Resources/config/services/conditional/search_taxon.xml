@@ -2,12 +2,13 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="Setono\SyliusMeilisearchPlugin\EventSubscriber\AddMenuSubscriber">
+        <service id="Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\ReplaceTaxonControllerSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\CanonicalUrlSubscriber">
-            <argument type="service" id="Setono\SyliusMeilisearchPlugin\UrlGenerator\CanonicalUrlGeneratorInterface"/>
+        <service id="Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\TaxonSearchSubscriber">
+            <argument type="service" id="sylius.repository.taxon"/>
+            <argument type="service" id="sylius.context.locale"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

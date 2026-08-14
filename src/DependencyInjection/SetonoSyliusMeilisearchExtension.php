@@ -55,7 +55,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
          *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}>,
          *      server: array{ url: string, public_url: string|null, master_key: string, search_key: string },
          *      metadata: array{ cache: bool },
-         *      search: array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ path: string } },
+         *      search: array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ enabled: bool } },
          *      autocomplete: array{ enabled: bool, indexes: list<string>, container: string, placeholder: string, limit: int },
          *      resources: array,
          * } $config
@@ -404,15 +404,13 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     }
 
     /**
-     * todo the search controller should only be available when search is enabled
-     *
-     * @param array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ path: string } } $config the search configuration
+     * @param array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ enabled: bool } } $config the search configuration
      */
     private static function registerSearchConfiguration(array $config, ContainerBuilder $container, LoaderInterface $loader): void
     {
         $container->setParameter('setono_sylius_meilisearch.search.enabled', $config['enabled']);
         $container->setParameter('setono_sylius_meilisearch.search.path', $config['path']); // The route that uses this parameter is defined even if search is disabled
-        $container->setParameter('setono_sylius_meilisearch.search.taxon.path', $config['taxon']['path']); // The route that uses this parameter is defined even if search is disabled
+        $container->setParameter('setono_sylius_meilisearch.search.taxon.enabled', $config['taxon']['enabled']);
 
         if (!$config['enabled']) {
             return;
@@ -427,6 +425,10 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         $container->setParameter('setono_sylius_meilisearch.search.hits_per_page', $config['hits_per_page']);
 
         $loader->load('services/conditional/search.xml');
+
+        if ($config['taxon']['enabled']) {
+            $loader->load('services/conditional/search_taxon.xml');
+        }
     }
 
     /**
