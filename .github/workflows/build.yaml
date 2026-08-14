@@ -246,6 +246,23 @@ jobs:
                 with:
                     dependency-versions: "${{ matrix.dependencies }}"
 
+            # The Functional suite renders full shop pages (e.g. TaxonPageTest), which need built frontend assets
+            -   name: "Setup Node"
+                uses: "actions/setup-node@v4"
+                with:
+                    node-version-file: "tests/Application/.nvmrc"
+                    cache: "yarn"
+                    cache-dependency-path: "tests/Application/package.json" # yarn.lock is not committed
+
+            -   name: "Install node dependencies"
+                run: "(cd tests/Application && yarn install)"
+
+            -   name: "Build frontend assets"
+                run: "(cd tests/Application && yarn build)"
+
+            -   name: "Install bundle assets"
+                run: "(cd tests/Application && bin/console assets:install public)"
+
             -   name: "Lint container"
                 run: "(cd tests/Application && bin/console lint:container)"
 
