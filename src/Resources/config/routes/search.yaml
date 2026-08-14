@@ -7,10 +7,6 @@ setono_sylius_meilisearch_shop_search_widget:
     path: '%setono_sylius_meilisearch.search.path%/widget'
     methods: [GET]
     controller: Setono\SyliusMeilisearchPlugin\Controller\Action\SearchWidgetAction
-    
-setono_sylius_meilisearch_shop_taxon:
-    path: '%setono_sylius_meilisearch.search.taxon.path%'
-    methods: [GET]
-    controller: Setono\SyliusMeilisearchPlugin\Controller\Action\SearchAction
-    requirements:
-        slug: .+(?<!/)
+
+# There is deliberately no taxon route here: the taxon page is served by taking over Sylius'
+# sylius_shop_product_index route at request time (see EventSubscriber\Search\ReplaceTaxonControllerSubscriber).

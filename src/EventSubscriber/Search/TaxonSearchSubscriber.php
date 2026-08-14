@@ -38,7 +38,7 @@ final class TaxonSearchSubscriber implements EventSubscriberInterface, ResetInte
     public function setTaxon(SearchRequestCreated $event): void
     {
         $route = $event->request->attributes->get('_route');
-        if ('setono_sylius_meilisearch_shop_taxon' !== $route) {
+        if ('sylius_shop_product_index' !== $route) {
             return;
         }
 
