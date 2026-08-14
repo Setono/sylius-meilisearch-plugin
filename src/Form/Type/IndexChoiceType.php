@@ -21,7 +21,10 @@ final class IndexChoiceType extends AbstractType
 
         $resolver->setDefaults([
             'choices' => array_combine($names, $names),
-            'choice_label' => ucfirst(...),
+            // not ucfirst(...): choice_label is called with ($choice, $key, $value), and a
+            // first-class callable to an internal function throws ArgumentCountError on the
+            // surplus arguments, where a closure absorbs them
+            'choice_label' => static fn (string $name): string => ucfirst($name),
         ]);
     }
 
