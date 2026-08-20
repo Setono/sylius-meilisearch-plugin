@@ -23,5 +23,9 @@
         <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FloatFilterBuilder">
             <tag name="setono_sylius_meilisearch.filter_builder" />
         </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\IntFilterBuilder">
+            <tag name="setono_sylius_meilisearch.filter_builder" />
+        </service>
     </services>
 </container>
