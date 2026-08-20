@@ -1,5 +1,9 @@
 coverage:
   status:
+    project:
+      default:
+        # Allow small drops, e.g. when deleting covered code
+        threshold: 1%
     patch:
       default:
         informational: true
