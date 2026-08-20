@@ -65,7 +65,7 @@ CI tests both `lowest` and `highest` deps (PHP 8.1/8.2/8.3 × Symfony ~6.4.0). B
 
 `SetonoSyliusMeilisearchPlugin` registers seven `CompositeCompilerPass` instances (from `setono/composite-compiler-pass`): tagged services are injected into composite implementations for data mappers, URL generators, index scope providers, settings providers, entity filters, filter builders, and filter form builders. To extend any of these, implement the interface and tag the service (autoconfiguration adds the tags — see `registerForAutoconfiguration` calls in the extension). Service definitions are XML under `src/Resources/config/services/`.
 
-`SetonoSyliusMeilisearchExtension::prepend()` registers a scoped `framework.http_client` PSR-18 client for the Meilisearch SDK — this is why `nyholm/psr7` and `symfony/http-client` are production dependencies. `getConfiguration()` passes `kernel.debug` into `Configuration` (metadata cache defaults to `!$debug`), mirroring FrameworkBundle/DoctrineBundle.
+`SetonoSyliusMeilisearchExtension::prepend()` registers a scoped `framework.http_client` PSR-18 client for the Meilisearch SDK — this is why `nyholm/psr7` and `symfony/http-client` are production dependencies. Document metadata is deliberately not cached across processes (only memoized in-process by `MetadataFactory`): a persistent cache desynced index settings from indexed documents after document class edits (#185), and rebuilding costs ~10µs.
 
 ### Indexing pipeline
 

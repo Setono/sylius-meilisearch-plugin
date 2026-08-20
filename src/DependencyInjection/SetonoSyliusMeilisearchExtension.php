@@ -9,8 +9,6 @@ use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\DataProvider\IndexableDataProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
-use Setono\SyliusMeilisearchPlugin\Document\Metadata\CachedMetadataFactory;
-use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactory;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableDataFilter\ChannelsAwareFilter;
 use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableDataFilter\EnabledFilter;
@@ -49,31 +47,21 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     public function load(array $configs, ContainerBuilder $container): void
     {
         /**
-         * @psalm-suppress PossiblyNullArgument
-         *
          * @var array{
          *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}>,
          *      server: array{ url: string, public_url: string|null, master_key: string, search_key: string },
-         *      metadata: array{ cache: bool },
          *      search: array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ enabled: bool } },
          *      autocomplete: array{ enabled: bool, indexes: list<string>, container: string, placeholder: string, limit: int },
          *      resources: array,
          * } $config
          */
-        $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);
+        $config = $this->processConfiguration(new Configuration(), $configs);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $this->registerResources('setono_sylius_meilisearch', SyliusResourceBundle::DRIVER_DOCTRINE_ORM, $config['resources'], $container);
 
         self::setServerParameters($config['server'], $container);
         self::assertSearchKeyIsNotMasterKey($config['server'], $config['autocomplete']['enabled'], $container);
-
-        // cache
-        $metadataCacheEnabled = $config['metadata']['cache'];
-        $container->setParameter('setono_sylius_meilisearch.cache', $metadataCacheEnabled);
-        if ($metadataCacheEnabled) {
-            $this->registerCachedMetadataFactory($container);
-        }
 
         $loader->load('services.xml');
 
@@ -107,21 +95,9 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         self::registerAutocompleteConfiguration($config['autocomplete'], array_keys($config['indexes']), $container, $loader);
     }
 
-    public function getConfiguration(array $config, ContainerBuilder $container): Configuration
-    {
-        return new Configuration((bool) $container->getParameter('kernel.debug'));
-    }
-
     public function prepend(ContainerBuilder $container): void
     {
         $container->prependExtensionConfig('framework', [
-            'cache' => [
-                'pools' => [
-                    'setono_sylius_meilisearch.cache.metadata' => [
-                        'adapter' => 'cache.system',
-                    ],
-                ],
-            ],
             'http_client' => [
                 'scoped_clients' => [
                     'http_client.setono_sylius_meilisearch' => [
@@ -578,19 +554,5 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
             ->setArgument('$index', $indexName)
             ->addTag('kernel.event_subscriber')
         ;
-    }
-
-    private function registerCachedMetadataFactory(ContainerBuilder $container): void
-    {
-        $container
-            ->register(CachedMetadataFactory::class)
-            ->setDecoratedService(MetadataFactory::class)
-            ->setArguments([
-                new Reference(CachedMetadataFactory::class . '.inner'),
-                new Reference('setono_sylius_meilisearch.cache.metadata'),
-            ])
-        ;
-
-        $container->setAlias(MetadataFactoryInterface::class, CachedMetadataFactory::class);
     }
 }

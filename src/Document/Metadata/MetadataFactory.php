@@ -18,12 +18,27 @@ use Webmozart\Assert\Assert;
 
 final class MetadataFactory implements MetadataFactoryInterface
 {
+    /**
+     * The loaded metadata, indexed by class name
+     *
+     * @var array<class-string<Document>, Metadata>
+     */
+    private array $loadedClasses = [];
+
     public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
     {
     }
 
     public function getMetadataFor(string|Document $document): Metadata
     {
+        if ($document instanceof Document) {
+            $document = $document::class;
+        }
+
+        if (isset($this->loadedClasses[$document])) {
+            return $this->loadedClasses[$document];
+        }
+
         $metadata = new Metadata($document);
 
         $documentReflection = new \ReflectionClass($document);
@@ -41,7 +56,7 @@ final class MetadataFactory implements MetadataFactoryInterface
 
         $this->eventDispatcher->dispatch(new MetadataCreated($metadata));
 
-        return $metadata;
+        return $this->loadedClasses[$document] = $metadata;
     }
 
     private function loadAttributes(Metadata $metadata, \ReflectionProperty|\ReflectionMethod $attributesAware): void
