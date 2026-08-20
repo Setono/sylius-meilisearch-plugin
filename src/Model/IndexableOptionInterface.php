@@ -9,9 +9,9 @@ use Sylius\Component\Resource\Model\TimestampableInterface;
 use Sylius\Component\Resource\Model\ToggleableInterface;
 
 /**
- * Configures a Sylius product attribute (referenced by its code) to be indexed in Meilisearch
+ * Configures a Sylius product option (referenced by its code) to be indexed in Meilisearch
  */
-interface IndexableAttributeInterface extends ResourceInterface, ToggleableInterface, TimestampableInterface
+interface IndexableOptionInterface extends ResourceInterface, ToggleableInterface, TimestampableInterface
 {
     public function getId(): ?int;
 

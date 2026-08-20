@@ -154,7 +154,7 @@ class Product extends BaseProduct implements IndexableInterface
 
 ### 6. Update your database schema
 
-The plugin ships the `Synonym` and `IndexableAttribute` resources, so create and run a migration (you may also want to add a unique index over `type` and `code` on the `setono_sylius_meilisearch__indexable_attribute` table - the plugin only enforces the uniqueness with a validator):
+The plugin ships the `Synonym`, `IndexableAttribute` and `IndexableOption` resources, so create and run a migration (you may also want to add a unique index over `code` on the `setono_sylius_meilisearch__indexable_attribute` and `setono_sylius_meilisearch__indexable_option` tables - the plugin only enforces the uniqueness with a validator):
 
 ```shell
 php bin/console doctrine:migrations:diff
@@ -506,8 +506,9 @@ Set `window.ssmAutocomplete` to override any [autocomplete-js](https://www.algol
 ## Indexed attributes & options
 
 Which product attributes and options end up in the index can be configured by the shop admin under
-**Meilisearch → Indexed attributes** — no code changes or deployments needed. Each row picks a product
-attribute or product option, the indexes it applies to, and its roles:
+**Meilisearch → Indexed attributes** and **Meilisearch → Indexed options** — no code changes or
+deployments needed. Each row picks a product attribute (or option), the indexes it applies to, and its
+roles:
 
 - **Searchable** — the search query matches against the values of the field
 - **Filterable** — the field can be used in Meilisearch filters
@@ -530,7 +531,8 @@ instead of failing.
 Notes and limitations:
 
 - The configuration is per index (a row lists the indexes it applies to), but a row's roles apply to
-  every index it targets
+  every index it targets. Attributes and options are managed on separate screens, mirroring the Catalog
+  section of the Sylius admin
 - Attribute types map to facet widgets as follows: select and text attributes render as checkbox lists,
   checkbox attributes as a single checkbox, integer/float/percent attributes as a range. Date and
   datetime attributes can be searchable/filterable but not facetable

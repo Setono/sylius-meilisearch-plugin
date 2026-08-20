@@ -14,18 +14,20 @@ use Setono\SyliusMeilisearchPlugin\Document\Metadata\Searchable;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\Document\Taxon as TaxonDocument;
 use Setono\SyliusMeilisearchPlugin\Event\MetadataCreated;
-use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableAttributeMetadataSubscriber;
+use Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableSubjectMetadataSubscriber;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableAttribute;
-use Setono\SyliusMeilisearchPlugin\Model\IndexableAttributeInterface;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableOption;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableSubject;
 use Setono\SyliusMeilisearchPlugin\Repository\IndexableAttributeRepositoryInterface;
+use Setono\SyliusMeilisearchPlugin\Repository\IndexableOptionRepositoryInterface;
 use Sylius\Component\Product\Model\ProductAttributeInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\DependencyInjection\Container;
 
 /**
- * @covers \Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableAttributeMetadataSubscriber
+ * @covers \Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableSubjectMetadataSubscriber
  */
-final class IndexableAttributeMetadataSubscriberTest extends TestCase
+final class IndexableSubjectMetadataSubscriberTest extends TestCase
 {
     use ProphecyTrait;
 
@@ -36,14 +38,19 @@ final class IndexableAttributeMetadataSubscriberTest extends TestCase
     {
         $metadata = new Metadata(ProductDocument::class);
 
-        $this->subscriber([
-            self::row(IndexableAttributeInterface::TYPE_ATTRIBUTE, 'color', facetable: true, facetPosition: 3),
-            self::row(IndexableAttributeInterface::TYPE_ATTRIBUTE, 'material', searchable: true, filterable: true),
-            self::row(IndexableAttributeInterface::TYPE_OPTION, 't_shirt_size', facetable: true),
-        ], [
-            'color' => 'json',
-            'material' => 'text',
-        ])->onMetadataCreated(new MetadataCreated($metadata, self::index()));
+        $this->subscriber(
+            attributes: [
+                self::attribute('color', facetable: true, facetPosition: 3),
+                self::attribute('material', searchable: true, filterable: true),
+            ],
+            options: [
+                self::option('t_shirt_size', facetable: true),
+            ],
+            storageTypes: [
+                'color' => 'json',
+                'material' => 'text',
+            ],
+        )->onMetadataCreated(new MetadataCreated($metadata, self::index()));
 
         // color: facetable json attribute
         self::assertArrayHasKey('attr_color', $metadata->dynamicFields);
@@ -71,15 +78,19 @@ final class IndexableAttributeMetadataSubscriberTest extends TestCase
     {
         $metadata = new Metadata(ProductDocument::class);
 
-        $this->subscriber([
-            self::row(IndexableAttributeInterface::TYPE_ATTRIBUTE, 'eco_friendly', facetable: true),
-            self::row(IndexableAttributeInterface::TYPE_ATTRIBUTE, 'weight', facetable: true),
-            self::row(IndexableAttributeInterface::TYPE_ATTRIBUTE, 'length', facetable: true),
-        ], [
-            'eco_friendly' => 'boolean',
-            'weight' => 'integer',
-            'length' => 'float',
-        ])->onMetadataCreated(new MetadataCreated($metadata, self::index()));
+        $this->subscriber(
+            attributes: [
+                self::attribute('eco_friendly', facetable: true),
+                self::attribute('weight', facetable: true),
+                self::attribute('length', facetable: true),
+            ],
+            options: [],
+            storageTypes: [
+                'eco_friendly' => 'boolean',
+                'weight' => 'integer',
+                'length' => 'float',
+            ],
+        )->onMetadataCreated(new MetadataCreated($metadata, self::index()));
 
         self::assertSame('bool', $metadata->facetableAttributes['attr_eco_friendly']->type);
         // integers become floats because the search side has no filter builder for the 'int' type
@@ -94,11 +105,15 @@ final class IndexableAttributeMetadataSubscriberTest extends TestCase
     {
         $metadata = new Metadata(ProductDocument::class);
 
-        $this->subscriber([
-            self::row(IndexableAttributeInterface::TYPE_ATTRIBUTE, 'production_date', searchable: true, facetable: true),
-        ], [
-            'production_date' => 'date',
-        ])->onMetadataCreated(new MetadataCreated($metadata, self::index()));
+        $this->subscriber(
+            attributes: [
+                self::attribute('production_date', searchable: true, facetable: true),
+            ],
+            options: [],
+            storageTypes: [
+                'production_date' => 'date',
+            ],
+        )->onMetadataCreated(new MetadataCreated($metadata, self::index()));
 
         self::assertArrayNotHasKey('attr_production_date', $metadata->facetableAttributes);
         // the other roles are still applied
@@ -113,9 +128,11 @@ final class IndexableAttributeMetadataSubscriberTest extends TestCase
     {
         $metadata = new Metadata(ProductDocument::class);
 
-        $this->subscriber([
-            self::row(IndexableAttributeInterface::TYPE_ATTRIBUTE, 'deleted_attribute', searchable: true),
-        ], [])->onMetadataCreated(new MetadataCreated($metadata, self::index()));
+        $this->subscriber(
+            attributes: [self::attribute('deleted_attribute', searchable: true)],
+            options: [],
+            storageTypes: [],
+        )->onMetadataCreated(new MetadataCreated($metadata, self::index()));
 
         self::assertSame([], $metadata->dynamicFields);
         self::assertSame([], $metadata->searchableAttributes);
@@ -128,9 +145,11 @@ final class IndexableAttributeMetadataSubscriberTest extends TestCase
     {
         $metadata = new Metadata(ProductDocument::class);
 
-        $this->subscriber([
-            self::row(IndexableAttributeInterface::TYPE_OPTION, 'evil = "code"', facetable: true),
-        ], [])->onMetadataCreated(new MetadataCreated($metadata, self::index()));
+        $this->subscriber(
+            attributes: [],
+            options: [self::option('evil = "code"', facetable: true)],
+            storageTypes: [],
+        )->onMetadataCreated(new MetadataCreated($metadata, self::index()));
 
         self::assertSame([], $metadata->dynamicFields);
         self::assertSame([], $metadata->facetableAttributes);
@@ -144,11 +163,11 @@ final class IndexableAttributeMetadataSubscriberTest extends TestCase
         $metadata = new Metadata(ProductDocument::class);
         $metadata->searchableAttributes['attr_color'] = new Searchable('attr_color');
 
-        $this->subscriber([
-            self::row(IndexableAttributeInterface::TYPE_ATTRIBUTE, 'color', facetable: true),
-        ], [
-            'color' => 'json',
-        ])->onMetadataCreated(new MetadataCreated($metadata, self::index()));
+        $this->subscriber(
+            attributes: [self::attribute('color', facetable: true)],
+            options: [],
+            storageTypes: ['color' => 'json'],
+        )->onMetadataCreated(new MetadataCreated($metadata, self::index()));
 
         self::assertSame([], $metadata->dynamicFields);
         self::assertArrayNotHasKey('attr_color', $metadata->facetableAttributes);
@@ -159,14 +178,16 @@ final class IndexableAttributeMetadataSubscriberTest extends TestCase
      */
     public function it_does_nothing_without_index_context_or_for_non_product_documents(): void
     {
-        $repository = $this->prophesize(IndexableAttributeRepositoryInterface::class);
-        $repository->findEnabledByIndex(Argument::any())->shouldNotBeCalled();
+        $attributeRepository = $this->prophesize(IndexableAttributeRepositoryInterface::class);
+        $attributeRepository->findEnabledByIndex(Argument::any())->shouldNotBeCalled();
 
-        $attributeRepository = $this->prophesize(RepositoryInterface::class);
+        $optionRepository = $this->prophesize(IndexableOptionRepositoryInterface::class);
+        $optionRepository->findEnabledByIndex(Argument::any())->shouldNotBeCalled();
 
-        $subscriber = new IndexableAttributeMetadataSubscriber(
-            $repository->reveal(),
+        $subscriber = new IndexableSubjectMetadataSubscriber(
             $attributeRepository->reveal(),
+            $optionRepository->reveal(),
+            $this->prophesize(RepositoryInterface::class)->reveal(),
             new NullLogger(),
         );
 
@@ -178,29 +199,34 @@ final class IndexableAttributeMetadataSubscriberTest extends TestCase
     }
 
     /**
-     * @param list<IndexableAttributeInterface> $rows
+     * @param list<IndexableAttribute> $attributes
+     * @param list<IndexableOption> $options
      * @param array<string, string> $storageTypes storage types indexed by attribute code
      */
-    private function subscriber(array $rows, array $storageTypes): IndexableAttributeMetadataSubscriber
+    private function subscriber(array $attributes, array $options, array $storageTypes): IndexableSubjectMetadataSubscriber
     {
-        $repository = $this->prophesize(IndexableAttributeRepositoryInterface::class);
-        $repository->findEnabledByIndex('products')->willReturn($rows);
+        $indexableAttributeRepository = $this->prophesize(IndexableAttributeRepositoryInterface::class);
+        $indexableAttributeRepository->findEnabledByIndex('products')->willReturn($attributes);
 
-        $attributes = [];
+        $indexableOptionRepository = $this->prophesize(IndexableOptionRepositoryInterface::class);
+        $indexableOptionRepository->findEnabledByIndex('products')->willReturn($options);
+
+        $productAttributes = [];
         foreach ($storageTypes as $code => $storageType) {
             $attribute = $this->prophesize(ProductAttributeInterface::class);
             $attribute->getCode()->willReturn($code);
             $attribute->getStorageType()->willReturn($storageType);
 
-            $attributes[] = $attribute->reveal();
+            $productAttributes[] = $attribute->reveal();
         }
 
-        $attributeRepository = $this->prophesize(RepositoryInterface::class);
-        $attributeRepository->findBy(Argument::type('array'))->willReturn($attributes);
+        $productAttributeRepository = $this->prophesize(RepositoryInterface::class);
+        $productAttributeRepository->findBy(Argument::type('array'))->willReturn($productAttributes);
 
-        return new IndexableAttributeMetadataSubscriber(
-            $repository->reveal(),
-            $attributeRepository->reveal(),
+        return new IndexableSubjectMetadataSubscriber(
+            $indexableAttributeRepository->reveal(),
+            $indexableOptionRepository->reveal(),
+            $productAttributeRepository->reveal(),
             new NullLogger(),
         );
     }
@@ -210,16 +236,40 @@ final class IndexableAttributeMetadataSubscriberTest extends TestCase
         return new Index('products', ProductDocument::class, [], new Container());
     }
 
-    private static function row(
-        string $type,
+    private static function attribute(
         string $code,
         bool $searchable = false,
         bool $filterable = false,
         bool $facetable = false,
         int $facetPosition = 0,
-    ): IndexableAttributeInterface {
+    ): IndexableAttribute {
         $row = new IndexableAttribute();
-        $row->setType($type);
+        self::configure($row, $code, $searchable, $filterable, $facetable, $facetPosition);
+
+        return $row;
+    }
+
+    private static function option(
+        string $code,
+        bool $searchable = false,
+        bool $filterable = false,
+        bool $facetable = false,
+        int $facetPosition = 0,
+    ): IndexableOption {
+        $row = new IndexableOption();
+        self::configure($row, $code, $searchable, $filterable, $facetable, $facetPosition);
+
+        return $row;
+    }
+
+    private static function configure(
+        IndexableSubject $row,
+        string $code,
+        bool $searchable,
+        bool $filterable,
+        bool $facetable,
+        int $facetPosition,
+    ): void {
         $row->setCode($code);
         $row->setSearchable($searchable);
         $row->setFilterable($filterable);
@@ -227,7 +277,5 @@ final class IndexableAttributeMetadataSubscriberTest extends TestCase
         $row->setFacetPosition($facetPosition);
         $row->addIndex('products');
         $row->setEnabled(true);
-
-        return $row;
     }
 }
