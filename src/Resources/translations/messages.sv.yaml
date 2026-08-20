@@ -2,7 +2,7 @@ setono_sylius_meilisearch:
     autocomplete:
         see_all_results: 'Visa alla resultat'
     form:
-        indexable_attribute:
+        indexable:
             facet_position: 'Fasettposition'
             facet_position_help: 'Lägre värden visas först i filterlistan'
             facetable: 'Fasetterbar'
@@ -12,10 +12,10 @@ setono_sylius_meilisearch:
             indexes: 'Index'
             searchable: 'Sökbar'
             searchable_help: 'Matcha sökningar mot fältets värden'
-            subject: 'Attribut eller alternativ'
-            subject_group:
-                attributes: 'Produktattribut'
-                options: 'Produktalternativ'
+        indexable_attribute:
+            attribute: 'Attribut'
+        indexable_option:
+            option: 'Alternativ'
         search:
             facet:
                 color: Color
@@ -64,11 +64,13 @@ setono_sylius_meilisearch:
                 meilisearch:
                     header: Meilisearch
                     indexable_attributes: 'Indexerade attribut'
+                    indexable_options: 'Indexerade alternativ'
                     synonyms: Synonyms
     ui:
         indexable_attribute_header: 'Indexerade attribut'
-        indexable_attribute_help: |
-            <h4>Indexed attributes</h4>
+        indexable_attribute_subheader: 'Konfigurera vilka produktattribut som indexeras'
+        indexable_help: |
+            <h4>Indexed attributes and options</h4>
             <p>Choose which product attributes and options are sent to Meilisearch and how they can be used:</p>
             <ul>
                 <li><strong>Searchable</strong>: the search query matches against the values of the field.</li>
@@ -77,10 +79,8 @@ setono_sylius_meilisearch:
             </ul>
             <p>The configuration applies per index, so you can e.g. include an attribute in your main product index while leaving another index untouched.</p>
             <p>Saving automatically updates the index settings and reindexes the affected indexes. Note that date attributes cannot be shown as facets.</p>
-        indexable_attribute_subheader: 'Konfigurera vilka produktattribut och alternativ som indexeras'
-        indexable_attribute_type:
-            attribute: 'Produktattribut'
-            option: 'Produktalternativ'
+        indexable_option_header: 'Indexerade alternativ'
+        indexable_option_subheader: 'Konfigurera vilka produktalternativ som indexeras'
         indexes: Indexes
         no_indexes: No indexes
         search: Search

@@ -12,17 +12,19 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
-use Setono\SyliusMeilisearchPlugin\EventListener\Doctrine\IndexableAttributeListener;
+use Setono\SyliusMeilisearchPlugin\EventListener\Doctrine\IndexableSubjectListener;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableAttribute;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableOption;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableSubject;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * @covers \Setono\SyliusMeilisearchPlugin\EventListener\Doctrine\IndexableAttributeListener
+ * @covers \Setono\SyliusMeilisearchPlugin\EventListener\Doctrine\IndexableSubjectListener
  */
-final class IndexableAttributeListenerTest extends TestCase
+final class IndexableSubjectListenerTest extends TestCase
 {
     use ProphecyTrait;
 
@@ -38,11 +40,11 @@ final class IndexableAttributeListenerTest extends TestCase
     {
         $listener = $this->listener();
 
-        $listener->postPersist($this->lifecycleEvent(self::row(['products'])));
-        // the same index a second time must not lead to a second dispatch
-        $listener->postUpdate($this->lifecycleEvent(self::row(['products', 'taxons'])));
+        $listener->postPersist($this->lifecycleEvent(self::attribute(['products'])));
+        // an option affecting the same index must not lead to a second dispatch
+        $listener->postUpdate($this->lifecycleEvent(self::option(['products', 'taxons'])));
         // an index that is not configured (anymore) is filtered out
-        $listener->postRemove($this->lifecycleEvent(self::row(['ghost'])));
+        $listener->postRemove($this->lifecycleEvent(self::attribute(['ghost'])));
 
         $listener->dispatch();
 
@@ -61,7 +63,7 @@ final class IndexableAttributeListenerTest extends TestCase
     {
         $listener = $this->listener();
 
-        $row = self::row(['products']);
+        $row = self::attribute(['products']);
 
         $entityManager = $this->prophesize(EntityManagerInterface::class);
         $changeSet = ['indexes' => [['products', 'taxons'], ['products']]];
@@ -88,7 +90,7 @@ final class IndexableAttributeListenerTest extends TestCase
         self::assertFalse($this->metadataFactoryWasReset);
     }
 
-    private function listener(): IndexableAttributeListener
+    private function listener(): IndexableSubjectListener
     {
         $this->dispatchedIndexes = [];
         $this->metadataFactoryWasReset = false;
@@ -113,7 +115,7 @@ final class IndexableAttributeListenerTest extends TestCase
             $metadataFactoryWasReset = true;
         });
 
-        return new IndexableAttributeListener(
+        return new IndexableSubjectListener(
             $commandBus->reveal(),
             $indexRegistry->reveal(),
             $metadataFactory->reveal(),
@@ -123,16 +125,34 @@ final class IndexableAttributeListenerTest extends TestCase
     /**
      * @param list<string> $indexes
      */
-    private static function row(array $indexes): IndexableAttribute
+    private static function attribute(array $indexes): IndexableAttribute
     {
         $row = new IndexableAttribute();
-        $row->setType(IndexableAttribute::TYPE_ATTRIBUTE);
+        self::configure($row, $indexes);
+
+        return $row;
+    }
+
+    /**
+     * @param list<string> $indexes
+     */
+    private static function option(array $indexes): IndexableOption
+    {
+        $row = new IndexableOption();
+        self::configure($row, $indexes);
+
+        return $row;
+    }
+
+    /**
+     * @param list<string> $indexes
+     */
+    private static function configure(IndexableSubject $row, array $indexes): void
+    {
         $row->setCode('color');
         foreach ($indexes as $index) {
             $row->addIndex($index);
         }
-
-        return $row;
     }
 
     /**

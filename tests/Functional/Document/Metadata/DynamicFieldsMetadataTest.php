@@ -8,17 +8,18 @@ use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableAttribute;
-use Setono\SyliusMeilisearchPlugin\Model\IndexableAttributeInterface;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableOption;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableSubject;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProviderInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
- * End to end test of the DB driven metadata: persisted IndexableAttribute rows for the test app's
- * fixture attributes must end up in the resolved metadata of the products index (and in the
+ * End to end test of the DB driven metadata: persisted IndexableAttribute/IndexableOption rows for the
+ * test app's fixture attributes must end up in the resolved metadata of the products index (and in the
  * settings derived from it), while the taxons index stays untouched.
  *
- * @covers \Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableAttributeMetadataSubscriber
+ * @covers \Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableSubjectMetadataSubscriber
  */
 final class DynamicFieldsMetadataTest extends KernelTestCase
 {
@@ -39,10 +40,10 @@ final class DynamicFieldsMetadataTest extends KernelTestCase
         // these attribute codes are defined in the test app's fixtures (see _sylius.yaml):
         // color is a multi select, eco_friendly a checkbox and production_date a date
         $rows = [
-            self::createRow(IndexableAttributeInterface::TYPE_ATTRIBUTE, 'color', facetable: true),
-            self::createRow(IndexableAttributeInterface::TYPE_ATTRIBUTE, 'eco_friendly', facetable: true),
-            self::createRow(IndexableAttributeInterface::TYPE_ATTRIBUTE, 'production_date', searchable: true),
-            self::createRow(IndexableAttributeInterface::TYPE_OPTION, 'dress_size', facetable: true),
+            self::configure(new IndexableAttribute(), 'color', facetable: true),
+            self::configure(new IndexableAttribute(), 'eco_friendly', facetable: true),
+            self::configure(new IndexableAttribute(), 'production_date', searchable: true),
+            self::configure(new IndexableOption(), 'dress_size', facetable: true),
         ];
 
         foreach ($rows as $row) {
@@ -90,14 +91,19 @@ final class DynamicFieldsMetadataTest extends KernelTestCase
         }
     }
 
-    private static function createRow(
-        string $type,
+    /**
+     * @template T of IndexableSubject
+     *
+     * @param T $row
+     *
+     * @return T
+     */
+    private static function configure(
+        IndexableSubject $row,
         string $code,
         bool $searchable = false,
         bool $facetable = false,
-    ): IndexableAttribute {
-        $row = new IndexableAttribute();
-        $row->setType($type);
+    ): IndexableSubject {
         $row->setCode($code);
         $row->setSearchable($searchable);
         $row->setFacetable($facetable);

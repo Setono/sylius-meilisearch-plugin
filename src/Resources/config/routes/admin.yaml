@@ -11,7 +11,23 @@ setono_sylius_meilisearch_admin_indexable_attribute:
                 header: setono_sylius_meilisearch.ui.indexable_attribute_header
                 subheader: setono_sylius_meilisearch.ui.indexable_attribute_subheader
                 templates:
-                    form: "@SetonoSyliusMeilisearchPlugin/admin/indexable_attribute/_form.html.twig"
+                    form: "@SetonoSyliusMeilisearchPlugin/admin/indexable_subject/_form.html.twig"
+    type: sylius.resource
+
+setono_sylius_meilisearch_admin_indexable_option:
+    resource: |
+        section: admin
+        alias: setono_sylius_meilisearch.indexable_option
+        templates: "@SyliusAdmin\\Crud"
+        redirect: index
+        permission: true
+        grid: setono_sylius_meilisearch_admin_indexable_option
+        vars:
+            all:
+                header: setono_sylius_meilisearch.ui.indexable_option_header
+                subheader: setono_sylius_meilisearch.ui.indexable_option_subheader
+                templates:
+                    form: "@SetonoSyliusMeilisearchPlugin/admin/indexable_subject/_form.html.twig"
     type: sylius.resource
 
 setono_sylius_meilisearch_admin_synonym:

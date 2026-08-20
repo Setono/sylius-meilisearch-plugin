@@ -69,7 +69,6 @@ final class IndexableAttributeRepositoryTest extends KernelTestCase
     private static function createRow(string $code, array $indexes, bool $enabled = true): IndexableAttribute
     {
         $row = new IndexableAttribute();
-        $row->setType(IndexableAttributeInterface::TYPE_ATTRIBUTE);
         $row->setCode($code);
         $row->setSearchable(true);
         foreach ($indexes as $index) {

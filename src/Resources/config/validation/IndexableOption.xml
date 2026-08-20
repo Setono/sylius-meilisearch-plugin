@@ -4,12 +4,12 @@
                     xmlns="http://symfony.com/schema/dic/constraint-mapping"
                     xsi:schemaLocation="http://symfony.com/schema/dic/constraint-mapping http://symfony.com/schema/dic/services/constraint-mapping-1.0.xsd">
 
-    <class name="Setono\SyliusMeilisearchPlugin\Model\IndexableAttribute">
+    <class name="Setono\SyliusMeilisearchPlugin\Model\IndexableOption">
         <constraint name="Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity">
             <option name="fields">
                 <value>code</value>
             </option>
-            <option name="message">This attribute is already configured.</option>
+            <option name="message">This option is already configured.</option>
             <option name="groups">setono_sylius_meilisearch</option>
         </constraint>
         <constraint name="Expression">

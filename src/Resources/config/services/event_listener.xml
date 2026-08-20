@@ -15,7 +15,7 @@
             <tag name="monolog.logger" channel="setono_sylius_meilisearch"/>
         </service>
 
-        <service id="Setono\SyliusMeilisearchPlugin\EventListener\Doctrine\IndexableAttributeListener">
+        <service id="Setono\SyliusMeilisearchPlugin\EventListener\Doctrine\IndexableSubjectListener">
             <argument type="service" id="setono_sylius_meilisearch.command_bus"/>
             <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactory"/>

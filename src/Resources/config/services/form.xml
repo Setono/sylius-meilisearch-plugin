@@ -5,6 +5,9 @@
         <parameter type="collection" key="setono_sylius_meilisearch.form.type.indexable_attribute.validation_groups">
             <parameter>setono_sylius_meilisearch</parameter>
         </parameter>
+        <parameter type="collection" key="setono_sylius_meilisearch.form.type.indexable_option.validation_groups">
+            <parameter>setono_sylius_meilisearch</parameter>
+        </parameter>
         <parameter type="collection" key="setono_sylius_meilisearch.form.type.synonym.validation_groups">
             <parameter>setono_sylius_meilisearch</parameter>
         </parameter>
@@ -86,10 +89,16 @@
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Type\IndexableAttributeType">
             <argument type="service" id="sylius.repository.product_attribute"/>
-            <argument type="service" id="sylius.repository.product_option"/>
-            <argument type="service" id="translator"/>
             <argument>%setono_sylius_meilisearch.model.indexable_attribute.class%</argument>
             <argument>%setono_sylius_meilisearch.form.type.indexable_attribute.validation_groups%</argument>
+
+            <tag name="form.type"/>
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Type\IndexableOptionType">
+            <argument type="service" id="sylius.repository.product_option"/>
+            <argument>%setono_sylius_meilisearch.model.indexable_option.class%</argument>
+            <argument>%setono_sylius_meilisearch.form.type.indexable_option.validation_groups%</argument>
 
             <tag name="form.type"/>
         </service>

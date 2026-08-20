@@ -8,18 +8,18 @@ use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
-use Setono\SyliusMeilisearchPlugin\Model\IndexableAttributeInterface;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableSubject;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * When the admin changes the indexable attribute configuration, the affected indexes must have their
- * settings updated AND their documents reindexed (else the settings and the indexed documents desync),
- * which is exactly what the Index command does
+ * When the admin changes the indexable attribute/option configuration, the affected indexes must have
+ * their settings updated AND their documents reindexed (else the settings and the indexed documents
+ * desync), which is exactly what the Index command does
  */
-final class IndexableAttributeListener implements EventSubscriberInterface
+final class IndexableSubjectListener implements EventSubscriberInterface
 {
     /** @var array<string, true> */
     private array $affectedIndexes = [];
@@ -52,7 +52,7 @@ final class IndexableAttributeListener implements EventSubscriberInterface
      */
     public function preUpdate(PreUpdateEventArgs $eventArgs): void
     {
-        if (!$eventArgs->getObject() instanceof IndexableAttributeInterface) {
+        if (!$eventArgs->getObject() instanceof IndexableSubject) {
             return;
         }
 
@@ -76,7 +76,7 @@ final class IndexableAttributeListener implements EventSubscriberInterface
     private function handle(LifecycleEventArgs $eventArgs): void
     {
         $object = $eventArgs->getObject();
-        if (!$object instanceof IndexableAttributeInterface) {
+        if (!$object instanceof IndexableSubject) {
             return;
         }
 

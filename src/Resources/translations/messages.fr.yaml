@@ -2,7 +2,7 @@ setono_sylius_meilisearch:
     autocomplete:
         see_all_results: 'Voir tous les résultats'
     form:
-        indexable_attribute:
+        indexable:
             facet_position: 'Position de la facette'
             facet_position_help: 'Les valeurs les plus basses sont affichées en premier dans la liste des filtres'
             facetable: 'Facettable'
@@ -12,10 +12,10 @@ setono_sylius_meilisearch:
             indexes: 'Index'
             searchable: 'Recherchable'
             searchable_help: 'Faire correspondre les recherches aux valeurs du champ'
-            subject: 'Attribut ou option'
-            subject_group:
-                attributes: 'Attributs de produit'
-                options: 'Options de produit'
+        indexable_attribute:
+            attribute: 'Attribut'
+        indexable_option:
+            option: 'Option'
         search:
             facet:
                 color: Color
@@ -64,11 +64,13 @@ setono_sylius_meilisearch:
                 meilisearch:
                     header: Meilisearch
                     indexable_attributes: 'Attributs indexés'
+                    indexable_options: 'Options indexées'
                     synonyms: Synonyms
     ui:
         indexable_attribute_header: 'Attributs indexés'
-        indexable_attribute_help: |
-            <h4>Indexed attributes</h4>
+        indexable_attribute_subheader: 'Configurer quels attributs de produit sont indexés'
+        indexable_help: |
+            <h4>Indexed attributes and options</h4>
             <p>Choose which product attributes and options are sent to Meilisearch and how they can be used:</p>
             <ul>
                 <li><strong>Searchable</strong>: the search query matches against the values of the field.</li>
@@ -77,10 +79,8 @@ setono_sylius_meilisearch:
             </ul>
             <p>The configuration applies per index, so you can e.g. include an attribute in your main product index while leaving another index untouched.</p>
             <p>Saving automatically updates the index settings and reindexes the affected indexes. Note that date attributes cannot be shown as facets.</p>
-        indexable_attribute_subheader: 'Configurer quels attributs et options de produit sont indexés'
-        indexable_attribute_type:
-            attribute: 'Attribut de produit'
-            option: 'Option de produit'
+        indexable_option_header: 'Options indexées'
+        indexable_option_subheader: 'Configurer quelles options de produit sont indexées'
         indexes: Indexes
         no_indexes: No indexes
         search: Search
