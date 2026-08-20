@@ -55,4 +55,20 @@ final class MetadataFactoryTest extends TestCase
             $metadata->mappedProductOptions,
         );
     }
+
+    /**
+     * @test
+     */
+    public function it_memoizes_metadata(): void
+    {
+        $eventDispatcher = $this->prophesize(EventDispatcherInterface::class);
+        $eventDispatcher->dispatch(Argument::type(MetadataCreated::class))->shouldBeCalledOnce();
+
+        $factory = new MetadataFactory($eventDispatcher->reveal());
+
+        $metadata = $factory->getMetadataFor(Document::class);
+
+        self::assertSame($metadata, $factory->getMetadataFor(Document::class));
+        self::assertSame($metadata, $factory->getMetadataFor(new Document()));
+    }
 }

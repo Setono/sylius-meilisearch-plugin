@@ -22,10 +22,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 final class Configuration implements ConfigurationInterface
 {
-    public function __construct(private readonly bool $debug = true)
-    {
-    }
-
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('setono_sylius_meilisearch');
@@ -115,15 +111,6 @@ INFO, ToggleableInterface::class, QueryBuilderForDataProvisionCreated::class, En
                             ->info('This is the search API key for the Meilisearch instance')
                             ->defaultValue('%env(MEILISEARCH_SEARCH_KEY)%')
                             ->cannotBeEmpty()
-                        ->end()
-                    ->end()
-                ->end()
-                ->arrayNode('metadata')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->booleanNode('cache')
-                            ->info('Whether or not to cache the metadata')
-                            ->defaultValue(!$this->debug)
                         ->end()
                     ->end()
                 ->end()
