@@ -11,6 +11,7 @@ use Sylius\Component\Locale\Context\LocaleContextInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\Service\ResetInterface;
 
 final class TaxonSearchSubscriber implements EventSubscriberInterface, ResetInterface
@@ -48,6 +49,11 @@ final class TaxonSearchSubscriber implements EventSubscriberInterface, ResetInte
         }
 
         $this->taxon = $this->taxonRepository->findOneBySlug($slug, $this->localeContext->getLocaleCode());
+        if (null === $this->taxon) {
+            // Without this, an unknown slug would silently drop the taxon filter and render the
+            // whole catalog with a 200 — Sylius' own taxon page (and search engines) expect a 404.
+            throw new NotFoundHttpException(sprintf('Taxon with slug "%s" does not exist', $slug));
+        }
     }
 
     public function updateFilters(SearchFiltersBuilt $event): void

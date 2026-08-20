@@ -16,6 +16,7 @@ use Sylius\Component\Locale\Context\LocaleContextInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @covers \Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\TaxonSearchSubscriber
@@ -92,6 +93,27 @@ final class TaxonSearchSubscriberTest extends TestCase
         $filtersBuilt = new SearchFiltersBuilt([]);
         $subscriber->updateFilters($filtersBuilt);
         self::assertSame([], $filtersBuilt->filters);
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_a_not_found_exception_for_an_unknown_slug(): void
+    {
+        $localeContext = $this->prophesize(LocaleContextInterface::class);
+        $localeContext->getLocaleCode()->willReturn('en_US');
+
+        $taxonRepository = $this->prophesize(TaxonRepositoryInterface::class);
+        $taxonRepository->findOneBySlug('does-not-exist', 'en_US')->willReturn(null);
+
+        $subscriber = new TaxonSearchSubscriber($taxonRepository->reveal(), $localeContext->reveal());
+
+        $this->expectException(NotFoundHttpException::class);
+
+        $subscriber->setTaxon($this->createSearchRequestCreated([
+            '_route' => 'sylius_shop_product_index',
+            'slug' => 'does-not-exist',
+        ]));
     }
 
     /**
