@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product\Setter;
 
+use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 
@@ -16,9 +17,9 @@ final class DocumentOptionsValuesSetter implements DocumentPropertyValuesSetterI
     /**
      * @param array<string, bool|float|int|string|list<string>> $attributes
      */
-    public function setFor(Document $target, array $attributes): void
+    public function setFor(Document $target, array $attributes, ?Index $index = null): void
     {
-        $metadata = $this->metadataFactory->getMetadataFor($target);
+        $metadata = $this->metadataFactory->getMetadataFor($target, $index);
 
         foreach ($metadata->mappedProductOptions as $property => $optionCodes) {
             $values = [];

@@ -32,7 +32,7 @@ final class ImageDataMapper implements DataMapperInterface
             'The given $source and $target is not supported',
         );
 
-        $metadata = $this->metadataFactory->getMetadataFor($target);
+        $metadata = $this->metadataFactory->getMetadataFor($target, $indexScope->index);
         foreach ($metadata->imageAttributes as $imageAttribute) {
             $image = $imageAttribute->type === null ? $source->getImages()->first() : $source->getImagesByType($imageAttribute->type)->first();
             if (false === $image) {
@@ -58,6 +58,6 @@ final class ImageDataMapper implements DataMapperInterface
         IndexScope $indexScope,
         array $context = [],
     ): bool {
-        return $source instanceof ImagesAwareInterface && $this->metadataFactory->getMetadataFor($target)->imageAttributes !== [];
+        return $source instanceof ImagesAwareInterface && $this->metadataFactory->getMetadataFor($target, $indexScope->index)->imageAttributes !== [];
     }
 }

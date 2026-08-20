@@ -10,20 +10,17 @@ use Setono\SyliusMeilisearchPlugin\Engine\FacetValues;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\FilterValuesSorterInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 
 final class ChoiceFilterFormBuilder implements FilterFormBuilderInterface
 {
-    use FacetLabelTrait;
-
     /**
      * @param ContainerInterface $sorterLocator A service locator of tagged
      *   FilterValuesSorterInterface services, keyed by service id
      */
     public function __construct(
         private readonly ContainerInterface $sorterLocator,
-        private readonly TranslatorInterface $translator,
+        private readonly FacetLabelResolverInterface $facetLabelResolver,
     ) {
     }
 
@@ -36,7 +33,7 @@ final class ChoiceFilterFormBuilder implements FilterFormBuilderInterface
         }
 
         $builder->add($facet->name, ChoiceType::class, [
-            'label' => $this->facetLabel($this->translator, $facet),
+            'label' => $this->facetLabelResolver->resolve($facet),
             'choices' => $choices,
             'choice_label' => fn (string $value) => sprintf('%s (%d)', $value, $values->getValueCount($value)),
             'expanded' => true,

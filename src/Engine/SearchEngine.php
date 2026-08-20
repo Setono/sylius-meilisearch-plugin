@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Engine;
 
 use Meilisearch\Client;
+use Meilisearch\Exceptions\ApiException;
 use Meilisearch\Search\SearchResult as MeilisearchSearchResult;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Query\MultiSearchBuilderInterface;
 use Webmozart\Assert\Assert;
@@ -16,6 +19,7 @@ final class SearchEngine implements SearchEngineInterface
         private readonly Index $index,
         private readonly Client $client,
         private readonly MultiSearchBuilderInterface $multiSearchBuilder,
+        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
@@ -23,7 +27,30 @@ final class SearchEngine implements SearchEngineInterface
     {
         $queries = $this->multiSearchBuilder->build($this->index, $searchRequest);
 
-        $response = $this->client->multiSearch($queries);
+        try {
+            $response = $this->client->multiSearch($queries);
+        } catch (ApiException $e) {
+            if ('invalid_search_facets' !== $e->errorCode) {
+                throw $e;
+            }
+
+            // A facet in the metadata is not (yet) filterable in Meilisearch. This happens right after
+            // an attribute was made facetable (in code or in the admin) but before the settings update
+            // task was processed by Meilisearch. Retry without facets so the search page degrades to a
+            // facet-less result instead of erroring
+            $this->logger->warning(sprintf(
+                'Meilisearch rejected the requested facets for index "%s" (%s). This usually means the index settings are not up to date yet - the search was retried without facets',
+                $this->index->name,
+                $e->getMessage(),
+            ));
+
+            foreach ($queries as $query) {
+                $query->setFacets([]);
+            }
+
+            $response = $this->client->multiSearch($queries);
+        }
+
         Assert::isArray($response);
 
         /** @var list<array<string, mixed>> $results */

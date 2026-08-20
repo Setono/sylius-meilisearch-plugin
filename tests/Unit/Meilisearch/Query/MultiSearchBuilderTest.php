@@ -60,7 +60,7 @@ final class MultiSearchBuilderTest extends TestCase
         $metadata->facetableAttributes['onSale'] = new Facet('onSale', 'bool');
 
         $metadataFactory = $this->prophesize(MetadataFactoryInterface::class);
-        $metadataFactory->getMetadataFor(ProductDocument::class)->willReturn($metadata);
+        $metadataFactory->getMetadataFor(ProductDocument::class, Argument::type(Index::class))->willReturn($metadata);
 
         $uidResolver = $this->prophesize(IndexUidResolverInterface::class);
         $uidResolver->resolve(Argument::type(Index::class))->willReturn('products__test');

@@ -29,7 +29,7 @@ final class OptionsDataMapper implements DataMapperInterface
         Assert::true($this->supports($source, $target, $indexScope, $context));
 
         $options = $this->dataMapperValuesProvider->provide($source, $indexScope);
-        $this->documentPropertyValuesSetter->setFor($target, $options);
+        $this->documentPropertyValuesSetter->setFor($target, $options, $indexScope->index);
     }
 
     /**
@@ -40,7 +40,7 @@ final class OptionsDataMapper implements DataMapperInterface
     {
         return $source instanceof ProductInterface &&
             $target instanceof ProductDocument &&
-            $this->metadataFactory->getMetadataFor($target)->mappedProductOptions !== []
+            $this->metadataFactory->getMetadataFor($target, $indexScope->index)->mappedProductOptions !== []
         ;
     }
 }

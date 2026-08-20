@@ -96,7 +96,7 @@ final class Index implements \Stringable
 
     public function metadata(): Metadata
     {
-        return $this->locator->get(MetadataFactoryInterface::class)->getMetadataFor($this->document);
+        return $this->locator->get(MetadataFactoryInterface::class)->getMetadataFor($this->document, $this);
     }
 
     public function __toString(): string

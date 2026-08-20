@@ -10,6 +10,7 @@ use Setono\SyliusMeilisearchPlugin\DependencyInjection\SetonoSyliusMeilisearchEx
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\ReplaceTaxonControllerSubscriber;
 use Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\TaxonSearchSubscriber;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableAttribute;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product as ProductEntity;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
@@ -43,6 +44,20 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderNotHasService(SearchAction::class);
         $this->assertContainerBuilderNotHasService(ReplaceTaxonControllerSubscriber::class);
         $this->assertContainerBuilderNotHasService(TaxonSearchSubscriber::class);
+    }
+
+    /**
+     * @test
+     */
+    public function it_registers_the_indexable_attribute_resource(): void
+    {
+        $this->load();
+
+        $this->assertContainerBuilderHasParameter(
+            'setono_sylius_meilisearch.model.indexable_attribute.class',
+            IndexableAttribute::class,
+        );
+        $this->assertContainerBuilderHasService('setono_sylius_meilisearch.repository.indexable_attribute');
     }
 
     /**

@@ -8,9 +8,12 @@ use Setono\SyliusMeilisearchPlugin\DataProvider\DefaultIndexableDataProvider;
 use Setono\SyliusMeilisearchPlugin\Document\Product;
 use Setono\SyliusMeilisearchPlugin\Event\QueryBuilderForDataProvisionCreated;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
+use Setono\SyliusMeilisearchPlugin\Form\Type\IndexableAttributeType;
 use Setono\SyliusMeilisearchPlugin\Form\Type\SynonymType;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableAttribute;
 use Setono\SyliusMeilisearchPlugin\Model\Synonym;
+use Setono\SyliusMeilisearchPlugin\Repository\IndexableAttributeRepository;
 use Setono\SyliusMeilisearchPlugin\Repository\SynonymRepository;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
 use Sylius\Component\Resource\Factory\Factory;
@@ -223,6 +226,22 @@ INFO, ToggleableInterface::class, QueryBuilderForDataProvisionCreated::class, En
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->defaultValue(SynonymRepository::class)->cannotBeEmpty()->end()
                                         ->scalarNode('form')->defaultValue(SynonymType::class)->end()
+                                        ->scalarNode('factory')->defaultValue(Factory::class)->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('indexable_attribute')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->variableNode('options')->end()
+                                ->arrayNode('classes')
+                                    ->addDefaultsIfNotSet()
+                                    ->children()
+                                        ->scalarNode('model')->defaultValue(IndexableAttribute::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('repository')->defaultValue(IndexableAttributeRepository::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('form')->defaultValue(IndexableAttributeType::class)->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
         ;
     }
