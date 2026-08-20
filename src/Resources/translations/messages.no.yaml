@@ -68,18 +68,28 @@ setono_sylius_meilisearch:
                     synonyms: Synonyms
     ui:
         indexable_attribute_header: 'Indekserte attributter'
-        indexable_attribute_subheader: 'Konfigurer hvilke produktattributter som indekseres'
-        indexable_help: |
-            <h4>Indexed attributes and options</h4>
-            <p>Choose which product attributes and options are sent to Meilisearch and how they can be used:</p>
+        indexable_attribute_help: |
+            <h4>Indexed attributes</h4>
+            <p>Choose which product attributes are sent to Meilisearch and how they can be used:</p>
             <ul>
-                <li><strong>Searchable</strong>: the search query matches against the values of the field.</li>
+                <li><strong>Searchable</strong>: the search query matches against the values of the attribute.</li>
                 <li><strong>Filterable</strong>: the field can be used in filters.</li>
                 <li><strong>Facetable</strong>: the field is shown as a filter with counts on the search page. A facetable field is always filterable as well.</li>
             </ul>
             <p>The configuration applies per index, so you can e.g. include an attribute in your main product index while leaving another index untouched.</p>
             <p>Saving automatically updates the index settings and reindexes the affected indexes. Note that date attributes cannot be shown as facets.</p>
+        indexable_attribute_subheader: 'Konfigurer hvilke produktattributter som indekseres'
         indexable_option_header: 'Indekserte alternativer'
+        indexable_option_help: |
+            <h4>Indexed options</h4>
+            <p>Choose which product options are sent to Meilisearch and how they can be used:</p>
+            <ul>
+                <li><strong>Searchable</strong>: the search query matches against the option values of the product's variants.</li>
+                <li><strong>Filterable</strong>: the field can be used in filters.</li>
+                <li><strong>Facetable</strong>: the field is shown as a filter with counts on the search page. A facetable field is always filterable as well.</li>
+            </ul>
+            <p>The configuration applies per index, so you can e.g. include an option in your main product index while leaving another index untouched.</p>
+            <p>Saving automatically updates the index settings and reindexes the affected indexes.</p>
         indexable_option_subheader: 'Konfigurer hvilke produktalternativer som indekseres'
         indexes: Indexes
         no_indexes: No indexes
