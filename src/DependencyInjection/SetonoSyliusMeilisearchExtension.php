@@ -47,8 +47,6 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     public function load(array $configs, ContainerBuilder $container): void
     {
         /**
-         * @psalm-suppress PossiblyNullArgument
-         *
          * @var array{
          *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}>,
          *      server: array{ url: string, public_url: string|null, master_key: string, search_key: string },
@@ -57,7 +55,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
          *      resources: array,
          * } $config
          */
-        $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);
+        $config = $this->processConfiguration(new Configuration(), $configs);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $this->registerResources('setono_sylius_meilisearch', SyliusResourceBundle::DRIVER_DOCTRINE_ORM, $config['resources'], $container);
@@ -95,11 +93,6 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         self::registerIndexesConfiguration($config['indexes'], $container);
         self::registerSearchConfiguration($config['search'], $container, $loader);
         self::registerAutocompleteConfiguration($config['autocomplete'], array_keys($config['indexes']), $container, $loader);
-    }
-
-    public function getConfiguration(array $config, ContainerBuilder $container): Configuration
-    {
-        return new Configuration();
     }
 
     public function prepend(ContainerBuilder $container): void
