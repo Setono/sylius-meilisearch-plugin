@@ -23,6 +23,9 @@
             <argument type="service" id="setono_sylius_meilisearch.index.search"/>
             <argument type="service" id="Meilisearch\Client"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Meilisearch\Query\MultiSearchBuilderInterface"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="monolog.logger" channel="setono_sylius_meilisearch"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\Engine\SearchEngineInterface"

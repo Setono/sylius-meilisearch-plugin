@@ -8,20 +8,17 @@ use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
 use Setono\SyliusMeilisearchPlugin\Engine\FacetValues;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class CheckboxFilterFormBuilder implements FilterFormBuilderInterface
 {
-    use FacetLabelTrait;
-
-    public function __construct(private readonly TranslatorInterface $translator)
+    public function __construct(private readonly FacetLabelResolverInterface $facetLabelResolver)
     {
     }
 
     public function build(FormBuilderInterface $builder, Facet $facet, FacetValues $values): void
     {
         $builder->add($facet->name, CheckboxType::class, [
-            'label' => $this->facetLabel($this->translator, $facet),
+            'label' => $this->facetLabelResolver->resolve($facet),
             'label_translation_parameters' => [
                 '%count%' => $values['true'],
             ],

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product\Setter;
 
+use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 
 interface DocumentPropertyValuesSetterInterface
@@ -11,5 +12,5 @@ interface DocumentPropertyValuesSetterInterface
     /**
      * @param array<string, bool|float|int|string|list<string>> $attributes
      */
-    public function setFor(Document $target, array $attributes): void;
+    public function setFor(Document $target, array $attributes, ?Index $index = null): void;
 }

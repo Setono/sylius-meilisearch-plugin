@@ -25,7 +25,7 @@ final class SearchFormBuilder implements SearchFormBuilderInterface
 
     public function build(SearchResult $searchResult): FormInterface
     {
-        $metadata = $this->metadataFactory->getMetadataFor($this->index->document);
+        $metadata = $this->metadataFactory->getMetadataFor($this->index->document, $this->index);
 
         $searchFormBuilder = $this
             ->formFactory

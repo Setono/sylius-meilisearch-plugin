@@ -222,6 +222,111 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                         ],
                     ],
                 ],
+                'setono_sylius_meilisearch_admin_indexable_attribute' => [
+                    'driver' => [
+                        'name' => SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
+                        'options' => [
+                            'class' => '%setono_sylius_meilisearch.model.indexable_attribute.class%',
+                        ],
+                    ],
+                    'limits' => [100, 250, 500, 1000],
+                    'fields' => [
+                        'type' => [
+                            'type' => 'twig',
+                            'label' => 'sylius.ui.type',
+                            'options' => [
+                                'template' => '@SetonoSyliusMeilisearchPlugin/admin/grid/field/_indexable_attribute_type.html.twig',
+                            ],
+                        ],
+                        'code' => [
+                            'type' => 'string',
+                            'label' => 'sylius.ui.code',
+                        ],
+                        'searchable' => [
+                            'type' => 'twig',
+                            'label' => 'setono_sylius_meilisearch.form.indexable_attribute.searchable',
+                            'options' => [
+                                'template' => '@SyliusUi/Grid/Field/enabled.html.twig',
+                            ],
+                        ],
+                        'filterable' => [
+                            'type' => 'twig',
+                            'label' => 'setono_sylius_meilisearch.form.indexable_attribute.filterable',
+                            'options' => [
+                                'template' => '@SyliusUi/Grid/Field/enabled.html.twig',
+                            ],
+                        ],
+                        'facetable' => [
+                            'type' => 'twig',
+                            'label' => 'setono_sylius_meilisearch.form.indexable_attribute.facetable',
+                            'options' => [
+                                'template' => '@SyliusUi/Grid/Field/enabled.html.twig',
+                            ],
+                        ],
+                        'enabled' => [
+                            'type' => 'twig',
+                            'label' => 'sylius.ui.enabled',
+                            'options' => [
+                                'template' => '@SyliusUi/Grid/Field/enabled.html.twig',
+                            ],
+                        ],
+                        'indexes' => [
+                            'type' => 'twig',
+                            'label' => 'setono_sylius_meilisearch.ui.indexes',
+                            'path' => '.',
+                            'options' => [
+                                'template' => '@SetonoSyliusMeilisearchPlugin/admin/grid/field/_indexes.html.twig',
+                            ],
+                        ],
+                    ],
+                    'filters' => [
+                        'code' => [
+                            'type' => 'string',
+                            'label' => 'sylius.ui.code',
+                        ],
+                        'type' => [
+                            'type' => 'select',
+                            'label' => 'sylius.ui.type',
+                            'form_options' => [
+                                'choices' => [
+                                    'setono_sylius_meilisearch.ui.indexable_attribute_type.attribute' => 'attribute',
+                                    'setono_sylius_meilisearch.ui.indexable_attribute_type.option' => 'option',
+                                ],
+                            ],
+                        ],
+                        'enabled' => [
+                            'type' => 'boolean',
+                            'label' => 'sylius.ui.enabled',
+                        ],
+                        'indexes' => [
+                            'type' => 'indexes',
+                            'label' => 'setono_sylius_meilisearch.ui.indexes',
+                            'form_options' => [
+                                'placeholder' => 'sylius.ui.all',
+                            ],
+                        ],
+                    ],
+                    'actions' => [
+                        'main' => [
+                            'create' => [
+                                'type' => 'create',
+                            ],
+                        ],
+                        'item' => [
+                            'update' => [
+                                'type' => 'update',
+                            ],
+                            'delete' => [
+                                'type' => 'delete',
+                            ],
+                        ],
+                        'bulk' => [
+                            'delete' => [
+                                'type' => 'delete',
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ]);
 

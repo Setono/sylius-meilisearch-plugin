@@ -2,6 +2,9 @@
 <container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <parameters>
+        <parameter type="collection" key="setono_sylius_meilisearch.form.type.indexable_attribute.validation_groups">
+            <parameter>setono_sylius_meilisearch</parameter>
+        </parameter>
         <parameter type="collection" key="setono_sylius_meilisearch.form.type.synonym.validation_groups">
             <parameter>setono_sylius_meilisearch</parameter>
         </parameter>
@@ -13,15 +16,26 @@
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\CompositeFilterFormBuilder"/>
 
-        <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\CheckboxFilterFormBuilder">
+        <!-- Facet label resolver -->
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\FacetLabelResolverInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Form\Builder\FacetLabelResolver"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\FacetLabelResolver">
             <argument type="service" id="translator"/>
+            <argument type="service" id="sylius.repository.product_attribute"/>
+            <argument type="service" id="sylius.repository.product_option"/>
+            <argument type="service" id="sylius.context.locale"/>
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\CheckboxFilterFormBuilder">
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Form\Builder\FacetLabelResolverInterface"/>
 
             <tag name="setono_sylius_meilisearch.filter_form_builder" priority="100"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\ChoiceFilterFormBuilder">
             <argument type="tagged_locator" tag="setono_sylius_meilisearch.filter_values_sorter"/>
-            <argument type="service" id="translator"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Form\Builder\FacetLabelResolverInterface"/>
 
             <tag name="setono_sylius_meilisearch.filter_form_builder" priority="90"/>
         </service>
@@ -32,7 +46,7 @@
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Builder\RangeFilterFormBuilder">
-            <argument type="service" id="translator"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Form\Builder\FacetLabelResolverInterface"/>
 
             <tag name="setono_sylius_meilisearch.filter_form_builder" priority="80"/>
         </service>
@@ -66,6 +80,16 @@
 
         <service id="Setono\SyliusMeilisearchPlugin\Form\Type\SearchWidgetType">
             <argument type="service" id="request_stack"/>
+
+            <tag name="form.type"/>
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Type\IndexableAttributeType">
+            <argument type="service" id="sylius.repository.product_attribute"/>
+            <argument type="service" id="sylius.repository.product_option"/>
+            <argument type="service" id="translator"/>
+            <argument>%setono_sylius_meilisearch.model.indexable_attribute.class%</argument>
+            <argument>%setono_sylius_meilisearch.form.type.indexable_attribute.validation_groups%</argument>
 
             <tag name="form.type"/>
         </service>

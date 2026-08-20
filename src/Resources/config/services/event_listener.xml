@@ -15,6 +15,18 @@
             <tag name="monolog.logger" channel="setono_sylius_meilisearch"/>
         </service>
 
+        <service id="Setono\SyliusMeilisearchPlugin\EventListener\Doctrine\IndexableAttributeListener">
+            <argument type="service" id="setono_sylius_meilisearch.command_bus"/>
+            <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactory"/>
+
+            <tag name="doctrine.event_listener" event="postPersist"/>
+            <tag name="doctrine.event_listener" event="preUpdate"/>
+            <tag name="doctrine.event_listener" event="postUpdate"/>
+            <tag name="doctrine.event_listener" event="postRemove"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Setono\SyliusMeilisearchPlugin\EventListener\Doctrine\SynonymListener">
             <argument type="service" id="setono_sylius_meilisearch.command_bus"/>
 
