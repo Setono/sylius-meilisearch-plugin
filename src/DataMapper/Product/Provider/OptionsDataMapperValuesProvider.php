@@ -4,22 +4,18 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider;
 
-use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
-use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
+use Sylius\Component\Product\Model\ProductInterface;
 use Sylius\Component\Product\Model\ProductOptionValueInterface;
-use Webmozart\Assert\Assert;
 
 final class OptionsDataMapperValuesProvider implements DataMapperValuesProviderInterface
 {
     /**
      * @return array<string, list<string>>
      */
-    public function provide(IndexableInterface $source, IndexScope $indexScope): array
+    public function provide(ProductInterface $source, IndexScope $indexScope): array
     {
-        Assert::isInstanceOf($source, ProductInterface::class);
-
         /** @var array<string, list<string>> $options */
         $options = [];
 

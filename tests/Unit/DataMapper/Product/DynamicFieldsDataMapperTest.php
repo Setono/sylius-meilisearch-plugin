@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\DataMapper\Product;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
@@ -17,6 +19,8 @@ use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Component\Core\Model\ProductVariantInterface;
+use Sylius\Component\Product\Model\ProductOptionValueInterface;
 use Symfony\Component\DependencyInjection\Container;
 
 /**
@@ -77,7 +81,83 @@ final class DynamicFieldsDataMapperTest extends TestCase
             // ints become floats because the search side has no 'int' type
             'attr_weight' => 5.0,
             'opt_t_shirt_size' => ['S', 'M'],
-        ], $document->attributes);
+        ], $document->dynamicFields);
+    }
+
+    /**
+     * @test
+     */
+    public function it_maps_dynamic_fields_for_a_product_variant(): void
+    {
+        $metadata = new Metadata(ProductDocument::class);
+        $metadata->dynamicFields = [
+            'attr_material' => new DynamicField('attr_material', DynamicField::SOURCE_ATTRIBUTE, 'material', 'array'),
+            'opt_t_shirt_size' => new DynamicField('opt_t_shirt_size', DynamicField::SOURCE_OPTION, 't_shirt_size', 'array'),
+        ];
+
+        $mapper = $this->mapper($metadata);
+
+        $product = $this->prophesize(ProductInterface::class)->reveal();
+
+        $optionValue = $this->prophesize(ProductOptionValueInterface::class);
+        $optionValue->getOptionCode()->willReturn('t_shirt_size');
+        $optionValue->getValue()->willReturn('M');
+
+        $sourceProphecy = $this->prophesize(ProductVariantInterface::class);
+        $sourceProphecy->willImplement(IndexableInterface::class);
+        $sourceProphecy->getProduct()->willReturn($product);
+        $sourceProphecy->getOptionValues()->willReturn(new ArrayCollection([$optionValue->reveal()]));
+        $source = $sourceProphecy->reveal();
+        \assert($source instanceof IndexableInterface);
+
+        $indexScope = self::indexScope();
+
+        // the attributes come from the parent product...
+        $this->attributesValuesProvider->provide($product, $indexScope)->shouldBeCalledOnce()->willReturn([
+            'material' => ['Cotton'],
+        ]);
+        // ...while the options come from the variant itself, not from the product wide provider
+        $this->optionsValuesProvider->provide(Argument::cetera())->shouldNotBeCalled();
+
+        $document = new ProductDocument();
+        $mapper->map($source, $document, $indexScope);
+
+        self::assertSame([
+            'attr_material' => ['Cotton'],
+            'opt_t_shirt_size' => ['M'],
+        ], $document->dynamicFields);
+    }
+
+    /**
+     * @test
+     */
+    public function it_skips_attribute_fields_for_a_variant_without_a_product(): void
+    {
+        $metadata = new Metadata(ProductDocument::class);
+        $metadata->dynamicFields = [
+            'attr_material' => new DynamicField('attr_material', DynamicField::SOURCE_ATTRIBUTE, 'material', 'array'),
+            'opt_t_shirt_size' => new DynamicField('opt_t_shirt_size', DynamicField::SOURCE_OPTION, 't_shirt_size', 'array'),
+        ];
+
+        $mapper = $this->mapper($metadata);
+
+        $optionValue = $this->prophesize(ProductOptionValueInterface::class);
+        $optionValue->getOptionCode()->willReturn('t_shirt_size');
+        $optionValue->getValue()->willReturn('M');
+
+        $sourceProphecy = $this->prophesize(ProductVariantInterface::class);
+        $sourceProphecy->willImplement(IndexableInterface::class);
+        $sourceProphecy->getProduct()->willReturn(null);
+        $sourceProphecy->getOptionValues()->willReturn(new ArrayCollection([$optionValue->reveal()]));
+        $source = $sourceProphecy->reveal();
+        \assert($source instanceof IndexableInterface);
+
+        $this->attributesValuesProvider->provide(Argument::cetera())->shouldNotBeCalled();
+
+        $document = new ProductDocument();
+        $mapper->map($source, $document, self::indexScope());
+
+        self::assertSame(['opt_t_shirt_size' => ['M']], $document->dynamicFields);
     }
 
     /**

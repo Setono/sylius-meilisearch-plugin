@@ -71,6 +71,10 @@ final class Configuration implements ConfigurationInterface
                                 ->info('If you want to prepend a string to the index name, you can set it here. This can be useful in a development setup where each developer has their own prefix. Notice that the environment is already prefixed by default, so you do not have to prefix that.')
                                 ->cannotBeEmpty()
                             ->end()
+                            ->booleanNode('dynamic_fields')
+                                ->defaultTrue()
+                                ->info('Whether this index may be targeted by the indexable attributes/options configured in the admin. Set it to false to keep the index out of the "Indexes" choices on those admin screens, e.g. for an autocomplete index that should stay lean. Notice that an index is only offered on those screens if it also indexes products or product variants.')
+                            ->end()
                             ->arrayNode('default_filters')
                                 ->info(
                                     sprintf(<<<INFO

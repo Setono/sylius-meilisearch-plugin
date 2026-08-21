@@ -533,6 +533,10 @@ Notes and limitations:
 - The configuration is per index (a row lists the indexes it applies to), but a row's roles apply to
   every index it targets. Attributes and options are managed on separate screens, mirroring the Catalog
   section of the Sylius admin
+- Only eligible indexes are offered on those screens: the index must index products or product variants,
+  and it must not have opted out via `dynamic_fields: false` in its configuration (useful for e.g. an
+  autocomplete index that should stay lean). A variant document gets the attributes of its product and
+  its own option values, where a product document gets the option values of all its enabled variants
 - Attribute types map to facet widgets as follows: select and text attributes render as checkbox lists,
   checkbox attributes as a single checkbox, integer/float/percent attributes as a range. Date and
   datetime attributes can be searchable/filterable but not facetable

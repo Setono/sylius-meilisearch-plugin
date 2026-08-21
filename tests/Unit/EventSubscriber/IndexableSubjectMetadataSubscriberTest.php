@@ -20,6 +20,7 @@ use Setono\SyliusMeilisearchPlugin\Model\IndexableOption;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableSubject;
 use Setono\SyliusMeilisearchPlugin\Repository\IndexableAttributeRepositoryInterface;
 use Setono\SyliusMeilisearchPlugin\Repository\IndexableOptionRepositoryInterface;
+use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product as ProductEntity;
 use Sylius\Component\Product\Model\ProductAttributeInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\DependencyInjection\Container;
@@ -176,7 +177,7 @@ final class IndexableSubjectMetadataSubscriberTest extends TestCase
     /**
      * @test
      */
-    public function it_does_nothing_without_index_context_or_for_non_product_documents(): void
+    public function it_does_nothing_without_index_context_or_for_ineligible_indexes(): void
     {
         $attributeRepository = $this->prophesize(IndexableAttributeRepositoryInterface::class);
         $attributeRepository->findEnabledByIndex(Argument::any())->shouldNotBeCalled();
@@ -191,10 +192,19 @@ final class IndexableSubjectMetadataSubscriberTest extends TestCase
             new NullLogger(),
         );
 
+        // no index context
         $subscriber->onMetadataCreated(new MetadataCreated(new Metadata(ProductDocument::class)));
+
+        // an index without product(ish) entities
         $subscriber->onMetadataCreated(new MetadataCreated(
             new Metadata(TaxonDocument::class),
             new Index('taxons', TaxonDocument::class, [], new Container()),
+        ));
+
+        // an index that opted out of dynamic fields
+        $subscriber->onMetadataCreated(new MetadataCreated(
+            new Metadata(ProductDocument::class),
+            new Index('autocomplete', ProductDocument::class, [ProductEntity::class], new Container(), dynamicFields: false),
         ));
     }
 
@@ -233,7 +243,7 @@ final class IndexableSubjectMetadataSubscriberTest extends TestCase
 
     private static function index(): Index
     {
-        return new Index('products', ProductDocument::class, [], new Container());
+        return new Index('products', ProductDocument::class, [ProductEntity::class], new Container());
     }
 
     private static function attribute(
