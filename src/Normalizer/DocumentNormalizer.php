@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\Exception\LogicException;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 /**
- * Flattens the document's $attributes bag to top level fields so a dynamic field like "attr_color"
+ * Flattens the document's $dynamicFields bag to top level fields so a dynamic field like "attr_color"
  * becomes its own field in Meilisearch (nested field names contain dots, which the search form cannot handle)
  */
 final class DocumentNormalizer implements NormalizerInterface
@@ -33,12 +33,12 @@ final class DocumentNormalizer implements NormalizerInterface
             throw new LogicException('The normalized document data must be an array or an ArrayObject');
         }
 
-        /** @var mixed $attributes */
-        $attributes = $data['attributes'] ?? [];
-        unset($data['attributes']);
+        /** @var mixed $dynamicFields */
+        $dynamicFields = $data['dynamicFields'] ?? [];
+        unset($data['dynamicFields']);
 
-        if (is_array($attributes)) {
-            foreach ($attributes as $name => $value) {
+        if (is_array($dynamicFields)) {
+            foreach ($dynamicFields as $name => $value) {
                 // an existing key always wins so a dynamic field can never overwrite a declared document field
                 if (!array_key_exists($name, $data)) {
                     /** @psalm-suppress MixedAssignment */

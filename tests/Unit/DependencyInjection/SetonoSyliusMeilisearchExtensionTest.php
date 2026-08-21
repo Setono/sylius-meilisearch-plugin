@@ -70,6 +70,24 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
     /**
      * @test
      */
+    public function it_passes_the_dynamic_fields_flag_to_the_index(): void
+    {
+        $this->load([
+            'indexes' => [
+                'products' => [
+                    'document' => ProductDocument::class,
+                    'entities' => [ProductEntity::class],
+                    'dynamic_fields' => false,
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('setono_sylius_meilisearch.index.products', 5, false);
+    }
+
+    /**
+     * @test
+     */
     public function it_falls_back_public_url_to_server_url_when_not_configured(): void
     {
         $this->load();

@@ -10,7 +10,6 @@ use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Filterable;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Metadata;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Searchable;
-use Setono\SyliusMeilisearchPlugin\Document\Product;
 use Setono\SyliusMeilisearchPlugin\Event\MetadataCreated;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableAttributeInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableOptionInterface;
@@ -54,9 +53,10 @@ final class IndexableSubjectMetadataSubscriber implements EventSubscriberInterfa
 
     public function onMetadataCreated(MetadataCreated $event): void
     {
-        // Without index context we cannot know which configuration rows apply,
-        // and only product documents carry product attributes/options
-        if (null === $event->index || !is_a($event->metadata->document, Product::class, true)) {
+        // Without index context we cannot know which configuration rows apply. And an ineligible
+        // index (opted out via the dynamic_fields flag, or not indexing products/variants) must stay
+        // untouched even when stale rows still reference it
+        if (null === $event->index || !$event->index->supportsDynamicFields()) {
             return;
         }
 

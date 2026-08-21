@@ -8,8 +8,9 @@ use Webmozart\Assert\Assert;
 
 /**
  * A document field that does not exist as a declared property on the document class, but is added at
- * runtime from admin configuration (see the IndexableAttribute resource). The values are collected in
- * the document's $attributes bag and flattened to top level fields when the document is normalized
+ * runtime from admin configuration (see the IndexableAttribute/IndexableOption resources). The values
+ * are collected in the document's $dynamicFields bag and flattened to top level fields when the
+ * document is normalized
  */
 final class DynamicField
 {

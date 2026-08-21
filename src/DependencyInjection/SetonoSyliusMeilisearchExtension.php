@@ -48,7 +48,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     {
         /**
          * @var array{
-         *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}>,
+         *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, dynamic_fields: bool, default_filters: array<string, bool>}>,
          *      server: array{ url: string, public_url: string|null, master_key: string, search_key: string },
          *      search: array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ enabled: bool } },
          *      autocomplete: array{ enabled: bool, indexes: list<string>, container: string, placeholder: string, limit: int },
@@ -166,6 +166,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                     'label' => 'setono_sylius_meilisearch.ui.indexes',
                     'form_options' => [
                         'placeholder' => 'sylius.ui.all',
+                        'dynamic_fields_only' => true,
                     ],
                 ],
             ],
@@ -416,7 +417,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     }
 
     /**
-     *  @param array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}> $config
+     *  @param array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, dynamic_fields: bool, default_filters: array<string, bool>}> $config
      */
     private static function registerIndexesConfiguration(array $config, ContainerBuilder $container): void
     {
@@ -440,6 +441,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                     MetadataFactoryInterface::class => new Reference(MetadataFactoryInterface::class),
                 ]),
                 '' === $index['prefix'] ? null : $index['prefix'],
+                $index['dynamic_fields'],
             ]));
 
             $indexRegistry->addMethodCall('add', [new Reference($indexServiceId)]);

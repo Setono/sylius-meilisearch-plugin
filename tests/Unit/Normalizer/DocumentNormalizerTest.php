@@ -38,7 +38,7 @@ final class DocumentNormalizerTest extends TestCase
 
         $data = $this->normalizer($document, [
             'name' => 'T-shirt',
-            'attributes' => [
+            'dynamicFields' => [
                 'attr_color' => ['Red', 'Blue'],
                 'attr_eco_friendly' => true,
             ],
@@ -60,7 +60,7 @@ final class DocumentNormalizerTest extends TestCase
 
         $data = $this->normalizer($document, [
             'name' => 'T-shirt',
-            'attributes' => [
+            'dynamicFields' => [
                 'name' => 'evil',
             ],
         ])->normalize($document);
@@ -77,7 +77,7 @@ final class DocumentNormalizerTest extends TestCase
 
         $data = $this->normalizer($document, [
             'name' => 'T-shirt',
-            'attributes' => [],
+            'dynamicFields' => [],
         ])->normalize($document);
 
         self::assertSame(['name' => 'T-shirt'], $data);

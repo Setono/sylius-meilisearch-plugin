@@ -48,6 +48,7 @@ abstract class IndexableSubjectType extends AbstractResourceType
                 'multiple' => true,
                 'expanded' => true,
                 'label' => 'setono_sylius_meilisearch.form.indexable.indexes',
+                'dynamic_fields_only' => true,
             ])
             ->add('enabled', CheckboxType::class, [
                 'label' => 'sylius.ui.enabled',

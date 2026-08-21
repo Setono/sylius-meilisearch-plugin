@@ -9,15 +9,21 @@ use Setono\SyliusMeilisearchPlugin\DataMapper\Product\Provider\DataMapperValuesP
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\DynamicField;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
-use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Component\Core\Model\ProductVariantInterface;
+use Sylius\Component\Product\Model\ProductOptionValueInterface;
 use Webmozart\Assert\Assert;
 
 /**
- * Fills the document's $attributes bag with the values of the dynamic fields, i.e. the product
- * attributes/options that were configured to be indexed in the admin (see the IndexableAttribute resource)
+ * Fills the document's $dynamicFields bag with the values of the dynamic fields, i.e. the product
+ * attributes/options that were configured to be indexed in the admin (see the IndexableAttribute
+ * and IndexableOption resources).
+ *
+ * Both product and product variant sources are supported: a variant document gets the attributes of
+ * its product and its own option values (where a product document gets the option values of all its
+ * enabled variants)
  */
 final class DynamicFieldsDataMapper implements DataMapperInterface
 {
@@ -34,20 +40,35 @@ final class DynamicFieldsDataMapper implements DataMapperInterface
 
         $dynamicFields = $this->metadataFactory->getMetadataFor($target, $indexScope->index)->dynamicFields;
 
-        /** @var array<string, array<string, bool|float|int|string|list<string>>|null> $values */
-        $values = [
-            DynamicField::SOURCE_ATTRIBUTE => null,
-            DynamicField::SOURCE_OPTION => null,
-        ];
+        $product = $source instanceof ProductVariantInterface ? $source->getProduct() : $source;
+
+        /** @var array<string, bool|float|int|string|list<string>>|null $attributeValues */
+        $attributeValues = null;
+
+        /** @var array<string, bool|float|int|string|list<string>>|null $optionValues */
+        $optionValues = null;
 
         foreach ($dynamicFields as $field) {
-            if (null === $values[$field->source]) {
-                $values[$field->source] = DynamicField::SOURCE_ATTRIBUTE === $field->source
-                    ? $this->attributesValuesProvider->provide($source, $indexScope)
-                    : $this->optionsValuesProvider->provide($source, $indexScope);
+            if (DynamicField::SOURCE_ATTRIBUTE === $field->source) {
+                if (null === $product) {
+                    continue;
+                }
+
+                if (null === $attributeValues) {
+                    $attributeValues = $this->attributesValuesProvider->provide($product, $indexScope);
+                }
+
+                $value = $attributeValues[$field->code] ?? null;
+            } else {
+                if (null === $optionValues) {
+                    $optionValues = $source instanceof ProductVariantInterface
+                        ? self::provideVariantOptions($source)
+                        : $this->optionsValuesProvider->provide($source, $indexScope);
+                }
+
+                $value = $optionValues[$field->code] ?? null;
             }
 
-            $value = $values[$field->source][$field->code] ?? null;
             if (null === $value) {
                 continue;
             }
@@ -57,22 +78,48 @@ final class DynamicFieldsDataMapper implements DataMapperInterface
                 continue;
             }
 
-            $target->attributes[$field->name] = $value;
+            $target->dynamicFields[$field->name] = $value;
         }
     }
 
     /**
-     * @psalm-assert-if-true ProductInterface $source
-     * @psalm-assert-if-true ProductDocument $target
+     * @psalm-assert-if-true ProductInterface|ProductVariantInterface $source
      * @psalm-assert-if-true !null $indexScope->localeCode
      */
     public function supports(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
     {
-        return $source instanceof ProductInterface &&
-            $target instanceof ProductDocument &&
+        return ($source instanceof ProductInterface || $source instanceof ProductVariantInterface) &&
             null !== $indexScope->localeCode &&
             $this->metadataFactory->getMetadataFor($target, $indexScope->index)->dynamicFields !== []
         ;
+    }
+
+    /**
+     * A variant document carries the variant's own option values, not the option values
+     * of all the product's variants
+     *
+     * @return array<string, list<string>>
+     */
+    private static function provideVariantOptions(ProductVariantInterface $variant): array
+    {
+        /** @var array<string, list<string>> $options */
+        $options = [];
+
+        /** @var ProductOptionValueInterface $optionValue */
+        foreach ($variant->getOptionValues() as $optionValue) {
+            $option = $optionValue->getOptionCode();
+            if ($option === null) {
+                continue;
+            }
+
+            $options[$option][] = (string) $optionValue->getValue();
+        }
+
+        foreach ($options as $option => $values) {
+            $options[$option] = array_values(array_unique($values));
+        }
+
+        return $options;
     }
 
     /**
