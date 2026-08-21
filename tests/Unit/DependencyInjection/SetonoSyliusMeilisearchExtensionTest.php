@@ -10,6 +10,8 @@ use Setono\SyliusMeilisearchPlugin\DependencyInjection\SetonoSyliusMeilisearchEx
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\ReplaceTaxonControllerSubscriber;
 use Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\TaxonSearchSubscriber;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableAttribute;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableOption;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product as ProductEntity;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
@@ -43,6 +45,44 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
         $this->assertContainerBuilderNotHasService(SearchAction::class);
         $this->assertContainerBuilderNotHasService(ReplaceTaxonControllerSubscriber::class);
         $this->assertContainerBuilderNotHasService(TaxonSearchSubscriber::class);
+    }
+
+    /**
+     * @test
+     */
+    public function it_registers_the_indexable_attribute_and_option_resources(): void
+    {
+        $this->load();
+
+        $this->assertContainerBuilderHasParameter(
+            'setono_sylius_meilisearch.model.indexable_attribute.class',
+            IndexableAttribute::class,
+        );
+        $this->assertContainerBuilderHasService('setono_sylius_meilisearch.repository.indexable_attribute');
+
+        $this->assertContainerBuilderHasParameter(
+            'setono_sylius_meilisearch.model.indexable_option.class',
+            IndexableOption::class,
+        );
+        $this->assertContainerBuilderHasService('setono_sylius_meilisearch.repository.indexable_option');
+    }
+
+    /**
+     * @test
+     */
+    public function it_passes_the_dynamic_fields_flag_to_the_index(): void
+    {
+        $this->load([
+            'indexes' => [
+                'products' => [
+                    'document' => ProductDocument::class,
+                    'entities' => [ProductEntity::class],
+                    'dynamic_fields' => false,
+                ],
+            ],
+        ]);
+
+        $this->assertContainerBuilderHasServiceDefinitionWithArgument('setono_sylius_meilisearch.index.products', 5, false);
     }
 
     /**

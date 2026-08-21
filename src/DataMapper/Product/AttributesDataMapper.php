@@ -29,7 +29,7 @@ final class AttributesDataMapper implements DataMapperInterface
         Assert::true($this->supports($source, $target, $indexScope, $context));
 
         $attributes = $this->dataMapperValuesProvider->provide($source, $indexScope);
-        $this->documentPropertyValuesSetter->setFor($target, $attributes);
+        $this->documentPropertyValuesSetter->setFor($target, $attributes, $indexScope->index);
     }
 
     /**
@@ -42,7 +42,7 @@ final class AttributesDataMapper implements DataMapperInterface
         return $source instanceof ProductInterface &&
             $target instanceof ProductDocument &&
             null !== $indexScope->localeCode &&
-            $this->metadataFactory->getMetadataFor($target)->mappedProductAttributes !== []
+            $this->metadataFactory->getMetadataFor($target, $indexScope->index)->mappedProductAttributes !== []
         ;
     }
 }

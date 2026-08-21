@@ -10,11 +10,11 @@ use Prophecy\PhpUnit\ProphecyTrait;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
 use Setono\SyliusMeilisearchPlugin\Engine\FacetValues;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\ChoiceFilterFormBuilder;
+use Setono\SyliusMeilisearchPlugin\Form\Builder\FacetLabelResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\FilterValuesSorterInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * A reversing sorter referenced by its FQCN (not registered as a service) to exercise
@@ -40,7 +40,10 @@ final class ChoiceFilterFormBuilderTest extends TestCase
      */
     private function buildChoices(Container $locator, ?string $sorter): array
     {
-        $builder = new ChoiceFilterFormBuilder($locator, $this->prophesize(TranslatorInterface::class)->reveal());
+        $facetLabelResolver = $this->prophesize(FacetLabelResolverInterface::class);
+        $facetLabelResolver->resolve(Argument::type(Facet::class))->willReturn('Brand');
+
+        $builder = new ChoiceFilterFormBuilder($locator, $facetLabelResolver->reveal());
         $facet = new Facet('brand', 'array', 0, $sorter);
         $facetValues = new FacetValues('brand', ['a' => 1, 'b' => 1, 'c' => 1]);
 

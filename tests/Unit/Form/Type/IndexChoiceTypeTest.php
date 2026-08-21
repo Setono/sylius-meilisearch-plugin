@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Form\Type;
 
-use Prophecy\PhpUnit\ProphecyTrait;
-use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
+use Setono\SyliusMeilisearchPlugin\Config\Index;
+use Setono\SyliusMeilisearchPlugin\Config\IndexRegistry;
+use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
+use Setono\SyliusMeilisearchPlugin\Document\Taxon as TaxonDocument;
 use Setono\SyliusMeilisearchPlugin\Form\Type\IndexChoiceType;
+use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product as ProductEntity;
+use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Taxon as TaxonEntity;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Form\ChoiceList\View\ChoiceView;
 use Symfony\Component\Form\PreloadedExtension;
 use Symfony\Component\Form\Test\TypeTestCase;
@@ -16,15 +21,15 @@ use Symfony\Component\Form\Test\TypeTestCase;
  */
 final class IndexChoiceTypeTest extends TypeTestCase
 {
-    use ProphecyTrait;
-
     protected function getExtensions(): array
     {
-        $indexRegistry = $this->prophesize(IndexRegistryInterface::class);
-        $indexRegistry->getNames()->willReturn(['products', 'taxons']);
+        $indexRegistry = new IndexRegistry();
+        $indexRegistry->add(new Index('products', ProductDocument::class, [ProductEntity::class], new Container()));
+        $indexRegistry->add(new Index('taxons', TaxonDocument::class, [TaxonEntity::class], new Container()));
+        $indexRegistry->add(new Index('autocomplete', ProductDocument::class, [ProductEntity::class], new Container(), dynamicFields: false));
 
         return [
-            new PreloadedExtension([new IndexChoiceType($indexRegistry->reveal())], []),
+            new PreloadedExtension([new IndexChoiceType($indexRegistry)], []),
         ];
     }
 
@@ -36,7 +41,26 @@ final class IndexChoiceTypeTest extends TypeTestCase
      */
     public function it_builds_a_form_view_with_capitalized_labels(): void
     {
-        $view = $this->factory->create(IndexChoiceType::class)->createView();
+        self::assertSame(['Products', 'Taxons', 'Autocomplete'], $this->labels([]));
+    }
+
+    /**
+     * @test
+     */
+    public function it_only_offers_indexes_supporting_dynamic_fields_when_asked_to(): void
+    {
+        // taxons does not index products and autocomplete opted out via the dynamic_fields flag
+        self::assertSame(['Products'], $this->labels(['dynamic_fields_only' => true]));
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return list<string>
+     */
+    private function labels(array $options): array
+    {
+        $view = $this->factory->create(IndexChoiceType::class, options: $options)->createView();
 
         $vars = $view->vars;
         self::assertIsArray($vars);
@@ -50,6 +74,6 @@ final class IndexChoiceTypeTest extends TypeTestCase
             $labels[] = $choice->label;
         }
 
-        self::assertSame(['Products', 'Taxons'], $labels);
+        return $labels;
     }
 }

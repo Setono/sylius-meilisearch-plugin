@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<constraint-mapping xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xmlns="http://symfony.com/schema/dic/constraint-mapping"
+                    xsi:schemaLocation="http://symfony.com/schema/dic/constraint-mapping http://symfony.com/schema/dic/services/constraint-mapping-1.0.xsd">
+
+    <class name="Setono\SyliusMeilisearchPlugin\Model\IndexableAttribute">
+        <constraint name="Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity">
+            <option name="fields">
+                <value>code</value>
+            </option>
+            <option name="message">This attribute is already configured.</option>
+            <option name="groups">setono_sylius_meilisearch</option>
+        </constraint>
+        <constraint name="Expression">
+            <option name="expression">this.isSearchable() or this.isFilterable() or this.isFacetable()</option>
+            <option name="message">Select at least one of searchable, filterable or facetable.</option>
+            <option name="groups">setono_sylius_meilisearch</option>
+        </constraint>
+        <property name="code">
+            <constraint name="NotBlank">
+                <option name="groups">setono_sylius_meilisearch</option>
+            </constraint>
+        </property>
+        <property name="indexes">
+            <constraint name="NotNull">
+                <option name="groups">setono_sylius_meilisearch</option>
+            </constraint>
+            <constraint name="Count">
+                <option name="min">1</option>
+                <option name="groups">setono_sylius_meilisearch</option>
+            </constraint>
+        </property>
+    </class>
+</constraint-mapping>

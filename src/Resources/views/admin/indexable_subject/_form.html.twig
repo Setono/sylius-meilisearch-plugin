@@ -1,0 +1,21 @@
+{# @var resource \Setono\SyliusMeilisearchPlugin\Model\IndexableSubject #}
+{# @var help string a translation key for the help text in the sidebar #}
+{{ form_errors(form) }}
+<div class="ui two column stackable grid">
+    <div class="ten wide column">
+        {{ form_row(form.code) }}
+
+        <div class="ui three fields">
+            {{ form_row(form.searchable) }}
+            {{ form_row(form.filterable) }}
+            {{ form_row(form.facetable) }}
+        </div>
+
+        <div class="ui three fields">
+            {{ form_row(form.facetPosition) }}
+            {{ form_row(form.indexes) }}
+            {{ form_row(form.enabled) }}
+        </div>
+    </div>
+    <div class="six wide column">{{ help|trans|raw }}</div>
+</div>

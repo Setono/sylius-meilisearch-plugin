@@ -13,6 +13,7 @@ Integrate [Meilisearch](https://www.meilisearch.com/) — the lightning-fast, op
 - **Search page** — a ready-made, faceted search experience for your shop, including taxon pages backed by Meilisearch
 - **Autocomplete** — an instant-search widget powered by Meilisearch's official autocomplete library
 - **Facets & filters** — declare facets, filters, and sortable fields with PHP attributes on a plain document class
+- **Admin-configurable indexed attributes** — let shop admins choose which product attributes and options are searchable, filterable, and facetable, per index
 - **Synonyms** — manage search synonyms in the Sylius admin; they are synced to Meilisearch automatically
 - **Extensible by design** — data mappers, URL generators, entity filters, index scopes, and facet sorters are all pluggable services
 
@@ -153,7 +154,7 @@ class Product extends BaseProduct implements IndexableInterface
 
 ### 6. Update your database schema
 
-The plugin ships a `Synonym` resource, so create and run a migration:
+The plugin ships the `Synonym`, `IndexableAttribute` and `IndexableOption` resources, so create and run a migration (you may also want to add a unique index over `code` on the `setono_sylius_meilisearch__indexable_attribute` and `setono_sylius_meilisearch__indexable_option` tables - the plugin only enforces the uniqueness with a validator):
 
 ```shell
 php bin/console doctrine:migrations:diff
@@ -501,6 +502,50 @@ Set `window.ssmAutocomplete` to override any [autocomplete-js](https://www.algol
 ```
 
 > **Content Security Policy:** the default item templates are compiled with `new Function`, which requires `script-src 'unsafe-eval'`. If your CSP forbids that, supply your own `getSources` via `window.ssmAutocomplete` — that path never compiles a template, so no `'unsafe-eval'` is needed.
+
+## Indexed attributes & options
+
+Which product attributes and options end up in the index can be configured by the shop admin under
+**Meilisearch → Indexed attributes** and **Meilisearch → Indexed options** — no code changes or
+deployments needed. Each row picks a product attribute (or option), the indexes it applies to, and its
+roles:
+
+- **Searchable** — the search query matches against the values of the field
+- **Filterable** — the field can be used in Meilisearch filters
+- **Facetable** — the field is rendered as a filter with counts on the search page (and taxon pages).
+  A facetable field is always filterable as well
+
+The resulting document fields are named `attr_<code>` for attributes and `opt_<code>` for options
+(e.g. `attr_color`, `opt_t_shirt_size`), so they can never collide with the declared fields of your
+document class. Facet labels are resolved from the attribute's/option's translated name for the current
+locale; you can override any label by defining the `setono_sylius_meilisearch.form.search.facet.<field>`
+translation key. Values are localized the same way as `#[MapProductAttribute]` fields, since every
+channel/locale/currency scope has its own index.
+
+Saving a row automatically updates the affected indexes' settings and reindexes their documents (via the
+`Index` messenger command on the `setono_sylius_meilisearch.command_bus` — route that bus to an async
+transport to move this work to your workers). Until Meilisearch has processed the settings update task, a
+newly added facet is not usable yet; searches degrade gracefully to a facet-less result in that window
+instead of failing.
+
+Notes and limitations:
+
+- The configuration is per index (a row lists the indexes it applies to), but a row's roles apply to
+  every index it targets. Attributes and options are managed on separate screens, mirroring the Catalog
+  section of the Sylius admin
+- Only eligible indexes are offered on those screens: the index must index products or product variants,
+  and it must not have opted out via `dynamic_fields: false` in its configuration (useful for e.g. an
+  autocomplete index that should stay lean). A variant document gets the attributes of its product and
+  its own option values, where a product document gets the option values of all its enabled variants
+- Attribute types map to facet widgets as follows: select and text attributes render as checkbox lists,
+  checkbox attributes as a single checkbox, integer/float/percent attributes as a range. Date and
+  datetime attributes can be searchable/filterable but not facetable
+- Select attributes whose values are purely numeric (e.g. sizes `38`, `40`) are not rendered as facets
+  by the built-in choice widget
+- Changing rows from the CLI or fixtures does not auto-trigger a reindex — run
+  `setono:sylius-meilisearch:index` afterwards (the same applies to synonyms)
+- A worker running `messenger:consume` picks up configuration changes between messages; long-running
+  processes that do not go through messenger keep the metadata they resolved first
 
 ## Synonyms
 

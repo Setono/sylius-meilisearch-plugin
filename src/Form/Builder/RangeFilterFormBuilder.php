@@ -8,20 +8,17 @@ use Setono\SyliusMeilisearchPlugin\Document\Metadata\Facet;
 use Setono\SyliusMeilisearchPlugin\Engine\FacetValues;
 use Setono\SyliusMeilisearchPlugin\Form\Type\RangeType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class RangeFilterFormBuilder implements FilterFormBuilderInterface
 {
-    use FacetLabelTrait;
-
-    public function __construct(private readonly TranslatorInterface $translator)
+    public function __construct(private readonly FacetLabelResolverInterface $facetLabelResolver)
     {
     }
 
     public function build(FormBuilderInterface $builder, Facet $facet, FacetValues $values): void
     {
         $builder->add($facet->name, RangeType::class, [
-            'label' => $this->facetLabel($this->translator, $facet),
+            'label' => $this->facetLabelResolver->resolve($facet),
             'required' => false,
             'block_prefix' => 'setono_sylius_meilisearch_facet_range',
             'priority' => -1 * $facet->position,

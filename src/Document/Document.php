@@ -31,6 +31,15 @@ abstract class Document
     public ?string $entityClass = null;
 
     /**
+     * Values of fields that are added at runtime, i.e. the admin configured indexable
+     * attributes/options, indexed by the field name. The bag is flattened to top level fields when
+     * the document is normalized, so every key ends up as its own field in Meilisearch
+     *
+     * @var array<string, bool|float|string|list<string>>
+     */
+    public array $dynamicFields = [];
+
+    /**
      * Making the constructor final allows us to always be able to instantiate an extending class without worrying about constructor arguments
      */
     final public function __construct()

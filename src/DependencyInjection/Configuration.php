@@ -8,9 +8,15 @@ use Setono\SyliusMeilisearchPlugin\DataProvider\DefaultIndexableDataProvider;
 use Setono\SyliusMeilisearchPlugin\Document\Product;
 use Setono\SyliusMeilisearchPlugin\Event\QueryBuilderForDataProvisionCreated;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
+use Setono\SyliusMeilisearchPlugin\Form\Type\IndexableAttributeType;
+use Setono\SyliusMeilisearchPlugin\Form\Type\IndexableOptionType;
 use Setono\SyliusMeilisearchPlugin\Form\Type\SynonymType;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableAttribute;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableOption;
 use Setono\SyliusMeilisearchPlugin\Model\Synonym;
+use Setono\SyliusMeilisearchPlugin\Repository\IndexableAttributeRepository;
+use Setono\SyliusMeilisearchPlugin\Repository\IndexableOptionRepository;
 use Setono\SyliusMeilisearchPlugin\Repository\SynonymRepository;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
 use Sylius\Component\Resource\Factory\Factory;
@@ -64,6 +70,10 @@ final class Configuration implements ConfigurationInterface
                                 ->defaultValue('%env(MEILISEARCH_PREFIX)%')
                                 ->info('If you want to prepend a string to the index name, you can set it here. This can be useful in a development setup where each developer has their own prefix. Notice that the environment is already prefixed by default, so you do not have to prefix that.')
                                 ->cannotBeEmpty()
+                            ->end()
+                            ->booleanNode('dynamic_fields')
+                                ->defaultTrue()
+                                ->info('Whether this index may be targeted by the indexable attributes/options configured in the admin. Set it to false to keep the index out of the "Indexes" choices on those admin screens, e.g. for an autocomplete index that should stay lean. Notice that an index is only offered on those screens if it also indexes products or product variants.')
                             ->end()
                             ->arrayNode('default_filters')
                                 ->info(
@@ -223,6 +233,38 @@ INFO, ToggleableInterface::class, QueryBuilderForDataProvisionCreated::class, En
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->defaultValue(SynonymRepository::class)->cannotBeEmpty()->end()
                                         ->scalarNode('form')->defaultValue(SynonymType::class)->end()
+                                        ->scalarNode('factory')->defaultValue(Factory::class)->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('indexable_attribute')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->variableNode('options')->end()
+                                ->arrayNode('classes')
+                                    ->addDefaultsIfNotSet()
+                                    ->children()
+                                        ->scalarNode('model')->defaultValue(IndexableAttribute::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('repository')->defaultValue(IndexableAttributeRepository::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('form')->defaultValue(IndexableAttributeType::class)->end()
+                                        ->scalarNode('factory')->defaultValue(Factory::class)->end()
+                                    ->end()
+                                ->end()
+                            ->end()
+                        ->end()
+                        ->arrayNode('indexable_option')
+                            ->addDefaultsIfNotSet()
+                            ->children()
+                                ->variableNode('options')->end()
+                                ->arrayNode('classes')
+                                    ->addDefaultsIfNotSet()
+                                    ->children()
+                                        ->scalarNode('model')->defaultValue(IndexableOption::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('repository')->defaultValue(IndexableOptionRepository::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('form')->defaultValue(IndexableOptionType::class)->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
         ;
     }

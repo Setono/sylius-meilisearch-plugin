@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Document\Metadata;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Facetable as FacetableAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Filterable as FilterableAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Image as ImageAttribute;
@@ -14,14 +15,15 @@ use Setono\SyliusMeilisearchPlugin\Document\Attribute\Searchable as SearchableAt
 use Setono\SyliusMeilisearchPlugin\Document\Attribute\Sortable as SortableAttribute;
 use Setono\SyliusMeilisearchPlugin\Document\Document;
 use Setono\SyliusMeilisearchPlugin\Event\MetadataCreated;
+use Symfony\Contracts\Service\ResetInterface;
 use Webmozart\Assert\Assert;
 
-final class MetadataFactory implements MetadataFactoryInterface
+final class MetadataFactory implements MetadataFactoryInterface, ResetInterface
 {
     /**
-     * The loaded metadata, indexed by class name
+     * The loaded metadata, indexed by class name and index name
      *
-     * @var array<class-string<Document>, Metadata>
+     * @var array<string, Metadata>
      */
     private array $loadedClasses = [];
 
@@ -29,14 +31,16 @@ final class MetadataFactory implements MetadataFactoryInterface
     {
     }
 
-    public function getMetadataFor(string|Document $document): Metadata
+    public function getMetadataFor(string|Document $document, ?Index $index = null): Metadata
     {
         if ($document instanceof Document) {
             $document = $document::class;
         }
 
-        if (isset($this->loadedClasses[$document])) {
-            return $this->loadedClasses[$document];
+        $key = $document . '|' . ($index->name ?? '');
+
+        if (isset($this->loadedClasses[$key])) {
+            return $this->loadedClasses[$key];
         }
 
         $metadata = new Metadata($document);
@@ -54,9 +58,14 @@ final class MetadataFactory implements MetadataFactoryInterface
             $this->loadAttributes($metadata, $reflectionMethod);
         }
 
-        $this->eventDispatcher->dispatch(new MetadataCreated($metadata));
+        $this->eventDispatcher->dispatch(new MetadataCreated($metadata, $index));
 
-        return $this->loadedClasses[$document] = $metadata;
+        return $this->loadedClasses[$key] = $metadata;
+    }
+
+    public function reset(): void
+    {
+        $this->loadedClasses = [];
     }
 
     private function loadAttributes(Metadata $metadata, \ReflectionProperty|\ReflectionMethod $attributesAware): void
