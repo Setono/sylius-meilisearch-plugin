@@ -31,7 +31,7 @@ final class ProductUrlGenerator extends AbstractEntityUrlGenerator
     }
 
     /**
-     * @psalm-assert-if-true ProductInterface $entity
+     * @phpstan-assert-if-true ProductInterface $entity
      */
     public function supports(IndexableInterface $entity, array $context = []): bool
     {

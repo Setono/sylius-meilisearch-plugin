@@ -46,7 +46,7 @@ final class SettingsNormalizer implements NormalizerInterface
     }
 
     /**
-     * @psalm-assert-if-true Settings $data
+     * @phpstan-assert-if-true Settings $data
      */
     public function supportsNormalization(mixed $data, ?string $format = null): bool
     {

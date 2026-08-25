@@ -33,9 +33,9 @@ final class AttributesDataMapper implements DataMapperInterface
     }
 
     /**
-     * @psalm-assert-if-true ProductInterface $source
-     * @psalm-assert-if-true ProductDocument $target
-     * @psalm-assert-if-true !null $indexScope->localeCode
+     * @phpstan-assert-if-true ProductInterface $source
+     * @phpstan-assert-if-true ProductDocument $target
+     * @phpstan-assert-if-true !null $indexScope->localeCode
      */
     public function supports(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
     {

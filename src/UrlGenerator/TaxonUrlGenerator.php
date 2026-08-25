@@ -31,7 +31,7 @@ final class TaxonUrlGenerator extends AbstractEntityUrlGenerator
     }
 
     /**
-     * @psalm-assert-if-true TaxonInterface $entity
+     * @phpstan-assert-if-true TaxonInterface $entity
      */
     public function supports(IndexableInterface $entity, array $context = []): bool
     {

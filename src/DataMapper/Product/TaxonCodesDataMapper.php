@@ -50,8 +50,8 @@ final class TaxonCodesDataMapper implements DataMapperInterface
     }
 
     /**
-     * @psalm-assert-if-true ProductInterface $source
-     * @psalm-assert-if-true ProductDocument $target
+     * @phpstan-assert-if-true ProductInterface $source
+     * @phpstan-assert-if-true ProductDocument $target
      */
     public function supports(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
     {

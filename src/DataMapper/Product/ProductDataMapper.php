@@ -36,9 +36,9 @@ final class ProductDataMapper implements DataMapperInterface
     }
 
     /**
-     * @psalm-assert-if-true ProductInterface $source
-     * @psalm-assert-if-true Product $target
-     * @psalm-assert-if-true !null $indexScope->localeCode
+     * @phpstan-assert-if-true ProductInterface $source
+     * @phpstan-assert-if-true Product $target
+     * @phpstan-assert-if-true !null $indexScope->localeCode
      */
     public function supports(
         IndexableInterface $source,

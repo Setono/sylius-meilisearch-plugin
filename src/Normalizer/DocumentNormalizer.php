@@ -41,7 +41,6 @@ final class DocumentNormalizer implements NormalizerInterface
             foreach ($dynamicFields as $name => $value) {
                 // an existing key always wins so a dynamic field can never overwrite a declared document field
                 if (!array_key_exists($name, $data)) {
-                    /** @psalm-suppress MixedAssignment */
                     $data[$name] = $value;
                 }
             }
@@ -51,7 +50,7 @@ final class DocumentNormalizer implements NormalizerInterface
     }
 
     /**
-     * @psalm-assert-if-true Document $data
+     * @phpstan-assert-if-true Document $data
      */
     public function supportsNormalization(mixed $data, ?string $format = null): bool
     {

@@ -29,9 +29,9 @@ final class TaxonDataMapper implements DataMapperInterface
     }
 
     /**
-     * @psalm-assert-if-true TaxonInterface $source
-     * @psalm-assert-if-true Taxon $target
-     * @psalm-assert-if-true !null $indexScope->localeCode
+     * @phpstan-assert-if-true TaxonInterface $source
+     * @phpstan-assert-if-true Taxon $target
+     * @phpstan-assert-if-true !null $indexScope->localeCode
      */
     public function supports(
         IndexableInterface $source,
