@@ -1,9 +1,6 @@
 {# @var server_information \Setono\SyliusMeilisearchPlugin\Meilisearch\Server\ServerInformation #}
 {% set healthy = server_information.healthy %}
-<div class="ui {{ healthy ? 'green' : 'red' }} clearing segment">
-    <a class="ui basic icon right floated button" href="{{ app.request.requestUri }}" title="{{ 'setono_sylius_meilisearch.ui.refresh'|trans }}">
-        <i class="sync alternate icon"></i>
-    </a>
+<div class="ui {{ healthy ? 'green' : 'red' }} segment">
     <h3 class="ui header">
         {% if healthy %}
             <i class="circular inverted green check icon"></i>

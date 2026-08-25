@@ -103,7 +103,6 @@ setono_sylius_meilisearch:
         missing_on_server: 'Mangler på serveren'
         no_indexes: No indexes
         number_of_documents: 'Dokumenter'
-        refresh: 'Oppdater'
         search: Search
         search_placeholder: Search...
         search_results_for: 'Search results for'
