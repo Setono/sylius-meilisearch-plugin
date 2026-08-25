@@ -25,6 +25,16 @@
             <tag name="setono_sylius_meilisearch.index_scope_provider" priority="-60"/>
         </service>
 
+        <!-- Index uids provider -->
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProvider"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProvider">
+            <argument type="service" id="setono_sylius_meilisearch.config.index_registry"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface"/>
+        </service>
+
         <!-- Settings providers -->
         <service id="Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProviderInterface"
                  alias="Setono\SyliusMeilisearchPlugin\Provider\Settings\CompositeSettingsProvider"/>

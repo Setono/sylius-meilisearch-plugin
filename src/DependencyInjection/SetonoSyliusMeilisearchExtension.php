@@ -17,6 +17,7 @@ use Setono\SyliusMeilisearchPlugin\Filter\Entity\ChannelsAwareEntityFilter;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\FilterFormBuilderInterface;
 use Setono\SyliusMeilisearchPlugin\Form\Builder\Sorter\FilterValuesSorterInterface;
+use Setono\SyliusMeilisearchPlugin\Grid\Provider\TasksDataProvider;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Filter\FilterBuilderInterface;
@@ -198,6 +199,114 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         ];
     }
 
+    /**
+     * The tasks grid is fed directly from the Meilisearch tasks API by a data provider, so it
+     * has no driver, no sorting (the API only orders by task uid) and no actions (it is read only)
+     *
+     * @return array<string, mixed>
+     */
+    private static function taskGrid(): array
+    {
+        return [
+            'provider' => TasksDataProvider::class,
+            'limits' => [50, 100],
+            'fields' => [
+                'uid' => [
+                    'type' => 'string',
+                    'label' => 'setono_sylius_meilisearch.ui.uid',
+                ],
+                'indexUid' => [
+                    'type' => 'string',
+                    'label' => 'setono_sylius_meilisearch.ui.index_uid',
+                ],
+                'type' => [
+                    'type' => 'string',
+                    'label' => 'sylius.ui.type',
+                ],
+                'status' => [
+                    'type' => 'twig',
+                    'label' => 'sylius.ui.status',
+                    'path' => '.',
+                    'options' => [
+                        'template' => '@SetonoSyliusMeilisearchPlugin/admin/grid/field/task/_status.html.twig',
+                    ],
+                ],
+                'enqueuedAt' => [
+                    'type' => 'datetime',
+                    'label' => 'setono_sylius_meilisearch.ui.enqueued_at',
+                ],
+                'startedAt' => [
+                    'type' => 'datetime',
+                    'label' => 'setono_sylius_meilisearch.ui.started_at',
+                ],
+                'finishedAt' => [
+                    'type' => 'datetime',
+                    'label' => 'setono_sylius_meilisearch.ui.finished_at',
+                ],
+                'duration' => [
+                    'type' => 'twig',
+                    'label' => 'setono_sylius_meilisearch.ui.duration',
+                    'path' => '.',
+                    'options' => [
+                        'template' => '@SetonoSyliusMeilisearchPlugin/admin/grid/field/task/_duration.html.twig',
+                    ],
+                ],
+                'details' => [
+                    'type' => 'twig',
+                    'label' => 'setono_sylius_meilisearch.ui.details',
+                    'path' => '.',
+                    'options' => [
+                        'template' => '@SetonoSyliusMeilisearchPlugin/admin/grid/field/task/_details.html.twig',
+                    ],
+                ],
+            ],
+            'filters' => [
+                'status' => [
+                    'type' => 'select',
+                    'label' => 'sylius.ui.status',
+                    'form_options' => [
+                        'choices' => [
+                            'setono_sylius_meilisearch.ui.task_status.enqueued' => 'enqueued',
+                            'setono_sylius_meilisearch.ui.task_status.processing' => 'processing',
+                            'setono_sylius_meilisearch.ui.task_status.succeeded' => 'succeeded',
+                            'setono_sylius_meilisearch.ui.task_status.failed' => 'failed',
+                            'setono_sylius_meilisearch.ui.task_status.canceled' => 'canceled',
+                        ],
+                    ],
+                ],
+                'type' => [
+                    'type' => 'select',
+                    'label' => 'sylius.ui.type',
+                    'form_options' => [
+                        // the task types are Meilisearch API terms, so they are deliberately not translated
+                        'choices' => [
+                            'documentAdditionOrUpdate' => 'documentAdditionOrUpdate',
+                            'documentEdition' => 'documentEdition',
+                            'documentDeletion' => 'documentDeletion',
+                            'settingsUpdate' => 'settingsUpdate',
+                            'indexCreation' => 'indexCreation',
+                            'indexUpdate' => 'indexUpdate',
+                            'indexDeletion' => 'indexDeletion',
+                            'indexSwap' => 'indexSwap',
+                            'taskCancelation' => 'taskCancelation',
+                            'taskDeletion' => 'taskDeletion',
+                            'dumpCreation' => 'dumpCreation',
+                            'snapshotCreation' => 'snapshotCreation',
+                            'upgradeDatabase' => 'upgradeDatabase',
+                        ],
+                    ],
+                ],
+                'indexUid' => [
+                    'type' => 'task_index_uid',
+                    'label' => 'setono_sylius_meilisearch.ui.index_uid',
+                    'form_options' => [
+                        'placeholder' => 'sylius.ui.all',
+                    ],
+                ],
+            ],
+        ];
+    }
+
     public function prepend(ContainerBuilder $container): void
     {
         $container->prependExtensionConfig('framework', [
@@ -219,6 +328,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
             'templates' => [
                 'filter' => [
                     'indexes' => '@SetonoSyliusMeilisearchPlugin/admin/grid/filter/indexes.html.twig',
+                    'task_index_uid' => '@SyliusUi/Grid/Filter/select.html.twig',
                 ],
             ],
             'grids' => [
@@ -327,6 +437,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                 ],
                 'setono_sylius_meilisearch_admin_indexable_attribute' => self::indexableSubjectGrid('%setono_sylius_meilisearch.model.indexable_attribute.class%', 'attribute'),
                 'setono_sylius_meilisearch_admin_indexable_option' => self::indexableSubjectGrid('%setono_sylius_meilisearch.model.indexable_option.class%', 'option'),
+                'setono_sylius_meilisearch_admin_task' => self::taskGrid(),
             ],
         ]);
 

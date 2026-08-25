@@ -81,6 +81,12 @@
             <tag name="form.type"/>
         </service>
 
+        <service id="Setono\SyliusMeilisearchPlugin\Form\Type\TaskIndexUidChoiceType">
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface"/>
+
+            <tag name="form.type"/>
+        </service>
+
         <service id="Setono\SyliusMeilisearchPlugin\Form\Type\SearchWidgetType">
             <argument type="service" id="request_stack"/>
 

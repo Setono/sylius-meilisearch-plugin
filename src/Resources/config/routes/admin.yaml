@@ -30,6 +30,11 @@ setono_sylius_meilisearch_admin_indexable_option:
                     form: "@SetonoSyliusMeilisearchPlugin/admin/indexable_option/_form.html.twig"
     type: sylius.resource
 
+setono_sylius_meilisearch_admin_task_index:
+    path: /meilisearch/tasks
+    methods: [GET]
+    controller: Setono\SyliusMeilisearchPlugin\Controller\Action\Admin\TasksAction
+
 setono_sylius_meilisearch_admin_synonym:
     resource: |
         section: admin

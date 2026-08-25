@@ -10,10 +10,12 @@ use Setono\SyliusMeilisearchPlugin\DependencyInjection\SetonoSyliusMeilisearchEx
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\ReplaceTaxonControllerSubscriber;
 use Setono\SyliusMeilisearchPlugin\EventSubscriber\Search\TaxonSearchSubscriber;
+use Setono\SyliusMeilisearchPlugin\Grid\Provider\TasksDataProvider;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableAttribute;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableOption;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product as ProductEntity;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * See examples of tests and configuration options here: https://github.com/SymfonyTest/SymfonyDependencyInjectionTest
@@ -335,6 +337,51 @@ final class SetonoSyliusMeilisearchExtensionTest extends AbstractExtensionTestCa
         ]);
 
         $this->assertContainerBuilderHasParameter('setono_sylius_meilisearch.autocomplete.enabled', false);
+    }
+
+    /**
+     * @test
+     */
+    public function it_prepends_the_tasks_grid(): void
+    {
+        $container = new ContainerBuilder();
+
+        (new SetonoSyliusMeilisearchExtension())->prepend($container);
+
+        $config = $container->getExtensionConfig('sylius_grid')[0] ?? [];
+        self::assertIsArray($config);
+
+        $templates = $config['templates'] ?? null;
+        self::assertIsArray($templates);
+        $filterTemplates = $templates['filter'] ?? null;
+        self::assertIsArray($filterTemplates);
+        self::assertSame('@SyliusUi/Grid/Filter/select.html.twig', $filterTemplates['task_index_uid'] ?? null);
+
+        $grids = $config['grids'] ?? null;
+        self::assertIsArray($grids);
+        $grid = $grids['setono_sylius_meilisearch_admin_task'] ?? null;
+        self::assertIsArray($grid);
+
+        // the grid is fed by a data provider, not a Doctrine driver
+        self::assertSame(TasksDataProvider::class, $grid['provider'] ?? null);
+        self::assertArrayNotHasKey('driver', $grid);
+        self::assertArrayNotHasKey('sorting', $grid);
+        self::assertArrayNotHasKey('actions', $grid);
+
+        $fields = $grid['fields'] ?? null;
+        self::assertIsArray($fields);
+        self::assertSame(
+            ['uid', 'indexUid', 'type', 'status', 'enqueuedAt', 'startedAt', 'finishedAt', 'duration', 'details'],
+            array_keys($fields),
+        );
+
+        $filters = $grid['filters'] ?? null;
+        self::assertIsArray($filters);
+        self::assertSame(['status', 'type', 'indexUid'], array_keys($filters));
+
+        $indexUidFilter = $filters['indexUid'] ?? null;
+        self::assertIsArray($indexUidFilter);
+        self::assertSame('task_index_uid', $indexUidFilter['type'] ?? null);
     }
 
     /**

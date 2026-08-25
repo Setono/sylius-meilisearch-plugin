@@ -66,7 +66,14 @@ setono_sylius_meilisearch:
                     indexable_attributes: 'Indeksuoti atributai'
                     indexable_options: 'Indeksuotos parinktys'
                     synonyms: Synonyms
+                    tasks: 'Užduotys'
     ui:
+        available: 'Pasiekiamas'
+        details: 'Detalės'
+        duration: 'Trukmė'
+        enqueued_at: 'Įtraukta į eilę'
+        finished_at: 'Baigta'
+        index_uid: 'Indekso uid'
         indexable_attribute_header: 'Indeksuoti atributai'
         indexable_attribute_help: |
             <h4>Indexed attributes</h4>
@@ -92,11 +99,18 @@ setono_sylius_meilisearch:
             <p>Saving automatically updates the index settings and reindexes the affected indexes.</p>
         indexable_option_subheader: 'Konfigūruokite, kurios produkto parinktys indeksuojamos'
         indexes: Indexes
+        is_indexing: 'Indeksuojama'
+        last_update: 'Paskutinis atnaujinimas'
+        missing_on_server: 'Trūksta serveryje'
         no_indexes: No indexes
+        number_of_documents: 'Dokumentai'
         search: Search
         search_placeholder: Search...
         search_results_for: 'Search results for'
         search_term_and_synonym: 'Search term and synonym'
+        server_status: 'Serverio būsena'
+        server_unreachable: 'Nepavyko pasiekti Meilisearch serverio. Patikrinkite, ar jis veikia ir ar sukonfigūruoti prisijungimo duomenys yra teisingi.'
+        started_at: 'Pradėta'
         synonym: Synonym
         synonym_header: Synonyms
         synonym_help: |
@@ -105,4 +119,15 @@ setono_sylius_meilisearch:
             <p>If the direction is "one way", then the synonym will only work in one direction. For example, if the term is "coat" and the synonym is "jacket", then when a user searches for "coat", the search results will include results matching "jacket". However, if the direction is "two way", then the synonym will work in both directions. For example when a user searches for "jacket", the search results will include results matching "coat", and when a user searches for "coat", the search results will include results matching "jacket".</p>
         synonym_subheader: Manage synonyms
         synonyms: Synonyms
+        task_status:
+            canceled: 'Atšaukta'
+            enqueued: 'Eilėje'
+            failed: 'Nepavyko'
+            processing: 'Vykdoma'
+            succeeded: 'Pavyko'
+        tasks_header: 'Užduotys'
+        tasks_subheader: 'Meilisearch serverio apdorotos užduotys'
         term: Term
+        uid: 'Uid'
+        unavailable: 'Nepasiekiamas'
+        version: 'Versija'

@@ -1,0 +1,64 @@
+{# @var server_information \Setono\SyliusMeilisearchPlugin\Meilisearch\Server\ServerInformation #}
+<div class="ui segment">
+    <div class="ui stackable three column grid">
+        <div class="column">
+            <h4 class="ui header">{{ 'setono_sylius_meilisearch.ui.server_status'|trans }}</h4>
+            {% if server_information.healthy %}
+                <span class="ui green label"><i class="check icon"></i> {{ 'setono_sylius_meilisearch.ui.available'|trans }}</span>
+            {% else %}
+                <span class="ui red label"><i class="remove icon"></i> {{ 'setono_sylius_meilisearch.ui.unavailable'|trans }}</span>
+            {% endif %}
+        </div>
+        <div class="column">
+            <h4 class="ui header">{{ 'setono_sylius_meilisearch.ui.version'|trans }}</h4>
+            {{ server_information.version ?? '—' }}
+        </div>
+        <div class="column">
+            <h4 class="ui header">{{ 'setono_sylius_meilisearch.ui.last_update'|trans }}</h4>
+            {{ server_information.lastUpdate is not null ? server_information.lastUpdate|date('Y-m-d H:i:s') : '—' }}
+        </div>
+    </div>
+
+    {% if not server_information.healthy %}
+        <div class="ui warning message">
+            {{ 'setono_sylius_meilisearch.ui.server_unreachable'|trans }}
+        </div>
+    {% elseif server_information.indexes is not empty %}
+        <table class="ui very basic celled table">
+            <thead>
+                <tr>
+                    <th>{{ 'setono_sylius_meilisearch.ui.indexes'|trans }}</th>
+                    <th>{{ 'setono_sylius_meilisearch.ui.index_uid'|trans }}</th>
+                    <th>{{ 'setono_sylius_meilisearch.ui.number_of_documents'|trans }}</th>
+                    <th>{{ 'setono_sylius_meilisearch.ui.is_indexing'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for name, statuses in server_information.indexes %}
+                    {% for status in statuses %}
+                        <tr>
+                            <td>{{ name|title }}</td>
+                            <td>{{ status.uid }}</td>
+                            {% if status.existsOnServer %}
+                                <td>{{ status.numberOfDocuments ?? '?' }}</td>
+                                <td>
+                                    {% if status.isIndexing %}
+                                        <i class="sync alternate icon"></i>
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                            {% elseif server_information.statsAvailable %}
+                                <td colspan="2">
+                                    <span class="ui red small label">{{ 'setono_sylius_meilisearch.ui.missing_on_server'|trans }}</span>
+                                </td>
+                            {% else %}
+                                <td colspan="2">—</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>

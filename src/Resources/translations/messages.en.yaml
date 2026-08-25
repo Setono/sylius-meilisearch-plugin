@@ -66,7 +66,14 @@ setono_sylius_meilisearch:
                     indexable_attributes: 'Indexed attributes'
                     indexable_options: 'Indexed options'
                     synonyms: Synonyms
+                    tasks: Tasks
     ui:
+        available: Available
+        details: Details
+        duration: Duration
+        enqueued_at: 'Enqueued at'
+        finished_at: 'Finished at'
+        index_uid: 'Index uid'
         indexable_attribute_header: 'Indexed attributes'
         indexable_attribute_help: |
             <h4>Indexed attributes</h4>
@@ -92,11 +99,18 @@ setono_sylius_meilisearch:
             <p>Saving automatically updates the index settings and reindexes the affected indexes.</p>
         indexable_option_subheader: 'Configure which product options are indexed'
         indexes: Indexes
+        is_indexing: Indexing
+        last_update: 'Last update'
+        missing_on_server: 'Missing on server'
         no_indexes: No indexes
+        number_of_documents: Documents
         search: Search
         search_placeholder: Search...
         search_results_for: 'Search results for'
         search_term_and_synonym: 'Search term and synonym'
+        server_status: 'Server status'
+        server_unreachable: 'The Meilisearch server could not be reached. Check that it is running and that the configured credentials are correct.'
+        started_at: 'Started at'
         synonym: Synonym
         synonym_header: Synonyms
         synonym_help: |
@@ -105,4 +119,15 @@ setono_sylius_meilisearch:
             <p>If the direction is "one way", then the synonym will only work in one direction. For example, if the term is "coat" and the synonym is "jacket", then when a user searches for "coat", the search results will include results matching "jacket". However, if the direction is "two way", then the synonym will work in both directions. For example when a user searches for "jacket", the search results will include results matching "coat", and when a user searches for "coat", the search results will include results matching "jacket".</p>
         synonym_subheader: Manage synonyms
         synonyms: Synonyms
+        task_status:
+            canceled: Canceled
+            enqueued: Enqueued
+            failed: Failed
+            processing: Processing
+            succeeded: Succeeded
+        tasks_header: Tasks
+        tasks_subheader: 'Tasks processed by the Meilisearch server'
         term: Term
+        uid: Uid
+        unavailable: Unavailable
+        version: Version

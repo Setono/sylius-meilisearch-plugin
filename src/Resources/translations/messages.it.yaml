@@ -66,7 +66,14 @@ setono_sylius_meilisearch:
                     indexable_attributes: 'Attributi indicizzati'
                     indexable_options: 'Opzioni indicizzate'
                     synonyms: Synonyms
+                    tasks: 'Attività'
     ui:
+        available: 'Disponibile'
+        details: 'Dettagli'
+        duration: 'Durata'
+        enqueued_at: 'In coda dal'
+        finished_at: 'Terminata il'
+        index_uid: 'Uid dell''indice'
         indexable_attribute_header: 'Attributi indicizzati'
         indexable_attribute_help: |
             <h4>Indexed attributes</h4>
@@ -92,11 +99,18 @@ setono_sylius_meilisearch:
             <p>Saving automatically updates the index settings and reindexes the affected indexes.</p>
         indexable_option_subheader: 'Configura quali opzioni del prodotto vengono indicizzate'
         indexes: Indexes
+        is_indexing: 'Indicizzazione in corso'
+        last_update: 'Ultimo aggiornamento'
+        missing_on_server: 'Mancante sul server'
         no_indexes: No indexes
+        number_of_documents: 'Documenti'
         search: Search
         search_placeholder: Search...
         search_results_for: 'Search results for'
         search_term_and_synonym: 'Search term and synonym'
+        server_status: 'Stato del server'
+        server_unreachable: 'Impossibile raggiungere il server Meilisearch. Verifica che sia in esecuzione e che le credenziali configurate siano corrette.'
+        started_at: 'Avviata il'
         synonym: Synonym
         synonym_header: Synonyms
         synonym_help: |
@@ -105,4 +119,15 @@ setono_sylius_meilisearch:
             <p>If the direction is "one way", then the synonym will only work in one direction. For example, if the term is "coat" and the synonym is "jacket", then when a user searches for "coat", the search results will include results matching "jacket". However, if the direction is "two way", then the synonym will work in both directions. For example when a user searches for "jacket", the search results will include results matching "coat", and when a user searches for "coat", the search results will include results matching "jacket".</p>
         synonym_subheader: Manage synonyms
         synonyms: Synonyms
+        task_status:
+            canceled: 'Annullata'
+            enqueued: 'In coda'
+            failed: 'Fallita'
+            processing: 'In elaborazione'
+            succeeded: 'Completata'
+        tasks_header: 'Attività'
+        tasks_subheader: 'Attività elaborate dal server Meilisearch'
         term: Term
+        uid: 'Uid'
+        unavailable: 'Non disponibile'
+        version: 'Versione'

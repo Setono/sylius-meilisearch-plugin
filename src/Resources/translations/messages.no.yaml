@@ -66,7 +66,14 @@ setono_sylius_meilisearch:
                     indexable_attributes: 'Indekserte attributter'
                     indexable_options: 'Indekserte alternativer'
                     synonyms: Synonyms
+                    tasks: 'Oppgaver'
     ui:
+        available: 'Tilgjengelig'
+        details: 'Detaljer'
+        duration: 'Varighet'
+        enqueued_at: 'Lagt i kø'
+        finished_at: 'Fullført'
+        index_uid: 'Indeks-uid'
         indexable_attribute_header: 'Indekserte attributter'
         indexable_attribute_help: |
             <h4>Indexed attributes</h4>
@@ -92,11 +99,18 @@ setono_sylius_meilisearch:
             <p>Saving automatically updates the index settings and reindexes the affected indexes.</p>
         indexable_option_subheader: 'Konfigurer hvilke produktalternativer som indekseres'
         indexes: Indexes
+        is_indexing: 'Indekserer'
+        last_update: 'Siste oppdatering'
+        missing_on_server: 'Mangler på serveren'
         no_indexes: No indexes
+        number_of_documents: 'Dokumenter'
         search: Search
         search_placeholder: Search...
         search_results_for: 'Search results for'
         search_term_and_synonym: 'Search term and synonym'
+        server_status: 'Serverstatus'
+        server_unreachable: 'Meilisearch-serveren kunne ikke nås. Sjekk at den kjører, og at de konfigurerte påloggingsopplysningene er riktige.'
+        started_at: 'Startet'
         synonym: Synonym
         synonym_header: Synonyms
         synonym_help: |
@@ -105,4 +119,15 @@ setono_sylius_meilisearch:
             <p>If the direction is "one way", then the synonym will only work in one direction. For example, if the term is "coat" and the synonym is "jacket", then when a user searches for "coat", the search results will include results matching "jacket". However, if the direction is "two way", then the synonym will work in both directions. For example when a user searches for "jacket", the search results will include results matching "coat", and when a user searches for "coat", the search results will include results matching "jacket".</p>
         synonym_subheader: Manage synonyms
         synonyms: Synonyms
+        task_status:
+            canceled: 'Avbrutt'
+            enqueued: 'I kø'
+            failed: 'Mislykket'
+            processing: 'Behandles'
+            succeeded: 'Fullført'
+        tasks_header: 'Oppgaver'
+        tasks_subheader: 'Oppgaver behandlet av Meilisearch-serveren'
         term: Term
+        uid: 'Uid'
+        unavailable: 'Utilgjengelig'
+        version: 'Versjon'

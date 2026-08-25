@@ -13,9 +13,7 @@ use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index as IndexMessage;
-use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
-use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\Container;
@@ -61,7 +59,6 @@ final class IndexCommandTest extends TestCase
     public function it_prints_the_resolved_uids_and_an_honest_delete_warning(): void
     {
         $index = new Index('products', ProductDocument::class, [Product::class], new Container());
-        $indexScope = new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD');
 
         $commandBus = $this->prophesize(MessageBusInterface::class);
         $commandBus->dispatch(Argument::type(IndexMessage::class))->willReturn(new Envelope(new \stdClass()));
@@ -71,18 +68,14 @@ final class IndexCommandTest extends TestCase
         $indexRegistry->has('products')->willReturn(true);
         $indexRegistry->get('products')->willReturn($index);
 
-        $indexScopeProvider = $this->prophesize(IndexScopeProviderInterface::class);
-        $indexScopeProvider->getAll($index)->willReturn([$indexScope]);
-
-        $uidResolver = $this->prophesize(IndexUidResolverInterface::class);
-        $uidResolver->resolveFromIndexScope($indexScope)->willReturn('products__fashion_web__en_us__usd');
+        $indexUidsProvider = $this->prophesize(IndexUidsProviderInterface::class);
+        $indexUidsProvider->getAll()->willReturn(['products' => ['products__fashion_web__en_us__usd']]);
 
         $command = new IndexCommand(
             $commandBus->reveal(),
             $indexRegistry->reveal(),
             $this->prophesize(Client::class)->reveal(),
-            $indexScopeProvider->reveal(),
-            $uidResolver->reveal(),
+            $indexUidsProvider->reveal(),
         );
 
         $tester = new CommandTester($command);

@@ -8,8 +8,7 @@ use Meilisearch\Client;
 use Meilisearch\Contracts\TasksQuery;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
-use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -30,8 +29,7 @@ final class IndexCommand extends Command
         private readonly MessageBusInterface $commandBus,
         private readonly IndexRegistryInterface $indexRegistry,
         private readonly Client $client,
-        private readonly IndexScopeProviderInterface $indexScopeProvider,
-        private readonly IndexUidResolverInterface $indexUidResolver,
+        private readonly IndexUidsProviderInterface $indexUidsProvider,
     ) {
         parent::__construct();
     }
@@ -90,9 +88,10 @@ final class IndexCommand extends Command
         }
 
         $uids = [];
+        $uidsByIndex = $this->indexUidsProvider->getAll();
 
         foreach ($indexes as $index) {
-            $indexUids = $this->resolveIndexUidsForIndex($index);
+            $indexUids = $uidsByIndex[$index] ?? [];
             foreach ($indexUids as $uid) {
                 $uids[$uid] = $uid;
             }
@@ -113,23 +112,6 @@ final class IndexCommand extends Command
         }
 
         return 0;
-    }
-
-    /**
-     * Resolves the concrete Meilisearch index uids (across all scopes) for a single index name.
-     *
-     * @return list<string>
-     */
-    private function resolveIndexUidsForIndex(string $index): array
-    {
-        $uids = [];
-
-        foreach ($this->indexScopeProvider->getAll($this->indexRegistry->get($index)) as $indexScope) {
-            $uid = $this->indexUidResolver->resolveFromIndexScope($indexScope);
-            $uids[$uid] = $uid;
-        }
-
-        return array_values($uids);
     }
 
     /**
