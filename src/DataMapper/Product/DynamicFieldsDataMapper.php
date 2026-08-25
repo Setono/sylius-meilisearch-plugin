@@ -83,8 +83,8 @@ final class DynamicFieldsDataMapper implements DataMapperInterface
     }
 
     /**
-     * @psalm-assert-if-true ProductInterface|ProductVariantInterface $source
-     * @psalm-assert-if-true !null $indexScope->localeCode
+     * @phpstan-assert-if-true ProductInterface|ProductVariantInterface $source
+     * @phpstan-assert-if-true !null $indexScope->localeCode
      */
     public function supports(IndexableInterface $source, Document $target, IndexScope $indexScope, array $context = []): bool
     {

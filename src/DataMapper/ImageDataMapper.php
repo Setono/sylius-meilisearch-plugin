@@ -50,7 +50,7 @@ final class ImageDataMapper implements DataMapperInterface
     }
 
     /**
-     * @psalm-assert-if-true ImagesAwareInterface $source
+     * @phpstan-assert-if-true ImagesAwareInterface $source
      */
     public function supports(
         IndexableInterface $source,

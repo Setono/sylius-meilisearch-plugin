@@ -91,8 +91,8 @@ final class PopularityDataMapper implements DataMapperInterface
     }
 
     /**
-     * @psalm-assert-if-true ProductInterface $source
-     * @psalm-assert-if-true Product $target
+     * @phpstan-assert-if-true ProductInterface $source
+     * @phpstan-assert-if-true Product $target
      */
     public function supports(
         IndexableInterface $source,

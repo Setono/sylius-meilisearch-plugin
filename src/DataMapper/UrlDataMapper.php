@@ -35,8 +35,8 @@ final class UrlDataMapper implements DataMapperInterface
     }
 
     /**
-     * @psalm-assert-if-true UrlAwareInterface $target
-     * @psalm-assert-if-true !null $indexScope->localeCode
+     * @phpstan-assert-if-true UrlAwareInterface $target
+     * @phpstan-assert-if-true !null $indexScope->localeCode
      */
     public function supports(
         IndexableInterface $source,

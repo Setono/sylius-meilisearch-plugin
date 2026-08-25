@@ -37,7 +37,6 @@ final class Configuration implements ConfigurationInterface
 
         $this->addResourcesSection($rootNode);
 
-        /** @psalm-suppress MixedMethodCall,UndefinedMethod,PossiblyUndefinedMethod,PossiblyNullReference */
         $rootNode
             ->addDefaultsIfNotSet()
             ->children()
@@ -214,9 +213,6 @@ INFO, ToggleableInterface::class, QueryBuilderForDataProvisionCreated::class, En
 
     private function addResourcesSection(ArrayNodeDefinition $node): void
     {
-        /**
-         * @psalm-suppress MixedMethodCall,PossiblyUndefinedMethod,PossiblyNullReference,UndefinedInterfaceMethod
-         */
         $node
             ->children()
                 ->arrayNode('resources')

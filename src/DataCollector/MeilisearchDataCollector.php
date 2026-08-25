@@ -44,7 +44,6 @@ final class MeilisearchDataCollector extends DataCollector implements LateDataCo
 
         if ($this->client instanceof TraceableClient) {
             foreach ($this->client->getMultiSearchRequests() as $multiSearchRequest) {
-                /** @psalm-suppress MixedArrayAssignment */
                 $this->data['multiSearchRequests'][] = [
                     'queries' => array_map(fn (SearchQuery $query) => $this->cloneVar($query->toArray()), $multiSearchRequest['queries']),
                     'results' => array_map($this->cloneVar(...), $multiSearchRequest['results']),
