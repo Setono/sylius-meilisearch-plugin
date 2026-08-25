@@ -72,6 +72,7 @@ setono_sylius_meilisearch:
         duration: 'Czas trwania'
         enqueued_at: 'Dodano do kolejki'
         finished_at: 'Zakończono'
+        index: 'Indeks'
         index_uid: 'Uid indeksu'
         indexable_attribute_header: 'Indeksowane atrybuty'
         indexable_attribute_help: |

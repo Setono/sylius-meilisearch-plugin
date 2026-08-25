@@ -72,6 +72,7 @@ setono_sylius_meilisearch:
         duration: 'Duur'
         enqueued_at: 'In wachtrij sinds'
         finished_at: 'Voltooid op'
+        index: 'Index'
         index_uid: 'Index-uid'
         indexable_attribute_header: 'Geïndexeerde attributen'
         indexable_attribute_help: |

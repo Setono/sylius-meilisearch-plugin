@@ -72,6 +72,7 @@ setono_sylius_meilisearch:
         duration: 'Durată'
         enqueued_at: 'Adăugată în coadă'
         finished_at: 'Finalizată'
+        index: 'Index'
         index_uid: 'Uid-ul indexului'
         indexable_attribute_header: 'Atribute indexate'
         indexable_attribute_help: |

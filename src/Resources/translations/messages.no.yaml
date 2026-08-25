@@ -72,6 +72,7 @@ setono_sylius_meilisearch:
         duration: 'Varighet'
         enqueued_at: 'Lagt i kø'
         finished_at: 'Fullført'
+        index: 'Indeks'
         index_uid: 'Indeks-uid'
         indexable_attribute_header: 'Indekserte attributter'
         indexable_attribute_help: |
