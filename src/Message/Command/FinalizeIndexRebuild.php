@@ -32,6 +32,12 @@ final class FinalizeIndexRebuild implements CommandInterface
          * @var list<string> $liveUids
          */
         public readonly array $liveUids,
+
+        /**
+         * The id of the rebuild run to finalize (see RebuildUid) — each run builds into its own
+         * rebuild indexes, so this message only ever swaps and deletes its own generation
+         */
+        public readonly string $rebuildId,
     ) {
         if ($index instanceof IndexConfig) {
             $index = $index->name;
@@ -40,6 +46,7 @@ final class FinalizeIndexRebuild implements CommandInterface
         Assert::stringNotEmpty($index);
         Assert::notEmpty($liveUids);
         Assert::allStringNotEmpty($liveUids);
+        Assert::stringNotEmpty($rebuildId);
 
         $this->index = $index;
     }

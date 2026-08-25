@@ -37,7 +37,7 @@ final class IndexEntitiesHandler
         Assert::allIsInstanceOf($entities, $message->class);
 
         foreach ($this->resolveIndexes($message) as $index) {
-            $index->indexer()->indexEntities($entities, $message->rebuild);
+            $index->indexer()->indexEntities($entities, $message->rebuildId);
         }
 
         // Detach the batch's entities so a synchronous full reindex does not accumulate the whole

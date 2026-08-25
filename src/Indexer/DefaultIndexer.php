@@ -46,18 +46,18 @@ class DefaultIndexer extends AbstractIndexer
         $this->managerRegistry = $managerRegistry;
     }
 
-    public function index(): void
+    public function index(string $rebuildId): void
     {
         foreach ($this->index->entities as $entity) {
             /** @var IndexBuffer<string|int> $buffer */
             $buffer = new IndexBuffer(
                 100,
                 /** @param list<string|int> $ids */
-                function (array $ids) use ($entity): void {
+                function (array $ids) use ($entity, $rebuildId): void {
                     // The batch is constrained to this index: without that, the handler would fan it
                     // out to every index configured for the entity class, and a rebuild batch would
                     // write into rebuild indexes that are never swapped
-                    $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids, $this->index->name, rebuild: true));
+                    $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids, $this->index->name, $rebuildId));
                 },
             );
 
@@ -69,7 +69,7 @@ class DefaultIndexer extends AbstractIndexer
         }
     }
 
-    public function indexEntities(array $entities, bool $rebuild = false): void
+    public function indexEntities(array $entities, ?string $rebuildId = null): void
     {
         if ([] === $entities) {
             return;
@@ -77,8 +77,8 @@ class DefaultIndexer extends AbstractIndexer
 
         foreach ($this->indexScopeProvider->getAll($this->index) as $indexScope) {
             $uid = $this->indexNameResolver->resolveFromIndexScope($indexScope);
-            if ($rebuild) {
-                $uid = RebuildUid::from($uid);
+            if (null !== $rebuildId) {
+                $uid = RebuildUid::from($uid, $rebuildId);
             }
 
             $documents = [];

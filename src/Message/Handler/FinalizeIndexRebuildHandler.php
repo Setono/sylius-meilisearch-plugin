@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Message\Handler;
 
 use Meilisearch\Client;
-use Meilisearch\Contracts\TasksQuery;
 use Meilisearch\Exceptions\ApiException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Setono\SyliusMeilisearchPlugin\Meilisearch\IndexSwapTasks;
 use Setono\SyliusMeilisearchPlugin\Message\Command\FinalizeIndexRebuild;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
@@ -26,7 +26,7 @@ final class FinalizeIndexRebuildHandler
         try {
             // A redelivery of this message must not enqueue a second swap: the first swap already
             // moved the fresh data into the live index, so swapping again would move it back out
-            if ($this->swapInFlight($message->liveUids)) {
+            if (IndexSwapTasks::pending($this->client, $message->liveUids) > 0) {
                 $this->logger->warning('An index swap is already enqueued or processing for the "{index}" index, skipping this finalization', [
                     'index' => $message->index,
                     'liveUids' => $message->liveUids,
@@ -45,14 +45,14 @@ final class FinalizeIndexRebuildHandler
                     $this->client->createIndex($liveUid);
                 }
 
-                $swaps[] = [$liveUid, RebuildUid::from($liveUid)];
+                $swaps[] = [$liveUid, RebuildUid::from($liveUid, $message->rebuildId)];
             }
 
             $this->client->swapIndexes($swaps);
 
             foreach ($message->liveUids as $liveUid) {
                 // After the swap the rebuild uid holds the previous live data
-                $this->client->deleteIndex(RebuildUid::from($liveUid));
+                $this->client->deleteIndex(RebuildUid::from($liveUid, $message->rebuildId));
             }
         } catch (\Throwable $e) {
             // Retrying is unsafe because swapIndexes is not idempotent: a retry after a partial
@@ -66,19 +66,6 @@ final class FinalizeIndexRebuildHandler
             'index' => $message->index,
             'liveUids' => $message->liveUids,
         ]);
-    }
-
-    /**
-     * @param list<string> $liveUids
-     */
-    private function swapInFlight(array $liveUids): bool
-    {
-        $query = new TasksQuery();
-        $query->setTypes(['indexSwap']);
-        $query->setStatuses(['enqueued', 'processing']);
-        $query->setIndexUids($liveUids);
-
-        return $this->client->getTasks($query)->getTotal() > 0;
     }
 
     private function indexExists(string $uid): bool

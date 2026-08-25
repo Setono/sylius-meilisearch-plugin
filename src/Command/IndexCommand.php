@@ -7,9 +7,9 @@ namespace Setono\SyliusMeilisearchPlugin\Command;
 use Meilisearch\Client;
 use Meilisearch\Contracts\TasksQuery;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
+use Setono\SyliusMeilisearchPlugin\Meilisearch\IndexSwapTasks;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -104,15 +104,7 @@ final class IndexCommand extends Command
         $wait = $input->getOption('wait');
 
         if ($wait) {
-            // The rebuild happens in the rebuild indexes until the atomic swap at the end, so the
-            // tasks worth waiting for live on both the live uid (the swap and its cleanup) and the
-            // rebuild uid (the document additions).
-            $waitUids = $liveUids;
-            foreach ($liveUids as $uid) {
-                $waitUids[] = RebuildUid::from($uid);
-            }
-
-            $this->wait($waitUids, (int) $input->getOption('wait-timeout'), $output);
+            $this->wait($liveUids, (int) $input->getOption('wait-timeout'), $output);
             $this->printSummary($liveUids, $output);
         }
 
@@ -157,13 +149,22 @@ final class IndexCommand extends Command
         $query = self::createTasksQuery($indexUids);
 
         do {
-            $results = $this->client->getTasks($query);
+            // Count the returned tasks instead of trusting getTotal(): the total field also counts
+            // tasks without an indexUid (e.g. index swaps anywhere on the instance) even when the
+            // query is scoped to specific uids
+            $pending = count($this->client->getTasks($query)->getResults());
 
-            if ($results->getTotal() === 0) {
+            // A rebuild's document tasks target per-run rebuild uids this command cannot know, but
+            // its swap task is enqueued behind them and Meilisearch processes tasks in order — so a
+            // pending swap involving our uids means the rebuild has not finished yet, and no pending
+            // swap plus no pending scoped tasks means it has
+            $pending += IndexSwapTasks::pending($this->client, $indexUids);
+
+            if (0 === $pending) {
                 return;
             }
 
-            $output->writeln(sprintf('Waiting for %d tasks to finish...', $results->getTotal()));
+            $output->writeln(sprintf('Waiting for %d tasks to finish...', $pending));
 
             sleep(10);
         } while ((time() - $start) < $waitTimeout);

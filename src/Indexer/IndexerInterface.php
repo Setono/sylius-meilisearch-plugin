@@ -9,13 +9,14 @@ use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 interface IndexerInterface
 {
     /**
-     * Will index _all_ entities on the associated index by writing them to the rebuild index of
-     * each scope (see \Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid). This is one
-     * step of the full-rebuild protocol driven by the Index message: the rebuild indexes are
-     * prepared before this method is called, and the rebuild is finalized — atomically swapped
-     * with the live indexes — by the FinalizeIndexRebuild message dispatched afterwards.
+     * Will index _all_ entities on the associated index by writing them to the rebuild indexes of
+     * the given rebuild run (see \Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid).
+     * This is one step of the full-rebuild protocol driven by the Index message: the rebuild
+     * indexes are prepared under the same id before this method is called, and the rebuild is
+     * finalized — atomically swapped with the live indexes — by the FinalizeIndexRebuild message
+     * dispatched afterwards.
      */
-    public function index(): void;
+    public function index(string $rebuildId): void;
 
     /**
      * Will index a single entity
@@ -24,8 +25,10 @@ interface IndexerInterface
 
     /**
      * @param array<array-key, IndexableInterface> $entities
+     * @param string|null $rebuildId when set, the documents are written to the rebuild indexes of
+     *                               the rebuild run with this id instead of the live indexes
      */
-    public function indexEntities(array $entities, bool $rebuild = false): void;
+    public function indexEntities(array $entities, ?string $rebuildId = null): void;
 
     public function removeEntity(IndexableInterface $entity): void;
 

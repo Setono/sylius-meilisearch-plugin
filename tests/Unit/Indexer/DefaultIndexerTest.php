@@ -231,7 +231,7 @@ final class DefaultIndexerTest extends TestCase
 
         $client = $this->prophesize(Client::class);
         // The documents go to the rebuild index, not the live index
-        $client->index('products__test__rebuild')->willReturn($indexes->reveal());
+        $client->index('products__test__rebuild_r1')->willReturn($indexes->reveal());
         $client->index('products__test')->shouldNotBeCalled();
 
         $indexer = new DefaultIndexer(
@@ -249,7 +249,7 @@ final class DefaultIndexerTest extends TestCase
             new SpyLogger(),
         );
 
-        $indexer->indexEntities([$this->createEntity()], rebuild: true);
+        $indexer->indexEntities([$this->createEntity()], 'r1');
     }
 
     /**
@@ -276,7 +276,7 @@ final class DefaultIndexerTest extends TestCase
         $indexes->deleteDocuments(['42'])->shouldBeCalledOnce()->willReturn([]);
 
         $client = $this->prophesize(Client::class);
-        $client->index('products__test__rebuild')->willReturn($indexes->reveal());
+        $client->index('products__test__rebuild_r1')->willReturn($indexes->reveal());
 
         $indexer = new DefaultIndexer(
             $index,
@@ -293,7 +293,7 @@ final class DefaultIndexerTest extends TestCase
             new SpyLogger(),
         );
 
-        $indexer->indexEntities([$this->createEntity()], rebuild: true);
+        $indexer->indexEntities([$this->createEntity()], 'r1');
     }
 
     /**
@@ -312,7 +312,7 @@ final class DefaultIndexerTest extends TestCase
         $commandBus = $this->prophesize(MessageBusInterface::class);
         $commandBus
             ->dispatch(Argument::that(
-                static fn (IndexEntities $message): bool => [1, 2] === $message->ids && 'products' === $message->index && true === $message->rebuild,
+                static fn (IndexEntities $message): bool => [1, 2] === $message->ids && 'products' === $message->index && 'r1' === $message->rebuildId,
             ))
             ->shouldBeCalledOnce()
             ->willReturn(new Envelope(new \stdClass()))
@@ -333,7 +333,7 @@ final class DefaultIndexerTest extends TestCase
             new SpyLogger(),
         );
 
-        $indexer->index();
+        $indexer->index('r1');
     }
 
     /**

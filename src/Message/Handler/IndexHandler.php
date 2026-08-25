@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Message\Handler;
 
 use Meilisearch\Client;
-use Meilisearch\Exceptions\ApiException;
+use Meilisearch\Contracts\IndexesQuery;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\FinalizeIndexRebuild;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
@@ -19,6 +19,8 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class IndexHandler
 {
+    private const INDEX_PAGE_SIZE = 200;
+
     public function __construct(
         private readonly IndexRegistryInterface $indexRegistry,
         private readonly Client $client,
@@ -38,6 +40,8 @@ final class IndexHandler
             throw new UnrecoverableMessageHandlingException(message: $e->getMessage(), previous: $e);
         }
 
+        $rebuildId = RebuildUid::generateId();
+
         /** @var list<string> $liveUids */
         $liveUids = [];
 
@@ -48,20 +52,11 @@ final class IndexHandler
             }
             $liveUids[] = $liveUid;
 
-            $rebuildUid = RebuildUid::from($liveUid);
-
-            // A rebuild index left over from a failed rebuild would leak its stale documents into
-            // this rebuild through the upserts below, so start from a clean slate. The existence
-            // check avoids enqueueing a deletion task that fails on every ordinary rebuild.
-            if ($this->indexExists($rebuildUid)) {
-                $this->client->deleteIndex($rebuildUid);
-            }
-
             // Applying the settings creates the rebuild index as a side effect. The settings include
             // the synonyms, so the swapped-in index is complete without a separate synonym update.
             $this
                 ->client
-                ->index($rebuildUid)
+                ->index(RebuildUid::from($liveUid, $rebuildId))
                 ->updateSettings(
                     $this->normalizer->normalize($this->settingsProvider->getSettings($indexScope)),
                 )
@@ -72,25 +67,52 @@ final class IndexHandler
             return;
         }
 
-        $index->indexer()->index();
+        $this->deleteStaleRebuildIndexes($liveUids);
+
+        $index->indexer()->index($rebuildId);
 
         // Dispatched after the IndexEntities batches above so that, on the same (FIFO) transport,
         // it is handled only once every batch has been pushed to Meilisearch
-        $this->commandBus->dispatch(new FinalizeIndexRebuild($index, $liveUids));
+        $this->commandBus->dispatch(new FinalizeIndexRebuild($index, $liveUids, $rebuildId));
     }
 
-    private function indexExists(string $uid): bool
+    /**
+     * Deletes rebuild indexes left behind by crashed rebuilds. Every rebuild run builds into its own
+     * uids, so an overlapping run must never delete indexes another run may still be using — only
+     * rebuild indexes whose embedded timestamp is old enough that no rebuild can still be running
+     * are removed.
+     *
+     * @param list<string> $liveUids
+     */
+    private function deleteStaleRebuildIndexes(array $liveUids): void
     {
-        try {
-            $this->client->getRawIndex($uid);
-        } catch (ApiException $e) {
-            if (404 === $e->httpStatus) {
-                return false;
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
+        $uids = [];
+        $offset = 0;
+        do {
+            $results = $this->client->getIndexes(
+                (new IndexesQuery())->setOffset($offset)->setLimit(self::INDEX_PAGE_SIZE),
+            );
+
+            foreach ($results->getResults() as $meilisearchIndex) {
+                $uid = $meilisearchIndex->getUid();
+                if (null !== $uid) {
+                    $uids[] = $uid;
+                }
             }
 
-            throw $e;
-        }
+            $offset += self::INDEX_PAGE_SIZE;
+        } while ($offset < $results->getTotal());
 
-        return true;
+        foreach ($uids as $uid) {
+            foreach ($liveUids as $liveUid) {
+                if (RebuildUid::isStale($uid, $liveUid, $now)) {
+                    $this->client->deleteIndex($uid);
+
+                    break;
+                }
+            }
+        }
     }
 }

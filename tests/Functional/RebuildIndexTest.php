@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Tests\Functional;
 
 use Meilisearch\Client;
+use Meilisearch\Contracts\TasksQuery;
 use Meilisearch\Exceptions\ApiException;
-use Setono\SyliusMeilisearchPlugin\Command\IndexCommand;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -37,7 +36,7 @@ final class RebuildIndexTest extends FunctionalTestCase
         // While the rebuild's Meilisearch tasks are processed, the live index must keep serving
         // results: before the swap these are the previous documents (including the stale one),
         // after the atomic swap the fresh ones — but never an empty index
-        $this->drainTasks($liveUids, function () use ($client, $liveUid): void {
+        $this->drainTasks(function () use ($client, $liveUid): void {
             $hits = $client->index($liveUid)->search('')->getHits();
             self::assertNotEmpty($hits, 'The live index returned no hits during a rebuild, so search had downtime');
         });
@@ -70,7 +69,7 @@ final class RebuildIndexTest extends FunctionalTestCase
         }
 
         $this->dispatchIndexMessage();
-        $this->drainTasks($liveUids);
+        $this->drainTasks();
 
         foreach ($liveUids as $liveUid) {
             $stats = $client->index($liveUid)->stats();
@@ -120,20 +119,18 @@ final class RebuildIndexTest extends FunctionalTestCase
     }
 
     /**
-     * Polls Meilisearch until it has processed every task belonging to the rebuild — the document
-     * additions live on the rebuild uids, the swap and its cleanup on the live uids.
+     * Polls Meilisearch until it has processed every pending task on the instance. The rebuild
+     * writes to per-run rebuild uids this test cannot know, and swap tasks carry no indexUid at
+     * all — but the compose/CI Meilisearch instance is dedicated to this test app, so draining
+     * the whole instance is both simplest and correct.
      *
-     * @param list<string> $liveUids
      * @param \Closure(): void|null $onPoll called between polls (and once after the drain)
      */
-    private function drainTasks(array $liveUids, ?\Closure $onPoll = null, int $timeout = 120): void
+    private function drainTasks(?\Closure $onPoll = null, int $timeout = 120): void
     {
-        $uids = $liveUids;
-        foreach ($liveUids as $liveUid) {
-            $uids[] = RebuildUid::from($liveUid);
-        }
+        $query = new TasksQuery();
+        $query->setStatuses(['enqueued', 'processing']);
 
-        $query = IndexCommand::createTasksQuery($uids);
         $client = $this->getMeilisearchClient();
 
         $start = time();

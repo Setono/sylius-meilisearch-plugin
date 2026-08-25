@@ -95,7 +95,7 @@ final class IndexCommandTest extends TestCase
     /**
      * @test
      */
-    public function it_waits_for_tasks_on_both_the_live_and_the_rebuild_uids(): void
+    public function it_waits_for_scoped_tasks_and_for_pending_swaps_involving_its_uids(): void
     {
         $index = new Index('products', ProductDocument::class, [Product::class], new Container());
 
@@ -110,21 +110,26 @@ final class IndexCommandTest extends TestCase
         $indexUidsProvider = $this->prophesize(IndexUidsProviderInterface::class);
         $indexUidsProvider->get('products')->willReturn(['products__fashion_web__en_us__usd']);
 
-        $tasks = $this->prophesize(TasksResults::class);
-        $tasks->getTotal()->willReturn(0);
-
         $stats = $this->prophesize(Indexes::class);
         $stats->stats()->willReturn(['numberOfDocuments' => 8]);
 
         $client = $this->prophesize(Client::class);
-        // The rebuild happens in the rebuild index until the atomic swap at the end, so the wait
-        // must cover the rebuild uid as well or it would return before the rebuild has finished
+        // The wait polls two things: pending tasks scoped to the live uids, and pending swap tasks —
+        // the latter unscoped, because a swap task has no indexUid and the rebuild uids embed a
+        // per-run id the command cannot know
         $client
             ->getTasks(Argument::that(
-                static fn (TasksQuery $query): bool => ['products__fashion_web__en_us__usd', 'products__fashion_web__en_us__usd__rebuild'] === $query->getIndexUids(),
+                static fn (TasksQuery $query): bool => ['products__fashion_web__en_us__usd'] === $query->getIndexUids(),
             ))
             ->shouldBeCalled()
-            ->willReturn($tasks->reveal())
+            ->willReturn(new TasksResults(['results' => [], 'total' => 0]))
+        ;
+        $client
+            ->getTasks(Argument::that(
+                static fn (TasksQuery $query): bool => ($query->toArray()['types'] ?? null) === 'indexSwap',
+            ))
+            ->shouldBeCalled()
+            ->willReturn(new TasksResults(['results' => [], 'total' => 0]))
         ;
         // The summary reports the live index, which holds the fresh documents after the swap
         $client->index('products__fashion_web__en_us__usd')->willReturn($stats->reveal());
