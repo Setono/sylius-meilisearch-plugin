@@ -11,7 +11,7 @@ class IndexableOptionRepository extends IndexableSubjectRepository implements In
 {
     public function findEnabledByIndex(string $index): array
     {
-        $objs = $this->doFindEnabledByIndex($index);
+        $objs = $this->doFindEnabledByIndex($index, 'option');
 
         Assert::allIsInstanceOf($objs, IndexableOptionInterface::class);
 

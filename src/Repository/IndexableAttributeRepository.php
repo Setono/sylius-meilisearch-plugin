@@ -11,7 +11,7 @@ class IndexableAttributeRepository extends IndexableSubjectRepository implements
 {
     public function findEnabledByIndex(string $index): array
     {
-        $objs = $this->doFindEnabledByIndex($index);
+        $objs = $this->doFindEnabledByIndex($index, 'attribute');
 
         Assert::allIsInstanceOf($objs, IndexableAttributeInterface::class);
 
