@@ -98,6 +98,5 @@ final class IndexUidsProviderTest extends TestCase
         $provider = new IndexUidsProvider($indexRegistry, $indexScopeProvider->reveal(), $indexUidResolver->reveal());
 
         self::assertSame(['products' => ['products__en_us__usd']], $provider->getAll());
-        self::assertSame(['products__en_us__usd'], $provider->getFlattened());
     }
 }

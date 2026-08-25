@@ -25,9 +25,4 @@ interface IndexUidsProviderInterface
      * @return array<string, list<string>> configured index name => concrete Meilisearch index uids
      */
     public function getAll(): array;
-
-    /**
-     * @return list<string> deduplicated list of all concrete Meilisearch index uids
-     */
-    public function getFlattened(): array;
 }

@@ -39,17 +39,4 @@ final class IndexUidsProvider implements IndexUidsProviderInterface
 
         return $result;
     }
-
-    public function getFlattened(): array
-    {
-        $uids = [];
-
-        foreach ($this->getAll() as $uidsForIndex) {
-            foreach ($uidsForIndex as $uid) {
-                $uids[$uid] = $uid;
-            }
-        }
-
-        return array_values($uids);
-    }
 }
