@@ -49,6 +49,14 @@ final class AddMenuSubscriber implements EventSubscriberInterface
             ->setLabelAttribute('icon', 'sliders horizontal')
         ;
 
+        $header
+            ->addChild('status', [
+                'route' => 'setono_sylius_meilisearch_admin_status_index',
+            ])
+            ->setLabel('setono_sylius_meilisearch.menu.admin.main.meilisearch.status')
+            ->setLabelAttribute('icon', 'heartbeat')
+        ;
+
         $order = ['catalog', 'sales', 'customers', 'marketing', self::MENU_ITEM_KEY];
         $rest = array_diff(array_keys($menu->getChildren()), $order);
 

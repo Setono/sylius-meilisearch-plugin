@@ -1,0 +1,6 @@
+{# @var data \Setono\SyliusMeilisearchPlugin\Meilisearch\Task #}
+{% set colors = { processing: 'blue', succeeded: 'green', failed: 'red', canceled: 'yellow' } %}
+{% set known = ['enqueued', 'processing', 'succeeded', 'failed', 'canceled'] %}
+<span class="ui {{ colors[data.status]|default('') }} label">
+    {{- data.status in known ? ('setono_sylius_meilisearch.ui.task_status.' ~ data.status)|trans : data.status -}}
+</span>

@@ -19,9 +19,7 @@ use Setono\SyliusMeilisearchPlugin\DataCollector\MeilisearchDataCollector;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactory;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Client\TraceableClient;
-use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
-use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Tests\Unit\Document\Metadata\Document;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
@@ -119,11 +117,13 @@ final class MeilisearchDataCollectorTest extends TestCase
         $client = new TraceableClient('http://localhost:7700', 'masterKey', $httpClient->reveal());
         $client->multiSearch([(new SearchQuery())->setIndexUid(self::UID)->setQuery('hat')]);
 
+        $indexUidsProvider = $this->prophesize(IndexUidsProviderInterface::class);
+        $indexUidsProvider->getAll()->willReturn([]);
+
         $collector = new MeilisearchDataCollector(
             $client,
             new IndexRegistry(),
-            $this->prophesize(IndexScopeProviderInterface::class)->reveal(),
-            $this->prophesize(IndexUidResolverInterface::class)->reveal(),
+            $indexUidsProvider->reveal(),
         );
         $collector->collect(new Request(), new Response());
 
@@ -148,17 +148,13 @@ final class MeilisearchDataCollectorTest extends TestCase
         $indexRegistry = new IndexRegistry();
         $indexRegistry->add($index);
 
-        $indexScopeProvider = $this->prophesize(IndexScopeProviderInterface::class);
-        $indexScopeProvider->getAll($index)->willReturn([new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD')]);
-
-        $indexUidResolver = $this->prophesize(IndexUidResolverInterface::class);
-        $indexUidResolver->resolveFromIndexScope(Argument::type(IndexScope::class))->willReturn(self::UID);
+        $indexUidsProvider = $this->prophesize(IndexUidsProviderInterface::class);
+        $indexUidsProvider->getAll()->willReturn(['products' => [self::UID]]);
 
         return new MeilisearchDataCollector(
             $client,
             $indexRegistry,
-            $indexScopeProvider->reveal(),
-            $indexUidResolver->reveal(),
+            $indexUidsProvider->reveal(),
         );
     }
 }

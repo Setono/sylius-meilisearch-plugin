@@ -65,8 +65,15 @@ setono_sylius_meilisearch:
                     header: Meilisearch
                     indexable_attributes: 'Indeksowane atrybuty'
                     indexable_options: 'Indeksowane opcje'
+                    status: 'Status'
                     synonyms: Synonyms
     ui:
+        details: 'Szczegóły'
+        duration: 'Czas trwania'
+        enqueued_at: 'Dodano do kolejki'
+        finished_at: 'Zakończono'
+        index: 'Indeks'
+        index_uid: 'Uid indeksu'
         indexable_attribute_header: 'Indeksowane atrybuty'
         indexable_attribute_help: |
             <h4>Indexed attributes</h4>
@@ -92,11 +99,21 @@ setono_sylius_meilisearch:
             <p>Saving automatically updates the index settings and reindexes the affected indexes.</p>
         indexable_option_subheader: 'Skonfiguruj, które opcje produktu są indeksowane'
         indexes: Indexes
+        is_indexing: 'Indeksowanie'
+        last_update: 'Ostatnia aktualizacja'
+        missing_on_server: 'Brak na serwerze'
         no_indexes: No indexes
+        number_of_documents: 'Dokumenty'
         search: Search
         search_placeholder: Search...
         search_results_for: 'Search results for'
         search_term_and_synonym: 'Search term and synonym'
+        server_available: 'Serwer dostępny'
+        server_unavailable: 'Serwer niedostępny'
+        server_unreachable: 'Nie można połączyć się z serwerem Meilisearch. Sprawdź, czy działa i czy skonfigurowane dane dostępowe są poprawne.'
+        started_at: 'Rozpoczęto'
+        status_header: 'Status Meilisearch'
+        status_subheader: 'Informacje o serwerze i zadania serwera Meilisearch'
         synonym: Synonym
         synonym_header: Synonyms
         synonym_help: |
@@ -105,4 +122,12 @@ setono_sylius_meilisearch:
             <p>If the direction is "one way", then the synonym will only work in one direction. For example, if the term is "coat" and the synonym is "jacket", then when a user searches for "coat", the search results will include results matching "jacket". However, if the direction is "two way", then the synonym will work in both directions. For example when a user searches for "jacket", the search results will include results matching "coat", and when a user searches for "coat", the search results will include results matching "jacket".</p>
         synonym_subheader: Manage synonyms
         synonyms: Synonyms
+        task_status:
+            canceled: 'Anulowane'
+            enqueued: 'W kolejce'
+            failed: 'Nieudane'
+            processing: 'Przetwarzane'
+            succeeded: 'Ukończone'
         term: Term
+        uid: 'Uid'
+        version: 'Wersja'

@@ -65,8 +65,15 @@ setono_sylius_meilisearch:
                     header: Meilisearch
                     indexable_attributes: 'Indexierte Attribute'
                     indexable_options: 'Indexierte Optionen'
+                    status: 'Status'
                     synonyms: Synonyms
     ui:
+        details: 'Details'
+        duration: 'Dauer'
+        enqueued_at: 'Eingereiht am'
+        finished_at: 'Abgeschlossen am'
+        index: 'Index'
+        index_uid: 'Index-UID'
         indexable_attribute_header: 'Indexierte Attribute'
         indexable_attribute_help: |
             <h4>Indexed attributes</h4>
@@ -92,11 +99,21 @@ setono_sylius_meilisearch:
             <p>Saving automatically updates the index settings and reindexes the affected indexes.</p>
         indexable_option_subheader: 'Konfigurieren Sie, welche Produktoptionen indexiert werden'
         indexes: Indexes
+        is_indexing: 'Indexiert'
+        last_update: 'Letzte Aktualisierung'
+        missing_on_server: 'Fehlt auf dem Server'
         no_indexes: No indexes
+        number_of_documents: 'Dokumente'
         search: Search
         search_placeholder: Search...
         search_results_for: 'Search results for'
         search_term_and_synonym: 'Search term and synonym'
+        server_available: 'Server verfügbar'
+        server_unavailable: 'Server nicht verfügbar'
+        server_unreachable: 'Der Meilisearch-Server konnte nicht erreicht werden. Prüfen Sie, ob er läuft und ob die konfigurierten Zugangsdaten korrekt sind.'
+        started_at: 'Gestartet am'
+        status_header: 'Meilisearch-Status'
+        status_subheader: 'Serverinformationen und Aufgaben des Meilisearch-Servers'
         synonym: Synonym
         synonym_header: Synonyms
         synonym_help: |
@@ -105,4 +122,12 @@ setono_sylius_meilisearch:
             <p>If the direction is "one way", then the synonym will only work in one direction. For example, if the term is "coat" and the synonym is "jacket", then when a user searches for "coat", the search results will include results matching "jacket". However, if the direction is "two way", then the synonym will work in both directions. For example when a user searches for "jacket", the search results will include results matching "coat", and when a user searches for "coat", the search results will include results matching "jacket".</p>
         synonym_subheader: Manage synonyms
         synonyms: Synonyms
+        task_status:
+            canceled: 'Abgebrochen'
+            enqueued: 'Eingereiht'
+            failed: 'Fehlgeschlagen'
+            processing: 'In Bearbeitung'
+            succeeded: 'Erfolgreich'
         term: Term
+        uid: 'UID'
+        version: 'Version'

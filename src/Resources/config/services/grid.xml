@@ -5,5 +5,17 @@
         <service id="Setono\SyliusMeilisearchPlugin\Grid\Filter\IndexFilter">
             <tag name="sylius.grid_filter" type="indexes" form_type="Setono\SyliusMeilisearchPlugin\Form\Type\IndexChoiceType"/>
         </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Grid\Filter\TaskIndexUidFilter">
+            <tag name="sylius.grid_filter" type="task_index_uid" form_type="Setono\SyliusMeilisearchPlugin\Form\Type\TaskIndexUidChoiceType"/>
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Grid\Provider\TasksDataProvider">
+            <argument type="service" id="Meilisearch\Client"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="sylius.grid_data_provider"/>
+            <tag name="monolog.logger" channel="setono_sylius_meilisearch"/>
+        </service>
     </services>
 </container>

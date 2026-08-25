@@ -41,6 +41,18 @@
             <factory service="Setono\SyliusMeilisearchPlugin\Meilisearch\Client\ClientFactoryInterface" method="create"/>
         </service>
 
+        <!-- Server information -->
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Server\ServerInformationProviderInterface"
+                 alias="Setono\SyliusMeilisearchPlugin\Meilisearch\Server\ServerInformationProvider"/>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\Server\ServerInformationProvider">
+            <argument type="service" id="Meilisearch\Client"/>
+            <argument type="service" id="Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="monolog.logger" channel="setono_sylius_meilisearch"/>
+        </service>
+
         <!-- Synonym resolver -->
         <service id="Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolverInterface"
                  alias="Setono\SyliusMeilisearchPlugin\Meilisearch\SynonymResolver"/>

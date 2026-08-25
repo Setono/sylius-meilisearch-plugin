@@ -1,0 +1,21 @@
+{# @var data \Setono\SyliusMeilisearchPlugin\Meilisearch\Task #}
+{% set parts = [] %}
+{% for key, value in data.details %}
+    {% if parts|length < 3 and value is not iterable %}
+        {% set display = value is same as(true) ? 'true' : (value is same as(false) ? 'false' : (value is null ? 'null' : value)) %}
+        {% set parts = parts|merge(['%s: %s'|format(key, display)]) %}
+    {% endif %}
+{% endfor %}
+{% if parts is not empty %}
+    <span title="{{ data.details|json_encode(constant('JSON_PRETTY_PRINT')) }}">{{ parts|join(', ') }}</span>
+{% endif %}
+{% if data.error is not null %}
+    {% set error_label %}
+        <span class="ui red mini label" title="{{ data.error.message ?? '' }}">{{ data.error.code ?? 'error' }}</span>
+    {% endset %}
+    {% if data.error.link is not null %}
+        <a href="{{ data.error.link }}" target="_blank" rel="noopener noreferrer">{{ error_label }}</a>
+    {% else %}
+        {{ error_label }}
+    {% endif %}
+{% endif %}

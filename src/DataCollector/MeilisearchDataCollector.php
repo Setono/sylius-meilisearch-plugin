@@ -8,8 +8,7 @@ use Meilisearch\Client;
 use Meilisearch\Contracts\SearchQuery;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\Client\TraceableClient;
-use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
-use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
@@ -18,6 +17,8 @@ use Symfony\Component\VarDumper\Cloner\Data;
 use Webmozart\Assert\Assert;
 
 /**
+ * @internal wired through the container; not part of the plugin's public API
+ *
  * @phpstan-type IndexData array{
  *     document: class-string,
  *     entities: list<class-string>,
@@ -33,8 +34,7 @@ final class MeilisearchDataCollector extends DataCollector implements LateDataCo
     public function __construct(
         private readonly Client $client,
         private readonly IndexRegistryInterface $indexRegistry,
-        private readonly IndexScopeProviderInterface $indexScopeProvider,
-        private readonly IndexUidResolverInterface $indexUidResolver,
+        private readonly IndexUidsProviderInterface $indexUidsProvider,
     ) {
     }
 
@@ -53,16 +53,15 @@ final class MeilisearchDataCollector extends DataCollector implements LateDataCo
 
         $indexes = [];
 
-        foreach ($this->indexRegistry->getAll() as $index) {
-            $uids = [];
+        try {
+            $uidsByIndex = $this->indexUidsProvider->getAll();
+        } catch (\Throwable) {
+            // enumerating index scopes queries the database, and the profiler should not break if that fails
+            $uidsByIndex = [];
+        }
 
-            try {
-                foreach ($this->indexScopeProvider->getAll($index) as $indexScope) {
-                    $uids[$this->indexUidResolver->resolveFromIndexScope($indexScope)] = null;
-                }
-            } catch (\Throwable) {
-                // enumerating index scopes queries the database, and the profiler should not break if that fails
-            }
+        foreach ($this->indexRegistry->getAll() as $index) {
+            $uids = array_fill_keys($uidsByIndex[$index->name] ?? [], null);
 
             $metadata = $index->metadata();
 

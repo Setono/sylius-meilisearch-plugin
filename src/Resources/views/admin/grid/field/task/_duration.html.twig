@@ -1,0 +1,10 @@
+{# @var data \Setono\SyliusMeilisearchPlugin\Meilisearch\Task #}
+{% if data.duration is not null %}
+    {# Meilisearch serializes durations as ISO 8601 with seconds only, e.g. "PT0.110724S" #}
+    {% set seconds = data.duration|slice(2)|trim('S', side='right') %}
+    {% if data.duration starts with 'PT' and seconds matches '/^\\d+(\\.\\d+)?$/' %}
+        {{- seconds|number_format(3) }} s
+    {%- else %}
+        {{- data.duration -}}
+    {% endif %}
+{% endif %}
