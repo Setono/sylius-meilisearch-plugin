@@ -85,7 +85,7 @@ final class TasksDataProviderTest extends TestCase
         self::assertSame(2, $pagerfanta->getCurrentPage());
         self::assertSame(50, $pagerfanta->getMaxPerPage());
 
-        $tasks = iterator_to_array($pagerfanta->getCurrentPageResults());
+        $tasks = [...$pagerfanta->getCurrentPageResults()];
         self::assertCount(50, $tasks);
         self::assertContainsOnlyInstancesOf(Task::class, $tasks);
         // the second page starts at the 51st result, i.e. uid 100 - 50
@@ -130,7 +130,7 @@ final class TasksDataProviderTest extends TestCase
         $pagerfanta = $provider->getData(self::createGrid(), new Parameters());
 
         self::assertSame(0, $pagerfanta->getNbResults());
-        self::assertCount(0, iterator_to_array($pagerfanta->getCurrentPageResults()));
+        self::assertCount(0, [...$pagerfanta->getCurrentPageResults()]);
     }
 
     private static function createGrid(): Grid

@@ -29,6 +29,11 @@ final class TasksDataProvider implements DataProviderInterface
      */
     public const MAX_PAGE = 100;
 
+    /**
+     * A hard cap on the page size, regardless of the limits configured on the grid
+     */
+    public const MAX_LIMIT = 1_000;
+
     public function __construct(
         private readonly Client $client,
         private readonly LoggerInterface $logger,
@@ -41,8 +46,9 @@ final class TasksDataProvider implements DataProviderInterface
     public function getData(Grid $grid, Parameters $parameters): Pagerfanta
     {
         $limits = $grid->getLimits();
-        $limit = self::toInt($parameters->get('limit'), $limits[0] ?? 50);
-        $limit = max(1, [] === $limits ? $limit : min($limit, max($limits)));
+        $limit = self::toInt($parameters->get('limit'), self::toInt($limits[0] ?? null, 50));
+        $maxLimit = [] === $limits ? self::MAX_LIMIT : self::toInt(max($limits), self::MAX_LIMIT);
+        $limit = max(1, min($limit, $maxLimit, self::MAX_LIMIT));
 
         $page = max(1, min(self::toInt($parameters->get('page'), 1), self::MAX_PAGE));
 
@@ -65,7 +71,7 @@ final class TasksDataProvider implements DataProviderInterface
             $this->logger->warning(sprintf('Unable to fetch tasks from Meilisearch: %s', $e->getMessage()));
         }
 
-        $pagerfanta = new Pagerfanta(new FixedAdapter(max(0, $total), $tasks));
+        $pagerfanta = new Pagerfanta(new FixedAdapter($total, $tasks));
         $pagerfanta->setMaxPerPage($limit);
         $pagerfanta->setAllowOutOfRangePages(true);
         $pagerfanta->setCurrentPage($page);

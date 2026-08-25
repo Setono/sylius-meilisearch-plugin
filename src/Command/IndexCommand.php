@@ -19,6 +19,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+/**
+ * @internal wired through the container; not part of the plugin's public API
+ */
 #[AsCommand(
     name: 'setono:sylius-meilisearch:index',
     description: 'Will index all configured indexes',

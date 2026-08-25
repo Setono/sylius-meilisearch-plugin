@@ -17,6 +17,8 @@ use Symfony\Component\VarDumper\Cloner\Data;
 use Webmozart\Assert\Assert;
 
 /**
+ * @internal wired through the container; not part of the plugin's public API
+ *
  * @phpstan-type IndexData array{
  *     document: class-string,
  *     entities: list<class-string>,
