@@ -8,7 +8,7 @@ use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
-use Setono\SyliusMeilisearchPlugin\Model\IndexableSubject;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableSubjectInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -52,7 +52,7 @@ final class IndexableSubjectListener implements EventSubscriberInterface
      */
     public function preUpdate(PreUpdateEventArgs $eventArgs): void
     {
-        if (!$eventArgs->getObject() instanceof IndexableSubject) {
+        if (!$eventArgs->getObject() instanceof IndexableSubjectInterface) {
             return;
         }
 
@@ -76,7 +76,7 @@ final class IndexableSubjectListener implements EventSubscriberInterface
     private function handle(LifecycleEventArgs $eventArgs): void
     {
         $object = $eventArgs->getObject();
-        if (!$object instanceof IndexableSubject) {
+        if (!$object instanceof IndexableSubjectInterface) {
             return;
         }
 

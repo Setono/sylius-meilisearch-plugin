@@ -13,6 +13,7 @@ use Setono\SyliusMeilisearchPlugin\Document\Metadata\Searchable;
 use Setono\SyliusMeilisearchPlugin\Event\MetadataCreated;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableAttributeInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableOptionInterface;
+use Setono\SyliusMeilisearchPlugin\Model\IndexableSubjectInterface;
 use Setono\SyliusMeilisearchPlugin\Repository\IndexableAttributeRepositoryInterface;
 use Setono\SyliusMeilisearchPlugin\Repository\IndexableOptionRepositoryInterface;
 use Sylius\Component\Attribute\Model\AttributeValueInterface;
@@ -104,7 +105,7 @@ final class IndexableSubjectMetadataSubscriber implements EventSubscriberInterfa
      * @param DynamicField::SOURCE_* $source
      * @param 'array'|'bool'|'float'|'int'|'string' $fieldType
      */
-    private function merge(Metadata $metadata, IndexableAttributeInterface|IndexableOptionInterface $row, string $source, string $name, string $fieldType): void
+    private function merge(Metadata $metadata, IndexableSubjectInterface $row, string $source, string $name, string $fieldType): void
     {
         $code = (string) $row->getCode();
 
@@ -148,7 +149,7 @@ final class IndexableSubjectMetadataSubscriber implements EventSubscriberInterfa
         }
     }
 
-    private function hasSafeCode(IndexableAttributeInterface|IndexableOptionInterface $row, string $subject): bool
+    private function hasSafeCode(IndexableSubjectInterface $row, string $subject): bool
     {
         if (1 === preg_match(self::CODE_PATTERN, (string) $row->getCode())) {
             return true;

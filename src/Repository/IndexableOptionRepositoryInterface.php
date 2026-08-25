@@ -10,7 +10,7 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 /**
  * @extends RepositoryInterface<IndexableOptionInterface>
  */
-interface IndexableOptionRepositoryInterface extends RepositoryInterface
+interface IndexableOptionRepositoryInterface extends IndexableSubjectRepositoryInterface, RepositoryInterface
 {
     /**
      * @return array<array-key, IndexableOptionInterface>

@@ -11,7 +11,7 @@ use Sylius\Component\Resource\Model\ToggleableTrait;
  * The shared implementation of the admin managed "index this product attribute/option" configuration.
  * The concrete resources are IndexableAttribute and IndexableOption
  */
-abstract class IndexableSubject
+abstract class IndexableSubject implements IndexableSubjectInterface
 {
     use TimestampableTrait;
     use ToggleableTrait;
