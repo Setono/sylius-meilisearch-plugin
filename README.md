@@ -209,12 +209,14 @@ Then run a worker (supervised, e.g. with Supervisor or systemd) and configure a 
 php bin/console messenger:consume setono_sylius_meilisearch --time-limit=3600
 ```
 
-> **Run a single consumer for this transport.** A full rebuild relies on its finalizing swap message
-> being handled after all of the rebuild's batch messages, which a single consumer guarantees (they
-> are dispatched in that order). With multiple parallel consumers a batch can still be in flight when
-> the swap runs; its documents then land in a leftover rebuild index (cleaned up once it goes stale,
-> by a later rebuild) instead of the live index until the next save or rebuild. Indexing is I/O-bound on
-> Meilisearch anyway, so parallel consumers gain little.
+> **Parallel consumers are fully supported — message ordering does not matter.** A full rebuild
+> knows exactly how many document batches it dispatched, and its finalizing message counts the
+> matching tasks on the rebuild indexes before swapping: if batches are still in flight (parallel
+> consumers, or a transiently failed batch waiting for its retry), the finalization reschedules
+> itself — with a delay derived from the observed indexing throughput — until every batch has
+> arrived. A batch that is lost for good (it exhausted its retries into the failure transport)
+> means the rebuild is **never swapped live**: search keeps serving the previous documents, an
+> error is logged, and the abandoned rebuild indexes are deleted by a later rebuild once stale.
 
 ### How settings sync works
 
@@ -232,7 +234,7 @@ The admin-managed configuration is the exception: saving a synonym pushes the sy
   0 3 * * *  php /path/to/app/bin/console setono:sylius-meilisearch:index --wait
   ```
   (`--wait` makes the command block until Meilisearch has finished processing this run's tasks, including the atomic swap.)
-- **Supervise the worker(s)** running `messenger:consume` (see above) and monitor the failure transport. Run a single consumer for the plugin's transport (see the note above).
+- **Supervise the worker(s)** running `messenger:consume` (see above) and monitor the failure transport — a rebuild batch that lands there means the rebuild was abandoned rather than swapped live incomplete (see the note above).
 - **Plan for the rebuild's disk usage.** During a rebuild each index briefly exists twice (live + `__rebuild_<id>`), so Meilisearch needs transient headroom of roughly one extra copy of your largest index. A rebuild index left behind by a crashed run is deleted by a later rebuild once it is older than 24 hours (the age is embedded in its uid, so an in-progress rebuild is never mistaken for a stray).
 - Entity changes saved **while** a rebuild is running are indexed into the live index and are therefore reverted by the swap moments later; the next save (or the next rebuild) restores them. With a nightly cron this window is practically irrelevant.
 - **Drain the plugin's transport before deploying plugin upgrades.** Queued messages are serialized PHP objects; a deploy that changes the plugin's message classes can make payloads queued by the old code fail on the new workers. Let the worker empty the transport before switching code.

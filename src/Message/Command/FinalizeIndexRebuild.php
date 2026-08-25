@@ -38,6 +38,30 @@ final class FinalizeIndexRebuild implements CommandInterface
          * rebuild indexes, so this message only ever swaps and deletes its own generation
          */
         public readonly string $rebuildId,
+
+        /**
+         * When the rebuild started. Used to compute the observed indexing throughput, which in turn
+         * decides how long to wait before checking the rebuild's completeness again.
+         */
+        public readonly \DateTimeImmutable $startedAt,
+
+        /**
+         * How many document-addition tasks the rebuild must have enqueued on its rebuild indexes
+         * before it is complete (dispatched batches × index scopes). The swap must only happen once
+         * they have all arrived: message transports do not guarantee ordering under retries, so a
+         * transiently failed batch can be redelivered after this message.
+         */
+        public readonly int $expectedTasks,
+
+        /**
+         * How many of the expected tasks had arrived at the previous completeness check
+         */
+        public readonly int $completedTasks = 0,
+
+        /**
+         * How many consecutive completeness checks have seen no new tasks arrive
+         */
+        public readonly int $stagnantChecks = 0,
     ) {
         if ($index instanceof IndexConfig) {
             $index = $index->name;
@@ -47,6 +71,9 @@ final class FinalizeIndexRebuild implements CommandInterface
         Assert::notEmpty($liveUids);
         Assert::allStringNotEmpty($liveUids);
         Assert::stringNotEmpty($rebuildId);
+        Assert::greaterThanEq($expectedTasks, 0);
+        Assert::greaterThanEq($completedTasks, 0);
+        Assert::greaterThanEq($stagnantChecks, 0);
 
         $this->index = $index;
     }

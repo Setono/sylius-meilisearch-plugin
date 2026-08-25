@@ -74,8 +74,10 @@ final class IndexHandlerTest extends TestCase
         $settingsUids = [];
 
         $indexer = $this->prophesize(IndexerInterface::class);
-        $indexer->index(Argument::type('string'))->shouldBeCalledOnce()->will(function () use (&$calls): void {
+        $indexer->index(Argument::type('string'))->shouldBeCalledOnce()->will(function () use (&$calls): int {
             $calls[] = 'index';
+
+            return 5;
         });
 
         $locator = new Container();
@@ -137,7 +139,12 @@ final class IndexHandlerTest extends TestCase
                     // The finalize message must carry the same rebuild id the settings were applied under
                     $sameGeneration = [] !== $settingsUids && RebuildUid::from('products__a', $message->rebuildId) === $settingsUids[0];
 
-                    return 'products' === $message->index && ['products__a', 'products__b'] === $message->liveUids && $sameGeneration;
+                    // 5 batches × 3 scopes (scope iterations, not unique uids — the indexer creates
+                    // one document-addition task per scope iteration)
+                    return 'products' === $message->index &&
+                        ['products__a', 'products__b'] === $message->liveUids &&
+                        15 === $message->expectedTasks &&
+                        $sameGeneration;
                 },
             ))
             ->shouldBeCalledOnce()
@@ -170,7 +177,7 @@ final class IndexHandlerTest extends TestCase
     public function it_deletes_stale_rebuild_indexes_but_never_a_running_generation(): void
     {
         $indexer = $this->prophesize(IndexerInterface::class);
-        $indexer->index(Argument::type('string'))->shouldBeCalledOnce();
+        $indexer->index(Argument::type('string'))->shouldBeCalledOnce()->willReturn(1);
 
         $locator = new Container();
         $locator->set(IndexerInterface::class, $indexer->reveal());

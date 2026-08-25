@@ -41,11 +41,18 @@ final class IndexHandler
         }
 
         $rebuildId = RebuildUid::generateId();
+        $startedAt = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         /** @var list<string> $liveUids */
         $liveUids = [];
+        $scopes = 0;
 
         foreach ($this->indexScopeProvider->getAll($index) as $indexScope) {
+            // Count every scope, not every unique uid: the indexer iterates the scopes the same way
+            // when indexing a batch, creating one document-addition task per scope — the count is
+            // what tells the finalization how many tasks to expect
+            ++$scopes;
+
             $liveUid = $this->indexUidResolver->resolveFromIndexScope($indexScope);
             if (in_array($liveUid, $liveUids, true)) {
                 continue;
@@ -69,11 +76,13 @@ final class IndexHandler
 
         $this->deleteStaleRebuildIndexes($liveUids);
 
-        $index->indexer()->index($rebuildId);
+        $batches = $index->indexer()->index($rebuildId);
 
-        // Dispatched after the IndexEntities batches above so that, on the same (FIFO) transport,
-        // it is handled only once every batch has been pushed to Meilisearch
-        $this->commandBus->dispatch(new FinalizeIndexRebuild($index, $liveUids, $rebuildId));
+        // Dispatched after the IndexEntities batches above. Transports do not guarantee ordering —
+        // a transiently failed batch is redelivered later, behind this message — so the handler
+        // does not rely on being handled last: it counts the run's document-addition tasks and
+        // reschedules itself until all of them have arrived before swapping.
+        $this->commandBus->dispatch(new FinalizeIndexRebuild($index, $liveUids, $rebuildId, $startedAt, $batches * $scopes));
     }
 
     /**

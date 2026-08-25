@@ -20,10 +20,11 @@ final class RebuildUid
     private const ID_TIMESTAMP_FORMAT = 'YmdHis';
 
     /**
-     * A rebuild index older than this is considered abandoned. Generously longer than any realistic
-     * rebuild, so an in-progress rebuild is never mistaken for a stray by an overlapping one.
+     * A rebuild run older than this is considered abandoned: its indexes are deleted by a later
+     * rebuild, and its finalization gives up. Generously longer than any realistic rebuild, so an
+     * in-progress rebuild is never mistaken for a stray by an overlapping one.
      */
-    private const STALE_AFTER = '-24 hours';
+    public const STALE_AFTER = '-24 hours';
 
     private function __construct()
     {

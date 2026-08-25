@@ -272,7 +272,9 @@ final class DefaultIndexerTest extends TestCase
         $objectFilter->filter(Argument::cetera())->willReturn(false);
 
         $indexes = $this->prophesize(Indexes::class);
-        $indexes->addDocuments(Argument::cetera())->shouldNotBeCalled();
+        // Even though nothing remains to index, the batch must still create its document-addition
+        // task: the rebuild's finalization counts one such task per scope per batch
+        $indexes->addDocuments([], 'id')->shouldBeCalledOnce()->willReturn([]);
         $indexes->deleteDocuments(['42'])->shouldBeCalledOnce()->willReturn([]);
 
         $client = $this->prophesize(Client::class);
@@ -333,7 +335,7 @@ final class DefaultIndexerTest extends TestCase
             new SpyLogger(),
         );
 
-        $indexer->index('r1');
+        self::assertSame(1, $indexer->index('r1'));
     }
 
     /**

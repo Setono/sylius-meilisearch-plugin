@@ -15,8 +15,13 @@ interface IndexerInterface
      * indexes are prepared under the same id before this method is called, and the rebuild is
      * finalized — atomically swapped with the live indexes — by the FinalizeIndexRebuild message
      * dispatched afterwards.
+     *
+     * Returns the number of dispatched batches. The finalization multiplies it by the number of
+     * index scopes to know how many document-addition tasks the run must produce before it may
+     * swap, so indexEntities() MUST create exactly one document-addition task per scope per batch
+     * when rebuilding — even for a batch that ends up with no documents.
      */
-    public function index(string $rebuildId): void;
+    public function index(string $rebuildId): int;
 
     /**
      * Will index a single entity
