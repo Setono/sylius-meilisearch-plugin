@@ -48,7 +48,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     {
         /**
          * @var array{
-         *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}>,
+         *      indexes: array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, dynamic_fields: bool, default_filters: array<string, bool>}>,
          *      server: array{ url: string, public_url: string|null, master_key: string, search_key: string },
          *      search: array{ enabled: bool, path: string, index: string, hits_per_page: int, taxon: array{ enabled: bool } },
          *      autocomplete: array{ enabled: bool, indexes: list<string>, container: string, placeholder: string, limit: int },
@@ -93,6 +93,109 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
         self::registerIndexesConfiguration($config['indexes'], $container);
         self::registerSearchConfiguration($config['search'], $container, $loader);
         self::registerAutocompleteConfiguration($config['autocomplete'], array_keys($config['indexes']), $container, $loader);
+    }
+
+    /**
+     * The IndexableAttribute and IndexableOption grids are identical except for the resource class
+     * and the name of the association holding the product attribute/option
+     *
+     * @return array<string, mixed>
+     */
+    private static function indexableSubjectGrid(string $class, string $subjectProperty): array
+    {
+        return [
+            'driver' => [
+                'name' => SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
+                'options' => [
+                    'class' => $class,
+                ],
+            ],
+            'limits' => [100, 250, 500, 1000],
+            'fields' => [
+                'code' => [
+                    'type' => 'string',
+                    'label' => 'sylius.ui.code',
+                ],
+                'searchable' => [
+                    'type' => 'twig',
+                    'label' => 'setono_sylius_meilisearch.form.indexable.searchable',
+                    'options' => [
+                        'template' => '@SyliusUi/Grid/Field/enabled.html.twig',
+                    ],
+                ],
+                'filterable' => [
+                    'type' => 'twig',
+                    'label' => 'setono_sylius_meilisearch.form.indexable.filterable',
+                    'options' => [
+                        'template' => '@SyliusUi/Grid/Field/enabled.html.twig',
+                    ],
+                ],
+                'facetable' => [
+                    'type' => 'twig',
+                    'label' => 'setono_sylius_meilisearch.form.indexable.facetable',
+                    'options' => [
+                        'template' => '@SyliusUi/Grid/Field/enabled.html.twig',
+                    ],
+                ],
+                'enabled' => [
+                    'type' => 'twig',
+                    'label' => 'sylius.ui.enabled',
+                    'options' => [
+                        'template' => '@SyliusUi/Grid/Field/enabled.html.twig',
+                    ],
+                ],
+                'indexes' => [
+                    'type' => 'twig',
+                    'label' => 'setono_sylius_meilisearch.ui.indexes',
+                    'path' => '.',
+                    'options' => [
+                        'template' => '@SetonoSyliusMeilisearchPlugin/admin/grid/field/_indexes.html.twig',
+                    ],
+                ],
+            ],
+            'filters' => [
+                'code' => [
+                    'type' => 'string',
+                    'label' => 'sylius.ui.code',
+                    'options' => [
+                        // the code lives on the associated product attribute/option
+                        'fields' => [sprintf('%s.code', $subjectProperty)],
+                    ],
+                ],
+                'enabled' => [
+                    'type' => 'boolean',
+                    'label' => 'sylius.ui.enabled',
+                ],
+                'indexes' => [
+                    'type' => 'indexes',
+                    'label' => 'setono_sylius_meilisearch.ui.indexes',
+                    'form_options' => [
+                        'placeholder' => 'sylius.ui.all',
+                        'dynamic_fields_only' => true,
+                    ],
+                ],
+            ],
+            'actions' => [
+                'main' => [
+                    'create' => [
+                        'type' => 'create',
+                    ],
+                ],
+                'item' => [
+                    'update' => [
+                        'type' => 'update',
+                    ],
+                    'delete' => [
+                        'type' => 'delete',
+                    ],
+                ],
+                'bulk' => [
+                    'delete' => [
+                        'type' => 'delete',
+                    ],
+                ],
+            ],
+        ];
     }
 
     public function prepend(ContainerBuilder $container): void
@@ -222,6 +325,8 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                         ],
                     ],
                 ],
+                'setono_sylius_meilisearch_admin_indexable_attribute' => self::indexableSubjectGrid('%setono_sylius_meilisearch.model.indexable_attribute.class%', 'attribute'),
+                'setono_sylius_meilisearch_admin_indexable_option' => self::indexableSubjectGrid('%setono_sylius_meilisearch.model.indexable_option.class%', 'option'),
             ],
         ]);
 
@@ -317,7 +422,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
     }
 
     /**
-     *  @param array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, default_filters: array<string, bool>}> $config
+     *  @param array<string, array{document: class-string<Document>, entities: list<class-string>, data_provider: class-string, indexer: class-string|null, prefix: string|null, dynamic_fields: bool, default_filters: array<string, bool>}> $config
      */
     private static function registerIndexesConfiguration(array $config, ContainerBuilder $container): void
     {
@@ -341,6 +446,7 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                     MetadataFactoryInterface::class => new Reference(MetadataFactoryInterface::class),
                 ]),
                 '' === $index['prefix'] ? null : $index['prefix'],
+                $index['dynamic_fields'],
             ]));
 
             $indexRegistry->addMethodCall('add', [new Reference($indexServiceId)]);

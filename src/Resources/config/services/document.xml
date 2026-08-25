@@ -9,6 +9,10 @@
 
         <service id="Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactory">
             <argument type="service" id="event_dispatcher"/>
+            <!-- The plugin does not use autoconfiguration, so the reset tag must be explicit.
+                 Messenger's ResetServicesListener then clears the memoized metadata between messages,
+                 which makes long-running workers pick up admin-configured metadata changes -->
+            <tag name="kernel.reset" method="reset"/>
         </service>
     </services>
 </container>

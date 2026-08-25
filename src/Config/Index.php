@@ -12,6 +12,8 @@ use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactoryInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
+use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Component\Core\Model\ProductVariantInterface;
 
 final class Index implements \Stringable
 {
@@ -37,6 +39,11 @@ final class Index implements \Stringable
         public readonly array $entities,
         private readonly ContainerInterface $locator,
         public readonly ?string $prefix = null,
+        /**
+         * Whether this index may be targeted by the admin configured indexable attributes/options.
+         * See supportsDynamicFields(), which combines this flag with what the index actually indexes
+         */
+        public readonly bool $dynamicFields = true,
     ) {
         if (!is_a($document, Document::class, true)) {
             throw new \InvalidArgumentException(sprintf(
@@ -96,7 +103,27 @@ final class Index implements \Stringable
 
     public function metadata(): Metadata
     {
-        return $this->locator->get(MetadataFactoryInterface::class)->getMetadataFor($this->document);
+        return $this->locator->get(MetadataFactoryInterface::class)->getMetadataFor($this->document, $this);
+    }
+
+    /**
+     * Whether the admin configured indexable attributes/options apply to this index: the index must not
+     * have opted out (the dynamic_fields configuration flag), and it must index at least one entity that
+     * actually carries product attributes/options, i.e. a product or a product variant
+     */
+    public function supportsDynamicFields(): bool
+    {
+        if (!$this->dynamicFields) {
+            return false;
+        }
+
+        foreach ($this->entities as $entity) {
+            if (is_a($entity, ProductInterface::class, true) || is_a($entity, ProductVariantInterface::class, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function __toString(): string

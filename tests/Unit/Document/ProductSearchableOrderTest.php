@@ -7,8 +7,10 @@ namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Document;
 use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Document\Metadata\MetadataFactory;
 use Setono\SyliusMeilisearchPlugin\Document\Product;
+use Symfony\Component\DependencyInjection\Container;
 
 /**
  * @covers \Setono\SyliusMeilisearchPlugin\Document\Product
@@ -26,7 +28,7 @@ final class ProductSearchableOrderTest extends TestCase
     {
         $factory = new MetadataFactory($this->prophesize(EventDispatcherInterface::class)->reveal());
 
-        $metadata = $factory->getMetadataFor(Product::class);
+        $metadata = $factory->getMetadataFor(Product::class, new Index('products', Product::class, [], new Container()));
 
         self::assertSame(['name', 'taxons'], $metadata->getSearchableAttributeNames());
     }

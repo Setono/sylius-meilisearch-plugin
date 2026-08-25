@@ -2,6 +2,20 @@ setono_sylius_meilisearch:
     autocomplete:
         see_all_results: 'Alle Ergebnisse anzeigen'
     form:
+        indexable:
+            facet_position: 'Facettenposition'
+            facet_position_help: 'Niedrigere Werte werden in der Filterliste zuerst angezeigt'
+            facetable: 'Facettierbar'
+            facetable_help: 'Werte als Filter mit Anzahl auf der Suchseite anzeigen. Macht das Feld auch filterbar'
+            filterable: 'Filterbar'
+            filterable_help: 'Feld kann in Meilisearch-Filtern verwendet werden'
+            indexes: 'Indexe'
+            searchable: 'Durchsuchbar'
+            searchable_help: 'Suchanfragen mit den Werten des Feldes abgleichen'
+        indexable_attribute:
+            attribute: 'Attribut'
+        indexable_option:
+            option: 'Option'
         search:
             facet:
                 color: Color
@@ -49,8 +63,34 @@ setono_sylius_meilisearch:
             main:
                 meilisearch:
                     header: Meilisearch
+                    indexable_attributes: 'Indexierte Attribute'
+                    indexable_options: 'Indexierte Optionen'
                     synonyms: Synonyms
     ui:
+        indexable_attribute_header: 'Indexierte Attribute'
+        indexable_attribute_help: |
+            <h4>Indexed attributes</h4>
+            <p>Choose which product attributes are sent to Meilisearch and how they can be used:</p>
+            <ul>
+                <li><strong>Searchable</strong>: the search query matches against the values of the attribute.</li>
+                <li><strong>Filterable</strong>: the field can be used in filters.</li>
+                <li><strong>Facetable</strong>: the field is shown as a filter with counts on the search page. A facetable field is always filterable as well.</li>
+            </ul>
+            <p>The configuration applies per index, so you can e.g. include an attribute in your main product index while leaving another index untouched.</p>
+            <p>Saving automatically updates the index settings and reindexes the affected indexes. Note that date attributes cannot be shown as facets.</p>
+        indexable_attribute_subheader: 'Konfigurieren Sie, welche Produktattribute indexiert werden'
+        indexable_option_header: 'Indexierte Optionen'
+        indexable_option_help: |
+            <h4>Indexed options</h4>
+            <p>Choose which product options are sent to Meilisearch and how they can be used:</p>
+            <ul>
+                <li><strong>Searchable</strong>: the search query matches against the option values of the product's variants.</li>
+                <li><strong>Filterable</strong>: the field can be used in filters.</li>
+                <li><strong>Facetable</strong>: the field is shown as a filter with counts on the search page. A facetable field is always filterable as well.</li>
+            </ul>
+            <p>The configuration applies per index, so you can e.g. include an option in your main product index while leaving another index untouched.</p>
+            <p>Saving automatically updates the index settings and reindexes the affected indexes.</p>
+        indexable_option_subheader: 'Konfigurieren Sie, welche Produktoptionen indexiert werden'
         indexes: Indexes
         no_indexes: No indexes
         search: Search

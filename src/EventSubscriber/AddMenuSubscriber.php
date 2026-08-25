@@ -33,6 +33,22 @@ final class AddMenuSubscriber implements EventSubscriberInterface
             ->setLabelAttribute('icon', 'exchange')
         ;
 
+        $header
+            ->addChild('indexable_attributes', [
+                'route' => 'setono_sylius_meilisearch_admin_indexable_attribute_index',
+            ])
+            ->setLabel('setono_sylius_meilisearch.menu.admin.main.meilisearch.indexable_attributes')
+            ->setLabelAttribute('icon', 'filter')
+        ;
+
+        $header
+            ->addChild('indexable_options', [
+                'route' => 'setono_sylius_meilisearch_admin_indexable_option_index',
+            ])
+            ->setLabel('setono_sylius_meilisearch.menu.admin.main.meilisearch.indexable_options')
+            ->setLabelAttribute('icon', 'sliders horizontal')
+        ;
+
         $order = ['catalog', 'sales', 'customers', 'marketing', self::MENU_ITEM_KEY];
         $rest = array_diff(array_keys($menu->getChildren()), $order);
 

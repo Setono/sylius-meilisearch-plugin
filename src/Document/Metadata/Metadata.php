@@ -53,6 +53,13 @@ final class Metadata
     public array $imageAttributes = [];
 
     /**
+     * Fields added at runtime (e.g. from admin configuration), indexed by the field name
+     *
+     * @var array<string, DynamicField>
+     */
+    public array $dynamicFields = [];
+
+    /**
      * @param class-string<Document>|Document $document
      */
     public function __construct(string|Document $document)

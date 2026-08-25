@@ -2,6 +2,20 @@ setono_sylius_meilisearch:
     autocomplete:
         see_all_results: 'Žiūrėti visus rezultatus'
     form:
+        indexable:
+            facet_position: 'Faceto pozicija'
+            facet_position_help: 'Mažesnės reikšmės filtrų sąraše rodomos pirmos'
+            facetable: 'Facetuojamas'
+            facetable_help: 'Rodyti reikšmes kaip filtrą su skaičiais paieškos puslapyje. Laukas taip pat tampa filtruojamas'
+            filterable: 'Filtruojamas'
+            filterable_help: 'Leisti lauką Meilisearch filtruose'
+            indexes: 'Indeksai'
+            searchable: 'Ieškomas'
+            searchable_help: 'Atitikti paieškos užklausas su lauko reikšmėmis'
+        indexable_attribute:
+            attribute: 'Atributas'
+        indexable_option:
+            option: 'Parinktis'
         search:
             facet:
                 color: Color
@@ -49,8 +63,34 @@ setono_sylius_meilisearch:
             main:
                 meilisearch:
                     header: Meilisearch
+                    indexable_attributes: 'Indeksuoti atributai'
+                    indexable_options: 'Indeksuotos parinktys'
                     synonyms: Synonyms
     ui:
+        indexable_attribute_header: 'Indeksuoti atributai'
+        indexable_attribute_help: |
+            <h4>Indexed attributes</h4>
+            <p>Choose which product attributes are sent to Meilisearch and how they can be used:</p>
+            <ul>
+                <li><strong>Searchable</strong>: the search query matches against the values of the attribute.</li>
+                <li><strong>Filterable</strong>: the field can be used in filters.</li>
+                <li><strong>Facetable</strong>: the field is shown as a filter with counts on the search page. A facetable field is always filterable as well.</li>
+            </ul>
+            <p>The configuration applies per index, so you can e.g. include an attribute in your main product index while leaving another index untouched.</p>
+            <p>Saving automatically updates the index settings and reindexes the affected indexes. Note that date attributes cannot be shown as facets.</p>
+        indexable_attribute_subheader: 'Konfigūruokite, kurie produkto atributai indeksuojami'
+        indexable_option_header: 'Indeksuotos parinktys'
+        indexable_option_help: |
+            <h4>Indexed options</h4>
+            <p>Choose which product options are sent to Meilisearch and how they can be used:</p>
+            <ul>
+                <li><strong>Searchable</strong>: the search query matches against the option values of the product's variants.</li>
+                <li><strong>Filterable</strong>: the field can be used in filters.</li>
+                <li><strong>Facetable</strong>: the field is shown as a filter with counts on the search page. A facetable field is always filterable as well.</li>
+            </ul>
+            <p>The configuration applies per index, so you can e.g. include an option in your main product index while leaving another index untouched.</p>
+            <p>Saving automatically updates the index settings and reindexes the affected indexes.</p>
+        indexable_option_subheader: 'Konfigūruokite, kurios produkto parinktys indeksuojamos'
         indexes: Indexes
         no_indexes: No indexes
         search: Search

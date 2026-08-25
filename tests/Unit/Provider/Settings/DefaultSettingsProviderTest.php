@@ -36,15 +36,16 @@ final class DefaultSettingsProviderTest extends TestCase
         $metadata->searchableAttributes['name'] = new Searchable('name', 100);
         $metadata->searchableAttributes['brand'] = new Searchable('brand', 50);
 
+        $index = new Index('products', ProductDocument::class, [Product::class], new Container());
+
         $metadataFactory = $this->prophesize(MetadataFactoryInterface::class);
-        $metadataFactory->getMetadataFor(ProductDocument::class)->willReturn($metadata);
+        $metadataFactory->getMetadataFor(ProductDocument::class, $index)->willReturn($metadata);
 
         $synonymResolver = $this->prophesize(SynonymResolverInterface::class);
         $synonymResolver->resolve(Argument::type(IndexScope::class))->willReturn([]);
 
         $provider = new DefaultSettingsProvider($synonymResolver->reveal(), $metadataFactory->reveal());
 
-        $index = new Index('products', ProductDocument::class, [Product::class], new Container());
         $settings = $provider->getSettings(new IndexScope($index));
 
         self::assertSame(['name', 'brand', 'description'], $settings->searchableAttributes->jsonSerialize());
@@ -57,15 +58,16 @@ final class DefaultSettingsProviderTest extends TestCase
     {
         $metadata = new Metadata(ProductDocument::class);
 
+        $index = new Index('products', ProductDocument::class, [Product::class], new Container());
+
         $metadataFactory = $this->prophesize(MetadataFactoryInterface::class);
-        $metadataFactory->getMetadataFor(ProductDocument::class)->willReturn($metadata);
+        $metadataFactory->getMetadataFor(ProductDocument::class, $index)->willReturn($metadata);
 
         $synonymResolver = $this->prophesize(SynonymResolverInterface::class);
         $synonymResolver->resolve(Argument::type(IndexScope::class))->willReturn([]);
 
         $provider = new DefaultSettingsProvider($synonymResolver->reveal(), $metadataFactory->reveal());
 
-        $index = new Index('products', ProductDocument::class, [Product::class], new Container());
         $settings = $provider->getSettings(new IndexScope($index));
 
         self::assertSame(['*'], $settings->searchableAttributes->jsonSerialize());

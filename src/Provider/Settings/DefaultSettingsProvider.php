@@ -21,7 +21,7 @@ final class DefaultSettingsProvider implements SettingsProviderInterface
     {
         $settings = new Settings();
 
-        $metadata = $this->metadataFactory->getMetadataFor($indexScope->index->document);
+        $metadata = $this->metadataFactory->getMetadataFor($indexScope->index->document, $indexScope->index);
 
         $settings->filterableAttributes->add(...$metadata->getFilterableAttributeNames());
         $settings->searchableAttributes->add(...$metadata->getSearchableAttributeNames());
