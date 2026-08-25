@@ -5,15 +5,10 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Repository;
 
 use Setono\SyliusMeilisearchPlugin\Model\IndexableAttributeInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
 
 /**
- * @extends RepositoryInterface<IndexableAttributeInterface>
+ * @extends IndexableSubjectRepositoryInterface<IndexableAttributeInterface>
  */
-interface IndexableAttributeRepositoryInterface extends IndexableSubjectRepositoryInterface, RepositoryInterface
+interface IndexableAttributeRepositoryInterface extends IndexableSubjectRepositoryInterface
 {
-    /**
-     * @return array<array-key, IndexableAttributeInterface>
-     */
-    public function findEnabledByIndex(string $index): array;
 }
