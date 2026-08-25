@@ -234,7 +234,6 @@ The admin-managed configuration is the exception: saving a synonym pushes the sy
 - **Supervise the worker(s)** running `messenger:consume` (see above) and monitor the failure transport. Run a single consumer for the plugin's transport (see the note above).
 - **Plan for the rebuild's disk usage.** During a rebuild each index briefly exists twice (live + `__rebuild`), so Meilisearch needs transient headroom of roughly one extra copy of your largest index.
 - Entity changes saved **while** a rebuild is running are indexed into the live index and are therefore reverted by the swap moments later; the next save (or the next rebuild) restores them. With a nightly cron this window is practically irrelevant.
-- The `--delete` option is **deprecated and has no effect**: it used to delete the live index before repopulating it — leaving search empty during the rebuild — which the atomic swap makes obsolete.
 - **Drain the plugin's transport before deploying plugin upgrades.** Queued messages are serialized PHP objects; a deploy that changes the plugin's message classes can make payloads queued by the old code fail on the new workers. Let the worker empty the transport before switching code.
 - **Environment variables:** `MEILISEARCH_URL` and `MEILISEARCH_MASTER_KEY` are required; `MEILISEARCH_SEARCH_KEY` is required for search/autocomplete; `MEILISEARCH_PUBLIC_URL` and `MEILISEARCH_PREFIX` are optional.
 

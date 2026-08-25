@@ -126,8 +126,7 @@ final class IndexHandlerTest extends TestCase
             $commandBus->reveal(),
         );
 
-        // The deprecated delete flag must be ignored: no deleteIndex call is expected above
-        $handler(new IndexMessage('products', true));
+        $handler(new IndexMessage('products'));
 
         // The finalize message must be dispatched only after all batches have been dispatched
         self::assertSame(['index', 'finalize'], $calls);

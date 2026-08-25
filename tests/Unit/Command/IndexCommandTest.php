@@ -59,14 +59,13 @@ final class IndexCommandTest extends TestCase
     /**
      * @test
      */
-    public function it_prints_the_resolved_uids_and_a_delete_deprecation_warning(): void
+    public function it_prints_the_resolved_uids_and_dispatches_one_message_per_index(): void
     {
         $index = new Index('products', ProductDocument::class, [Product::class], new Container());
 
         $commandBus = $this->prophesize(MessageBusInterface::class);
-        // The deprecated --delete option must not carry over to the message
         $commandBus
-            ->dispatch(Argument::that(static fn (IndexMessage $message): bool => !$message->delete))
+            ->dispatch(Argument::that(static fn (IndexMessage $message): bool => 'products' === $message->index))
             ->shouldBeCalledOnce()
             ->willReturn(new Envelope(new \stdClass()))
         ;
@@ -87,14 +86,10 @@ final class IndexCommandTest extends TestCase
         );
 
         $tester = new CommandTester($command);
-        $tester->execute(['indexes' => ['products'], '--delete' => true]);
-
-        $display = $tester->getDisplay();
+        $tester->execute(['indexes' => ['products']]);
 
         // Names each resolved index uid
-        self::assertStringContainsString('products__fashion_web__en_us__usd', $display);
-        // The --delete warning explains that the option is obsolete
-        self::assertStringContainsString('deprecated and has no effect', $display);
+        self::assertStringContainsString('products__fashion_web__en_us__usd', $tester->getDisplay());
     }
 
     /**

@@ -49,7 +49,6 @@ final class IndexCommand extends Command
             )
             ->addOption('wait', 'w', InputOption::VALUE_NONE, 'Wait for the indexing to finish')
             ->addOption('wait-timeout', 't', InputOption::VALUE_REQUIRED, 'The maximum time to wait for the indexing to finish in seconds. This is only relevant if you have enabled the "wait" option', 300)
-            ->addOption('delete', 'd', InputOption::VALUE_NONE, 'DEPRECATED: has no effect. A plain run rebuilds each index atomically and purges stale documents')
         ;
     }
 
@@ -85,12 +84,6 @@ final class IndexCommand extends Command
     {
         /** @var list<string> $indexes */
         $indexes = $input->getArgument('indexes');
-
-        if ((bool) $input->getOption('delete')) {
-            trigger_deprecation('setono/sylius-meilisearch-plugin', '0.3', 'The --delete option of the setono:sylius-meilisearch:index command is deprecated and has no effect.');
-
-            $output->writeln('<comment>The --delete option is deprecated and has no effect: a plain run now rebuilds each index into a temporary index and atomically swaps it with the live index, which purges stale documents without any search downtime.</comment>');
-        }
 
         $liveUids = [];
 
