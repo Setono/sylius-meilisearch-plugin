@@ -16,8 +16,8 @@ final class MetadataCreated
 {
     public function __construct(
         public readonly Metadata $metadata,
-        /** The index the metadata is resolved for, or null when resolved without index context */
-        public readonly ?Index $index = null,
+        /** The index the metadata is resolved for */
+        public readonly Index $index,
     ) {
     }
 }

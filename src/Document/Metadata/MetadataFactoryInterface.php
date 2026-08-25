@@ -10,9 +10,10 @@ use Setono\SyliusMeilisearchPlugin\Document\Document;
 interface MetadataFactoryInterface
 {
     /**
+     * Metadata is a function of both the document class AND the index it is resolved for: listeners
+     * merge index specific attributes (e.g. the admin configured indexable attributes/options) into it
+     *
      * @param class-string<Document>|Document $document
-     * @param Index|null $index When given, the metadata is resolved for that index specifically, which allows
-     *                          listeners to add index-specific attributes (e.g. admin-configured product attributes)
      */
-    public function getMetadataFor(string|Document $document, ?Index $index = null): Metadata;
+    public function getMetadataFor(string|Document $document, Index $index): Metadata;
 }

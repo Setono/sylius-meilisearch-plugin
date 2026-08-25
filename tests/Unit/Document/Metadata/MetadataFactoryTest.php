@@ -28,7 +28,7 @@ final class MetadataFactoryTest extends TestCase
 
         $factory = new MetadataFactory($eventDispatcher->reveal());
 
-        $metadata = $factory->getMetadataFor(Document::class);
+        $metadata = $factory->getMetadataFor(Document::class, self::createIndex('products'));
 
         self::assertCount(5, $metadata->filterableAttributes);
         self::assertArrayHasKey('size', $metadata->filterableAttributes);
@@ -68,10 +68,12 @@ final class MetadataFactoryTest extends TestCase
 
         $factory = new MetadataFactory($eventDispatcher->reveal());
 
-        $metadata = $factory->getMetadataFor(Document::class);
+        $index = self::createIndex('products');
 
-        self::assertSame($metadata, $factory->getMetadataFor(Document::class));
-        self::assertSame($metadata, $factory->getMetadataFor(new Document()));
+        $metadata = $factory->getMetadataFor(Document::class, $index);
+
+        self::assertSame($metadata, $factory->getMetadataFor(Document::class, $index));
+        self::assertSame($metadata, $factory->getMetadataFor(new Document(), $index));
     }
 
     /**
@@ -85,7 +87,7 @@ final class MetadataFactoryTest extends TestCase
         $eventDispatcher->dispatch(Argument::type(MetadataCreated::class))->will(function (array $args) use (&$dispatchedIndexes): MetadataCreated {
             /** @var MetadataCreated $event */
             $event = $args[0];
-            $dispatchedIndexes[] = $event->index?->name;
+            $dispatchedIndexes[] = $event->index->name;
 
             return $event;
         });
@@ -95,14 +97,12 @@ final class MetadataFactoryTest extends TestCase
         $products = self::createIndex('products');
         $autocomplete = self::createIndex('products_autocomplete');
 
-        $withoutIndex = $factory->getMetadataFor(Document::class);
         $forProducts = $factory->getMetadataFor(Document::class, $products);
         $forAutocomplete = $factory->getMetadataFor(Document::class, $autocomplete);
 
-        self::assertNotSame($withoutIndex, $forProducts);
         self::assertNotSame($forProducts, $forAutocomplete);
         self::assertSame($forProducts, $factory->getMetadataFor(Document::class, $products));
-        self::assertSame([null, 'products', 'products_autocomplete'], $dispatchedIndexes);
+        self::assertSame(['products', 'products_autocomplete'], $dispatchedIndexes);
     }
 
     /**
@@ -115,10 +115,12 @@ final class MetadataFactoryTest extends TestCase
 
         $factory = new MetadataFactory($eventDispatcher->reveal());
 
-        $metadata = $factory->getMetadataFor(Document::class);
+        $index = self::createIndex('products');
+
+        $metadata = $factory->getMetadataFor(Document::class, $index);
         $factory->reset();
 
-        self::assertNotSame($metadata, $factory->getMetadataFor(Document::class));
+        self::assertNotSame($metadata, $factory->getMetadataFor(Document::class, $index));
     }
 
     private static function createIndex(string $name): Index

@@ -12,5 +12,5 @@ interface DocumentPropertyValuesSetterInterface
     /**
      * @param array<string, bool|float|int|string|list<string>> $attributes
      */
-    public function setFor(Document $target, array $attributes, ?Index $index = null): void;
+    public function setFor(Document $target, array $attributes, Index $index): void;
 }

@@ -31,13 +31,13 @@ final class MetadataFactory implements MetadataFactoryInterface, ResetInterface
     {
     }
 
-    public function getMetadataFor(string|Document $document, ?Index $index = null): Metadata
+    public function getMetadataFor(string|Document $document, Index $index): Metadata
     {
         if ($document instanceof Document) {
             $document = $document::class;
         }
 
-        $key = $document . '|' . ($index->name ?? '');
+        $key = $document . '|' . $index->name;
 
         if (isset($this->loadedClasses[$key])) {
             return $this->loadedClasses[$key];

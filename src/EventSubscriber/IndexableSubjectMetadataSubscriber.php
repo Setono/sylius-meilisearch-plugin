@@ -48,10 +48,9 @@ final class IndexableSubjectMetadataSubscriber implements EventSubscriberInterfa
 
     public function onMetadataCreated(MetadataCreated $event): void
     {
-        // Without index context we cannot know which configuration rows apply. And an ineligible
-        // index (opted out via the dynamic_fields flag, or not indexing products/variants) must stay
-        // untouched even when stale rows still reference it
-        if (null === $event->index || !$event->index->supportsDynamicFields()) {
+        // An ineligible index (opted out via the dynamic_fields flag, or not indexing
+        // products/variants) must stay untouched even when stale rows still reference it
+        if (!$event->index->supportsDynamicFields()) {
             return;
         }
 

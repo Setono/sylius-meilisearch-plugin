@@ -17,7 +17,7 @@ final class DocumentAttributesValuesSetter implements DocumentPropertyValuesSett
     /**
      * @param array<string, bool|float|int|string|list<string>> $attributes
      */
-    public function setFor(Document $target, array $attributes, ?Index $index = null): void
+    public function setFor(Document $target, array $attributes, Index $index): void
     {
         $metadata = $this->metadataFactory->getMetadataFor($target, $index);
 

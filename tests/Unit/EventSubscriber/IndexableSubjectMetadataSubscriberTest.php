@@ -164,7 +164,7 @@ final class IndexableSubjectMetadataSubscriberTest extends TestCase
     /**
      * @test
      */
-    public function it_does_nothing_without_index_context_or_for_ineligible_indexes(): void
+    public function it_does_nothing_for_ineligible_indexes(): void
     {
         $attributeRepository = $this->prophesize(IndexableAttributeRepositoryInterface::class);
         $attributeRepository->findEnabledByIndex(Argument::any())->shouldNotBeCalled();
@@ -177,9 +177,6 @@ final class IndexableSubjectMetadataSubscriberTest extends TestCase
             $optionRepository->reveal(),
             new NullLogger(),
         );
-
-        // no index context
-        $subscriber->onMetadataCreated(new MetadataCreated(new Metadata(ProductDocument::class)));
 
         // an index without product(ish) entities
         $subscriber->onMetadataCreated(new MetadataCreated(
