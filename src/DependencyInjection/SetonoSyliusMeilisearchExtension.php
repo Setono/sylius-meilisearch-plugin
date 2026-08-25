@@ -97,10 +97,11 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
 
     /**
      * The IndexableAttribute and IndexableOption grids are identical except for the resource class
+     * and the name of the association holding the product attribute/option
      *
      * @return array<string, mixed>
      */
-    private static function indexableSubjectGrid(string $class): array
+    private static function indexableSubjectGrid(string $class, string $subjectProperty): array
     {
         return [
             'driver' => [
@@ -156,6 +157,10 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                 'code' => [
                     'type' => 'string',
                     'label' => 'sylius.ui.code',
+                    'options' => [
+                        // the code lives on the associated product attribute/option
+                        'fields' => [sprintf('%s.code', $subjectProperty)],
+                    ],
                 ],
                 'enabled' => [
                     'type' => 'boolean',
@@ -320,8 +325,8 @@ final class SetonoSyliusMeilisearchExtension extends AbstractResourceExtension i
                         ],
                     ],
                 ],
-                'setono_sylius_meilisearch_admin_indexable_attribute' => self::indexableSubjectGrid('%setono_sylius_meilisearch.model.indexable_attribute.class%'),
-                'setono_sylius_meilisearch_admin_indexable_option' => self::indexableSubjectGrid('%setono_sylius_meilisearch.model.indexable_option.class%'),
+                'setono_sylius_meilisearch_admin_indexable_attribute' => self::indexableSubjectGrid('%setono_sylius_meilisearch.model.indexable_attribute.class%', 'attribute'),
+                'setono_sylius_meilisearch_admin_indexable_option' => self::indexableSubjectGrid('%setono_sylius_meilisearch.model.indexable_option.class%', 'option'),
             ],
         ]);
 

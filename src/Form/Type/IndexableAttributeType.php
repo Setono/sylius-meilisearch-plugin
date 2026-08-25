@@ -7,6 +7,8 @@ namespace Setono\SyliusMeilisearchPlugin\Form\Type;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableAttributeInterface;
 use Sylius\Component\Product\Model\ProductAttributeInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
 
 final class IndexableAttributeType extends IndexableSubjectType
 {
@@ -23,20 +25,17 @@ final class IndexableAttributeType extends IndexableSubjectType
         parent::__construct($dataClass, $validationGroups);
     }
 
-    protected function getCodeChoices(): array
+    protected function addSubjectField(FormBuilderInterface $builder): void
     {
-        $choices = [];
-        foreach ($this->productAttributeRepository->findAll() as $attribute) {
-            $choices[sprintf('%s (%s)', (string) $attribute->getName(), (string) $attribute->getCode())] = (string) $attribute->getCode();
-        }
+        $choices = $this->productAttributeRepository->findAll();
+        usort($choices, static fn (ProductAttributeInterface $a, ProductAttributeInterface $b): int => (string) $a->getName() <=> (string) $b->getName());
 
-        ksort($choices);
-
-        return $choices;
-    }
-
-    protected function getCodeLabel(): string
-    {
-        return 'setono_sylius_meilisearch.form.indexable_attribute.attribute';
+        $builder->add('attribute', ChoiceType::class, [
+            'label' => 'setono_sylius_meilisearch.form.indexable_attribute.attribute',
+            'choices' => $choices,
+            'choice_value' => 'code',
+            'choice_label' => 'name',
+            'choice_translation_domain' => false,
+        ]);
     }
 }

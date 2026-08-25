@@ -154,7 +154,7 @@ class Product extends BaseProduct implements IndexableInterface
 
 ### 6. Update your database schema
 
-The plugin ships the `Synonym`, `IndexableAttribute` and `IndexableOption` resources, so create and run a migration (you may also want to add a unique index over `code` on the `setono_sylius_meilisearch__indexable_attribute` and `setono_sylius_meilisearch__indexable_option` tables - the plugin only enforces the uniqueness with a validator):
+The plugin ships the `Synonym`, `IndexableAttribute` and `IndexableOption` resources, so create and run a migration:
 
 ```shell
 php bin/console doctrine:migrations:diff

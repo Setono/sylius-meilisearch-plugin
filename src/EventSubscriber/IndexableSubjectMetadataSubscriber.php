@@ -16,8 +16,6 @@ use Setono\SyliusMeilisearchPlugin\Model\IndexableOptionInterface;
 use Setono\SyliusMeilisearchPlugin\Repository\IndexableAttributeRepositoryInterface;
 use Setono\SyliusMeilisearchPlugin\Repository\IndexableOptionRepositoryInterface;
 use Sylius\Component\Attribute\Model\AttributeValueInterface;
-use Sylius\Component\Product\Model\ProductAttributeInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -33,13 +31,9 @@ final class IndexableSubjectMetadataSubscriber implements EventSubscriberInterfa
      */
     private const CODE_PATTERN = '/^[A-Za-z0-9][A-Za-z0-9_-]*$/';
 
-    /**
-     * @param RepositoryInterface<ProductAttributeInterface> $productAttributeRepository
-     */
     public function __construct(
         private readonly IndexableAttributeRepositoryInterface $indexableAttributeRepository,
         private readonly IndexableOptionRepositoryInterface $indexableOptionRepository,
-        private readonly RepositoryInterface $productAttributeRepository,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -69,30 +63,24 @@ final class IndexableSubjectMetadataSubscriber implements EventSubscriberInterfa
      */
     private function mergeAttributes(Metadata $metadata, array $rows): void
     {
-        if ([] === $rows) {
-            return;
-        }
-
-        $storageTypes = $this->getStorageTypes($rows);
-
         foreach ($rows as $row) {
             $code = $row->getCode();
             if (null === $code || !$this->hasSafeCode($row, 'product attribute')) {
                 continue;
             }
 
-            if (!isset($storageTypes[$code])) {
-                $this->logger->warning(sprintf(
-                    'The product attribute "%s" is configured to be indexed, but it does not exist (anymore). It was skipped',
-                    $code,
-                ));
-
+            $attribute = $row->getAttribute();
+            if (null === $attribute) {
                 continue;
             }
 
-            $fieldType = self::resolveFieldType($storageTypes[$code]);
-
-            $this->merge($metadata, $row, DynamicField::SOURCE_ATTRIBUTE, sprintf('attr_%s', $code), $fieldType);
+            $this->merge(
+                $metadata,
+                $row,
+                DynamicField::SOURCE_ATTRIBUTE,
+                sprintf('attr_%s', $code),
+                self::resolveFieldType($attribute->getStorageType()),
+            );
         }
     }
 
@@ -173,34 +161,6 @@ final class IndexableSubjectMetadataSubscriber implements EventSubscriberInterfa
         ));
 
         return false;
-    }
-
-    /**
-     * Returns the storage types of the product attributes referenced by the given rows, indexed by code
-     *
-     * @param array<array-key, IndexableAttributeInterface> $rows
-     *
-     * @return array<string, string|null>
-     */
-    private function getStorageTypes(array $rows): array
-    {
-        $codes = [];
-        foreach ($rows as $row) {
-            if (null !== $row->getCode()) {
-                $codes[] = $row->getCode();
-            }
-        }
-
-        if ([] === $codes) {
-            return [];
-        }
-
-        $storageTypes = [];
-        foreach ($this->productAttributeRepository->findBy(['code' => $codes]) as $attribute) {
-            $storageTypes[(string) $attribute->getCode()] = $attribute->getStorageType();
-        }
-
-        return $storageTypes;
     }
 
     /**

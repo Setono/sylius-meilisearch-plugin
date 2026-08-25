@@ -149,7 +149,6 @@ final class IndexableSubjectListenerTest extends TestCase
      */
     private static function configure(IndexableSubject $row, array $indexes): void
     {
-        $row->setCode('color');
         foreach ($indexes as $index) {
             $row->addIndex($index);
         }

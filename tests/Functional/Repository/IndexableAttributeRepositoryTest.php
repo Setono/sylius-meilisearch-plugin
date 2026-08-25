@@ -9,6 +9,8 @@ use Doctrine\Persistence\ObjectManager;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableAttribute;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableAttributeInterface;
 use Setono\SyliusMeilisearchPlugin\Repository\IndexableAttributeRepositoryInterface;
+use Sylius\Component\Product\Model\ProductAttributeInterface;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
@@ -34,9 +36,13 @@ final class IndexableAttributeRepositoryTest extends KernelTestCase
         /** @var ObjectManager $manager */
         $manager = $registry->getManagerForClass(IndexableAttribute::class);
 
-        $productsRow = self::createRow('substring_safety_products', ['products']);
-        $productsV2Row = self::createRow('substring_safety_products_v2', ['products_v2']);
-        $disabledRow = self::createRow('substring_safety_disabled', ['products'], enabled: false);
+        /** @var RepositoryInterface<ProductAttributeInterface> $productAttributeRepository */
+        $productAttributeRepository = $container->get('sylius.repository.product_attribute');
+
+        // these product attributes are defined in the test app's fixtures
+        $productsRow = self::createRow(self::findAttribute($productAttributeRepository, 'color'), ['products']);
+        $productsV2Row = self::createRow(self::findAttribute($productAttributeRepository, 'eco_friendly'), ['products_v2']);
+        $disabledRow = self::createRow(self::findAttribute($productAttributeRepository, 'production_date'), ['products'], enabled: false);
 
         $manager->persist($productsRow);
         $manager->persist($productsV2Row);
@@ -52,9 +58,9 @@ final class IndexableAttributeRepositoryTest extends KernelTestCase
                 array_values($repository->findEnabledByIndex('products')),
             );
 
-            self::assertContains('substring_safety_products', $codes);
-            self::assertNotContains('substring_safety_products_v2', $codes);
-            self::assertNotContains('substring_safety_disabled', $codes);
+            self::assertContains('color', $codes);
+            self::assertNotContains('eco_friendly', $codes);
+            self::assertNotContains('production_date', $codes);
         } finally {
             $manager->remove($productsRow);
             $manager->remove($productsV2Row);
@@ -64,12 +70,23 @@ final class IndexableAttributeRepositoryTest extends KernelTestCase
     }
 
     /**
+     * @param RepositoryInterface<ProductAttributeInterface> $repository
+     */
+    private static function findAttribute(RepositoryInterface $repository, string $code): ProductAttributeInterface
+    {
+        $attribute = $repository->findOneBy(['code' => $code]);
+        self::assertInstanceOf(ProductAttributeInterface::class, $attribute);
+
+        return $attribute;
+    }
+
+    /**
      * @param list<string> $indexes
      */
-    private static function createRow(string $code, array $indexes, bool $enabled = true): IndexableAttribute
+    private static function createRow(ProductAttributeInterface $attribute, array $indexes, bool $enabled = true): IndexableAttribute
     {
         $row = new IndexableAttribute();
-        $row->setCode($code);
+        $row->setAttribute($attribute);
         $row->setSearchable(true);
         foreach ($indexes as $index) {
             $row->addIndex($index);

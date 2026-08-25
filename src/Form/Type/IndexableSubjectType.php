@@ -6,7 +6,6 @@ namespace Setono\SyliusMeilisearchPlugin\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -17,12 +16,9 @@ abstract class IndexableSubjectType extends AbstractResourceType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $this->addSubjectField($builder);
+
         $builder
-            ->add('code', ChoiceType::class, [
-                'choices' => $this->getCodeChoices(),
-                'label' => $this->getCodeLabel(),
-                'choice_translation_domain' => false,
-            ])
             ->add('searchable', CheckboxType::class, [
                 'label' => 'setono_sylius_meilisearch.form.indexable.searchable',
                 'help' => 'setono_sylius_meilisearch.form.indexable.searchable_help',
@@ -58,9 +54,7 @@ abstract class IndexableSubjectType extends AbstractResourceType
     }
 
     /**
-     * @return array<string, string> a map of [choice label => code]
+     * Adds the field that binds the row to its product attribute/option
      */
-    abstract protected function getCodeChoices(): array;
-
-    abstract protected function getCodeLabel(): string;
+    abstract protected function addSubjectField(FormBuilderInterface $builder): void;
 }

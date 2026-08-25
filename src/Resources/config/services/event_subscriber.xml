@@ -9,7 +9,6 @@
         <service id="Setono\SyliusMeilisearchPlugin\EventSubscriber\IndexableSubjectMetadataSubscriber">
             <argument type="service" id="setono_sylius_meilisearch.repository.indexable_attribute"/>
             <argument type="service" id="setono_sylius_meilisearch.repository.indexable_option"/>
-            <argument type="service" id="sylius.repository.product_attribute"/>
             <argument type="service" id="logger"/>
 
             <tag name="kernel.event_subscriber"/>

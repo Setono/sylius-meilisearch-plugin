@@ -18,8 +18,6 @@ abstract class IndexableSubject
 
     protected ?int $id = null;
 
-    protected ?string $code = null;
-
     /** @var list<string>|null */
     protected ?array $indexes = null;
 
@@ -36,15 +34,10 @@ abstract class IndexableSubject
         return $this->id;
     }
 
-    public function getCode(): ?string
-    {
-        return $this->code;
-    }
-
-    public function setCode(?string $code): void
-    {
-        $this->code = $code;
-    }
+    /**
+     * The code of the associated product attribute/option
+     */
+    abstract public function getCode(): ?string;
 
     /**
      * @return list<string>

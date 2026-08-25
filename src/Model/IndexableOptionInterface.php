@@ -4,20 +4,26 @@ declare(strict_types=1);
 
 namespace Setono\SyliusMeilisearchPlugin\Model;
 
+use Sylius\Component\Product\Model\ProductOptionInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 use Sylius\Component\Resource\Model\ToggleableInterface;
 
 /**
- * Configures a Sylius product option (referenced by its code) to be indexed in Meilisearch
+ * Configures a Sylius product option to be indexed in Meilisearch
  */
 interface IndexableOptionInterface extends ResourceInterface, ToggleableInterface, TimestampableInterface
 {
     public function getId(): ?int;
 
-    public function getCode(): ?string;
+    public function getOption(): ?ProductOptionInterface;
 
-    public function setCode(?string $code): void;
+    public function setOption(?ProductOptionInterface $option): void;
+
+    /**
+     * The code of the associated product option
+     */
+    public function getCode(): ?string;
 
     /**
      * @return list<string>

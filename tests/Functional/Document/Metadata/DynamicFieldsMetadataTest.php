@@ -12,6 +12,9 @@ use Setono\SyliusMeilisearchPlugin\Model\IndexableOption;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableSubject;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProviderInterface;
+use Sylius\Component\Product\Model\ProductAttributeInterface;
+use Sylius\Component\Product\Model\ProductOptionInterface;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
@@ -37,13 +40,19 @@ final class DynamicFieldsMetadataTest extends KernelTestCase
         /** @var ObjectManager $manager */
         $manager = $registry->getManagerForClass(IndexableAttribute::class);
 
-        // these attribute codes are defined in the test app's fixtures (see _sylius.yaml):
+        /** @var RepositoryInterface<ProductAttributeInterface> $attributeRepository */
+        $attributeRepository = $container->get('sylius.repository.product_attribute');
+
+        /** @var RepositoryInterface<ProductOptionInterface> $optionRepository */
+        $optionRepository = $container->get('sylius.repository.product_option');
+
+        // these attributes/options are defined in the test app's fixtures (see _sylius.yaml):
         // color is a multi select, eco_friendly a checkbox and production_date a date
         $rows = [
-            self::configure(new IndexableAttribute(), 'color', facetable: true),
-            self::configure(new IndexableAttribute(), 'eco_friendly', facetable: true),
-            self::configure(new IndexableAttribute(), 'production_date', searchable: true),
-            self::configure(new IndexableOption(), 'dress_size', facetable: true),
+            self::configure(self::attributeRow($attributeRepository, 'color'), facetable: true),
+            self::configure(self::attributeRow($attributeRepository, 'eco_friendly'), facetable: true),
+            self::configure(self::attributeRow($attributeRepository, 'production_date'), searchable: true),
+            self::configure(self::optionRow($optionRepository, 'dress_size'), facetable: true),
         ];
 
         foreach ($rows as $row) {
@@ -92,6 +101,34 @@ final class DynamicFieldsMetadataTest extends KernelTestCase
     }
 
     /**
+     * @param RepositoryInterface<ProductAttributeInterface> $repository
+     */
+    private static function attributeRow(RepositoryInterface $repository, string $code): IndexableAttribute
+    {
+        $attribute = $repository->findOneBy(['code' => $code]);
+        self::assertInstanceOf(ProductAttributeInterface::class, $attribute);
+
+        $row = new IndexableAttribute();
+        $row->setAttribute($attribute);
+
+        return $row;
+    }
+
+    /**
+     * @param RepositoryInterface<ProductOptionInterface> $repository
+     */
+    private static function optionRow(RepositoryInterface $repository, string $code): IndexableOption
+    {
+        $option = $repository->findOneBy(['code' => $code]);
+        self::assertInstanceOf(ProductOptionInterface::class, $option);
+
+        $row = new IndexableOption();
+        $row->setOption($option);
+
+        return $row;
+    }
+
+    /**
      * @template T of IndexableSubject
      *
      * @param T $row
@@ -100,11 +137,9 @@ final class DynamicFieldsMetadataTest extends KernelTestCase
      */
     private static function configure(
         IndexableSubject $row,
-        string $code,
         bool $searchable = false,
         bool $facetable = false,
     ): IndexableSubject {
-        $row->setCode($code);
         $row->setSearchable($searchable);
         $row->setFacetable($facetable);
         $row->addIndex('products');
