@@ -91,7 +91,7 @@ setono_sylius_meilisearch:
     resource: "@SetonoSyliusMeilisearchPlugin/Resources/config/routes_no_locale.yaml"
 ```
 
-This registers the shop search page (`/search`), the search widget endpoint, and the synonym CRUD in the admin.
+This registers the shop search page (`/search`), the search widget endpoint, and the admin CRUDs (synonyms and the indexed attributes/options).
 
 #### Taxon pages
 
@@ -206,7 +206,9 @@ php bin/console messenger:consume setono_sylius_meilisearch --time-limit=3600
 
 Meilisearch index settings — `filterableAttributes` (from `#[Facetable]`), `sortableAttributes` (from `#[Sortable]`), `searchableAttributes` (from `#[Searchable]`), synonyms, etc. — are pushed **only** by the full `setono:sylius-meilisearch:index` command. Incremental Doctrine-event indexing updates documents, never settings.
 
-> **After changing document attributes** (adding/removing a `#[Facetable]`, `#[Sortable]`, `#[Searchable]`, changing a priority, …) **run `setono:sylius-meilisearch:index`.** Waiting for auto-indexing leaves the new facet/sort silently non-functional because its setting was never applied.
+The admin-managed configuration is the exception: saving a synonym pushes the synonyms setting, and saving an indexed attribute/option row runs the full index command for the affected indexes automatically (see [Indexed attributes & options](#indexed-attributes--options)).
+
+> **After changing document attributes in code** (adding/removing a `#[Facetable]`, `#[Sortable]`, `#[Searchable]`, changing a priority, …) **run `setono:sylius-meilisearch:index`.** Waiting for auto-indexing leaves the new facet/sort silently non-functional because its setting was never applied.
 
 ### Production checklist
 
@@ -530,6 +532,9 @@ instead of failing.
 
 Notes and limitations:
 
+- A row references its product attribute/option by a foreign key: each attribute/option can be
+  configured at most once (enforced by a unique constraint), and deleting the attribute/option in
+  Sylius removes its configuration with it — run a reindex afterwards so the index shrinks accordingly
 - The configuration is per index (a row lists the indexes it applies to), but a row's roles apply to
   every index it targets. Attributes and options are managed on separate screens, mirroring the Catalog
   section of the Sylius admin
