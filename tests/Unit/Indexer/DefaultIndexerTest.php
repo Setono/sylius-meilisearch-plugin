@@ -333,7 +333,7 @@ final class DefaultIndexerTest extends TestCase
             new SpyLogger(),
         );
 
-        $indexer->index(rebuild: true);
+        $indexer->index();
     }
 
     /**

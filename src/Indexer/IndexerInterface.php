@@ -9,14 +9,13 @@ use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 interface IndexerInterface
 {
     /**
-     * Will index _all_ entities on the associated index
-     *
-     * When $rebuild is true, the documents are written to the rebuild index of each scope (see
-     * \Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid) instead of the live index.
-     * The caller is responsible for finalizing the rebuild — i.e. atomically swapping the rebuild
-     * indexes with the live indexes — by dispatching the FinalizeIndexRebuild message afterwards.
+     * Will index _all_ entities on the associated index by writing them to the rebuild index of
+     * each scope (see \Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid). This is one
+     * step of the full-rebuild protocol driven by the Index message: the rebuild indexes are
+     * prepared before this method is called, and the rebuild is finalized — atomically swapped
+     * with the live indexes — by the FinalizeIndexRebuild message dispatched afterwards.
      */
-    public function index(bool $rebuild = false): void;
+    public function index(): void;
 
     /**
      * Will index a single entity

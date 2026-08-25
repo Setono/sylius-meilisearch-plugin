@@ -62,7 +62,7 @@ final class IndexHandlerTest extends TestCase
         $calls = [];
 
         $indexer = $this->prophesize(IndexerInterface::class);
-        $indexer->index(true)->shouldBeCalledOnce()->will(function () use (&$calls): void {
+        $indexer->index()->shouldBeCalledOnce()->will(function () use (&$calls): void {
             $calls[] = 'index';
         });
 
@@ -138,7 +138,7 @@ final class IndexHandlerTest extends TestCase
     public function it_deletes_a_leftover_rebuild_index_before_rebuilding(): void
     {
         $indexer = $this->prophesize(IndexerInterface::class);
-        $indexer->index(true)->shouldBeCalledOnce();
+        $indexer->index()->shouldBeCalledOnce();
 
         $locator = new Container();
         $locator->set(IndexerInterface::class, $indexer->reveal());
@@ -189,7 +189,7 @@ final class IndexHandlerTest extends TestCase
     public function it_does_not_index_or_finalize_when_there_are_no_scopes(): void
     {
         $indexer = $this->prophesize(IndexerInterface::class);
-        $indexer->index(Argument::cetera())->shouldNotBeCalled();
+        $indexer->index()->shouldNotBeCalled();
 
         $locator = new Container();
         $locator->set(IndexerInterface::class, $indexer->reveal());

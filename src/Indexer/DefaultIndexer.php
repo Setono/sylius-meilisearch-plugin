@@ -46,18 +46,18 @@ class DefaultIndexer extends AbstractIndexer
         $this->managerRegistry = $managerRegistry;
     }
 
-    public function index(bool $rebuild = false): void
+    public function index(): void
     {
         foreach ($this->index->entities as $entity) {
             /** @var IndexBuffer<string|int> $buffer */
             $buffer = new IndexBuffer(
                 100,
                 /** @param list<string|int> $ids */
-                function (array $ids) use ($entity, $rebuild): void {
+                function (array $ids) use ($entity): void {
                     // The batch is constrained to this index: without that, the handler would fan it
                     // out to every index configured for the entity class, and a rebuild batch would
                     // write into rebuild indexes that are never swapped
-                    $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids, $this->index->name, $rebuild));
+                    $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids, $this->index->name, rebuild: true));
                 },
             );
 

@@ -72,7 +72,7 @@ final class IndexHandler
             return;
         }
 
-        $index->indexer()->index(rebuild: true);
+        $index->indexer()->index();
 
         // Dispatched after the IndexEntities batches above so that, on the same (FIFO) transport,
         // it is handled only once every batch has been pushed to Meilisearch
