@@ -21,13 +21,23 @@ final class TaskIndexUidChoiceType extends AbstractType
         $resolver->setDefaults([
             'choices' => function (Options $options): array {
                 try {
-                    $uids = $this->indexUidsProvider->getFlattened();
+                    $uidsByIndex = $this->indexUidsProvider->getAll();
                 } catch (\Throwable) {
                     // enumerating index scopes queries the database, and the filter form should not break if that fails
                     return [];
                 }
 
-                return array_combine($uids, $uids);
+                // a nested array renders the uids grouped per configured index as optgroups
+                $choices = [];
+                foreach ($uidsByIndex as $index => $uids) {
+                    if ([] === $uids) {
+                        continue;
+                    }
+
+                    $choices[ucfirst($index)] = array_combine($uids, $uids);
+                }
+
+                return $choices;
             },
         ]);
     }
