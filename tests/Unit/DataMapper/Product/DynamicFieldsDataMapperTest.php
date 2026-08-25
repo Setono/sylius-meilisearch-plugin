@@ -46,7 +46,8 @@ final class DynamicFieldsDataMapperTest extends TestCase
             'attr_color' => new DynamicField('attr_color', DynamicField::SOURCE_ATTRIBUTE, 'color', 'array'),
             'attr_material' => new DynamicField('attr_material', DynamicField::SOURCE_ATTRIBUTE, 'material', 'array'),
             'attr_eco_friendly' => new DynamicField('attr_eco_friendly', DynamicField::SOURCE_ATTRIBUTE, 'eco_friendly', 'bool'),
-            'attr_weight' => new DynamicField('attr_weight', DynamicField::SOURCE_ATTRIBUTE, 'weight', 'float'),
+            'attr_weight' => new DynamicField('attr_weight', DynamicField::SOURCE_ATTRIBUTE, 'weight', 'int'),
+            'attr_length' => new DynamicField('attr_length', DynamicField::SOURCE_ATTRIBUTE, 'length', 'float'),
             'attr_missing' => new DynamicField('attr_missing', DynamicField::SOURCE_ATTRIBUTE, 'missing', 'array'),
             'opt_t_shirt_size' => new DynamicField('opt_t_shirt_size', DynamicField::SOURCE_OPTION, 't_shirt_size', 'array'),
         ];
@@ -65,6 +66,7 @@ final class DynamicFieldsDataMapperTest extends TestCase
             'material' => 'Cotton',
             'eco_friendly' => true,
             'weight' => 5,
+            'length' => 2,
         ]);
         $this->optionsValuesProvider->provide($source, $indexScope)->shouldBeCalledOnce()->willReturn([
             't_shirt_size' => ['S', 'M'],
@@ -78,8 +80,9 @@ final class DynamicFieldsDataMapperTest extends TestCase
             // a scalar value of an 'array' field is wrapped so single and multi valued sources look the same
             'attr_material' => ['Cotton'],
             'attr_eco_friendly' => true,
-            // ints become floats because the search side has no 'int' type
-            'attr_weight' => 5.0,
+            'attr_weight' => 5,
+            // a numeric value of a 'float' field is coerced to float
+            'attr_length' => 2.0,
             'opt_t_shirt_size' => ['S', 'M'],
         ], $document->dynamicFields);
     }

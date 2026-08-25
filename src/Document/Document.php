@@ -35,7 +35,7 @@ abstract class Document
      * attributes/options, indexed by the field name. The bag is flattened to top level fields when
      * the document is normalized, so every key ends up as its own field in Meilisearch
      *
-     * @var array<string, bool|float|string|list<string>>
+     * @var array<string, bool|float|int|string|list<string>>
      */
     public array $dynamicFields = [];
 

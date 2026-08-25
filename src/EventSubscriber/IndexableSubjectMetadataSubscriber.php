@@ -102,7 +102,7 @@ final class IndexableSubjectMetadataSubscriber implements EventSubscriberInterfa
 
     /**
      * @param DynamicField::SOURCE_* $source
-     * @param 'array'|'bool'|'float'|'string' $fieldType
+     * @param 'array'|'bool'|'float'|'int'|'string' $fieldType
      */
     private function merge(Metadata $metadata, IndexableAttributeInterface|IndexableOptionInterface $row, string $source, string $name, string $fieldType): void
     {
@@ -164,17 +164,17 @@ final class IndexableSubjectMetadataSubscriber implements EventSubscriberInterfa
     }
 
     /**
-     * Maps a Sylius attribute storage type to the document field type. Notice that integers are mapped to
-     * float because the search side has no filter builder for the 'int' type, and date/datetime are mapped
-     * to string because they cannot be rendered as facets
+     * Maps a Sylius attribute storage type to the document field type. Notice that date/datetime are
+     * mapped to string because they cannot be rendered as facets
      *
-     * @return 'array'|'bool'|'float'|'string'
+     * @return 'array'|'bool'|'float'|'int'|'string'
      */
     private static function resolveFieldType(?string $storageType): string
     {
         return match ($storageType) {
             AttributeValueInterface::STORAGE_BOOLEAN => 'bool',
-            AttributeValueInterface::STORAGE_INTEGER, AttributeValueInterface::STORAGE_FLOAT => 'float',
+            AttributeValueInterface::STORAGE_INTEGER => 'int',
+            AttributeValueInterface::STORAGE_FLOAT => 'float',
             AttributeValueInterface::STORAGE_DATE, AttributeValueInterface::STORAGE_DATETIME => 'string',
             default => 'array',
         };

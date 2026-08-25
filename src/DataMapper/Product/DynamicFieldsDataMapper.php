@@ -125,13 +125,13 @@ final class DynamicFieldsDataMapper implements DataMapperInterface
     /**
      * Coerces a provided value to the field type. Notice that a scalar value is wrapped in a list for
      * 'array' fields (e.g. a text attribute or a single select) so single and multi valued sources
-     * produce the same field shape, and that ints become floats (the search side has no 'int' type)
+     * produce the same field shape
      *
      * @param bool|float|int|string|list<string> $value
      *
-     * @return bool|float|string|list<string>|null
+     * @return bool|float|int|string|list<string>|null
      */
-    private static function coerce(bool|float|int|string|array $value, string $type): bool|float|string|array|null
+    private static function coerce(bool|float|int|string|array $value, string $type): bool|float|int|string|array|null
     {
         if ('array' === $type) {
             if (is_array($value)) {
@@ -148,6 +148,7 @@ final class DynamicFieldsDataMapper implements DataMapperInterface
         return match ($type) {
             'bool' => (bool) $value,
             'float' => is_numeric($value) ? (float) $value : null,
+            'int' => is_numeric($value) ? (int) $value : null,
             'string' => is_bool($value) ? null : (string) $value,
             default => null,
         };

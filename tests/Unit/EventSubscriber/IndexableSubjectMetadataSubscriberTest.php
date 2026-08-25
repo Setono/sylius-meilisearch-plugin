@@ -85,8 +85,7 @@ final class IndexableSubjectMetadataSubscriberTest extends TestCase
         )->onMetadataCreated(new MetadataCreated($metadata, self::index()));
 
         self::assertSame('bool', $metadata->facetableAttributes['attr_eco_friendly']->type);
-        // integers become floats because the search side has no filter builder for the 'int' type
-        self::assertSame('float', $metadata->facetableAttributes['attr_weight']->type);
+        self::assertSame('int', $metadata->facetableAttributes['attr_weight']->type);
         self::assertSame('float', $metadata->facetableAttributes['attr_length']->type);
     }
 

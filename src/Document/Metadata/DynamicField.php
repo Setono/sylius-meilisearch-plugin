@@ -22,7 +22,7 @@ final class DynamicField
      * @param string $name The field name in Meilisearch, e.g. "attr_color" or "opt_t_shirt_size"
      * @param self::SOURCE_* $source
      * @param string $code The code of the Sylius product attribute or product option
-     * @param 'array'|'bool'|'float'|'string' $type The value type of the field. Also used as the Facet type
+     * @param 'array'|'bool'|'float'|'int'|'string' $type The value type of the field. Also used as the Facet type
      */
     public function __construct(
         public readonly string $name,
@@ -31,6 +31,6 @@ final class DynamicField
         public readonly string $type,
     ) {
         Assert::oneOf($source, [self::SOURCE_ATTRIBUTE, self::SOURCE_OPTION]);
-        Assert::oneOf($type, ['array', 'bool', 'float', 'string']);
+        Assert::oneOf($type, ['array', 'bool', 'float', 'int', 'string']);
     }
 }
