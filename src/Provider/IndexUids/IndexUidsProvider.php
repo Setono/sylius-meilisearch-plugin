@@ -17,19 +17,24 @@ final class IndexUidsProvider implements IndexUidsProviderInterface
     ) {
     }
 
+    public function get(string $index): array
+    {
+        $uids = [];
+
+        foreach ($this->indexScopeProvider->getAll($this->indexRegistry->get($index)) as $indexScope) {
+            $uid = $this->indexUidResolver->resolveFromIndexScope($indexScope);
+            $uids[$uid] = $uid;
+        }
+
+        return array_values($uids);
+    }
+
     public function getAll(): array
     {
         $result = [];
 
-        foreach ($this->indexRegistry->getAll() as $name => $index) {
-            $uids = [];
-
-            foreach ($this->indexScopeProvider->getAll($index) as $indexScope) {
-                $uid = $this->indexUidResolver->resolveFromIndexScope($indexScope);
-                $uids[$uid] = $uid;
-            }
-
-            $result[$name] = array_values($uids);
+        foreach (array_keys($this->indexRegistry->getAll()) as $name) {
+            $result[$name] = $this->get($name);
         }
 
         return $result;

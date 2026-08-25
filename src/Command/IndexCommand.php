@@ -88,10 +88,9 @@ final class IndexCommand extends Command
         }
 
         $uids = [];
-        $uidsByIndex = $this->indexUidsProvider->getAll();
 
         foreach ($indexes as $index) {
-            $indexUids = $uidsByIndex[$index] ?? [];
+            $indexUids = $this->indexUidsProvider->get($index);
             foreach ($indexUids as $uid) {
                 $uids[$uid] = $uid;
             }

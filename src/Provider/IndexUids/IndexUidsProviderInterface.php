@@ -13,6 +13,15 @@ namespace Setono\SyliusMeilisearchPlugin\Provider\IndexUids;
 interface IndexUidsProviderInterface
 {
     /**
+     * Returns the concrete Meilisearch index uids (across all scopes) for a single configured index
+     *
+     * @return list<string>
+     *
+     * @throws \InvalidArgumentException if no index exists with the given name
+     */
+    public function get(string $index): array;
+
+    /**
      * @return array<string, list<string>> configured index name => concrete Meilisearch index uids
      */
     public function getAll(): array;

@@ -69,7 +69,7 @@ final class IndexCommandTest extends TestCase
         $indexRegistry->get('products')->willReturn($index);
 
         $indexUidsProvider = $this->prophesize(IndexUidsProviderInterface::class);
-        $indexUidsProvider->getAll()->willReturn(['products' => ['products__fashion_web__en_us__usd']]);
+        $indexUidsProvider->get('products')->willReturn(['products__fashion_web__en_us__usd']);
 
         $command = new IndexCommand(
             $commandBus->reveal(),

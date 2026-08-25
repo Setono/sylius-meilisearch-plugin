@@ -53,6 +53,25 @@ final class IndexUidsProviderTest extends TestCase
             'products' => ['products__fashion_web__en_us__usd', 'products__fashion_web__da_dk__dkk'],
             'taxons' => ['taxons__fashion_web__en_us'],
         ], $provider->getAll());
+
+        // a single index only resolves that index's scopes
+        self::assertSame(['taxons__fashion_web__en_us'], $provider->get('taxons'));
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_when_getting_uids_for_an_unknown_index(): void
+    {
+        $provider = new IndexUidsProvider(
+            new IndexRegistry(),
+            $this->prophesize(IndexScopeProviderInterface::class)->reveal(),
+            $this->prophesize(IndexUidResolverInterface::class)->reveal(),
+        );
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $provider->get('unknown');
     }
 
     /**
