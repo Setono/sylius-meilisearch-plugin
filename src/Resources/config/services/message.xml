@@ -9,8 +9,17 @@
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface"/>
             <argument type="service" id="Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface"/>
             <argument type="service" id="serializer"/>
+            <argument type="service" id="setono_sylius_meilisearch.command_bus"/>
 
             <tag name="messenger.message_handler"/>
+        </service>
+
+        <service id="Setono\SyliusMeilisearchPlugin\Message\Handler\FinalizeIndexRebuildHandler">
+            <argument type="service" id="Meilisearch\Client"/>
+            <argument type="service" id="logger"/>
+
+            <tag name="messenger.message_handler"/>
+            <tag name="monolog.logger" channel="setono_sylius_meilisearch"/>
         </service>
 
         <service id="Setono\SyliusMeilisearchPlugin\Message\Handler\IndexEntitiesHandler">

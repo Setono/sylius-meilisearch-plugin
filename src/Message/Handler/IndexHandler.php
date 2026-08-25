@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Message\Handler;
 
 use Meilisearch\Client;
+use Meilisearch\Exceptions\ApiException;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
+use Setono\SyliusMeilisearchPlugin\Message\Command\FinalizeIndexRebuild;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\Settings\SettingsProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class IndexHandler
@@ -22,6 +26,7 @@ final class IndexHandler
         private readonly IndexScopeProviderInterface $indexScopeProvider,
         private readonly IndexUidResolverInterface $indexUidResolver,
         private readonly NormalizerInterface $normalizer,
+        private readonly MessageBusInterface $commandBus,
     ) {
     }
 
@@ -33,22 +38,59 @@ final class IndexHandler
             throw new UnrecoverableMessageHandlingException(message: $e->getMessage(), previous: $e);
         }
 
-        foreach ($this->indexScopeProvider->getAll($index) as $indexScope) {
-            $uid = $this->indexUidResolver->resolveFromIndexScope($indexScope);
+        /** @var list<string> $liveUids */
+        $liveUids = [];
 
-            if ($message->delete) {
-                $this->client->deleteIndex($uid);
+        foreach ($this->indexScopeProvider->getAll($index) as $indexScope) {
+            $liveUid = $this->indexUidResolver->resolveFromIndexScope($indexScope);
+            if (in_array($liveUid, $liveUids, true)) {
+                continue;
+            }
+            $liveUids[] = $liveUid;
+
+            $rebuildUid = RebuildUid::from($liveUid);
+
+            // A rebuild index left over from a failed rebuild would leak its stale documents into
+            // this rebuild through the upserts below, so start from a clean slate. The existence
+            // check avoids enqueueing a deletion task that fails on every ordinary rebuild.
+            if ($this->indexExists($rebuildUid)) {
+                $this->client->deleteIndex($rebuildUid);
             }
 
+            // Applying the settings creates the rebuild index as a side effect. The settings include
+            // the synonyms, so the swapped-in index is complete without a separate synonym update.
             $this
                 ->client
-                ->index($uid)
+                ->index($rebuildUid)
                 ->updateSettings(
                     $this->normalizer->normalize($this->settingsProvider->getSettings($indexScope)),
                 )
             ;
         }
 
-        $index->indexer()->index();
+        if ([] === $liveUids) {
+            return;
+        }
+
+        $index->indexer()->index(rebuild: true);
+
+        // Dispatched after the IndexEntities batches above so that, on the same (FIFO) transport,
+        // it is handled only once every batch has been pushed to Meilisearch
+        $this->commandBus->dispatch(new FinalizeIndexRebuild($index, $liveUids));
+    }
+
+    private function indexExists(string $uid): bool
+    {
+        try {
+            $this->client->getRawIndex($uid);
+        } catch (ApiException $e) {
+            if (404 === $e->httpStatus) {
+                return false;
+            }
+
+            throw $e;
+        }
+
+        return true;
     }
 }

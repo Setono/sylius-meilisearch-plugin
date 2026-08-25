@@ -14,9 +14,23 @@ final class IndexEntities implements CommandInterface
         public readonly string $class,
         /** @var list<mixed> $ids */
         public readonly array $ids,
+        /**
+         * The name of a configured index to constrain the indexing to. When null, the entities are
+         * indexed on every index configured for the entity class.
+         */
+        public readonly ?string $index = null,
+        /**
+         * When true, the documents are written to the rebuild index of each scope (see RebuildUid)
+         * instead of the live index
+         */
+        public readonly bool $rebuild = false,
     ) {
         Assert::stringNotEmpty($class);
         Assert::notEmpty($ids);
+
+        if ($rebuild) {
+            Assert::notNull($index, 'A rebuild batch must be constrained to the index being rebuilt');
+        }
     }
 
     /**
@@ -45,8 +59,8 @@ final class IndexEntities implements CommandInterface
      * @param class-string<IndexableInterface> $class
      * @param list<mixed> $ids
      */
-    public static function fromIds(string $class, array $ids): self
+    public static function fromIds(string $class, array $ids, ?string $index = null, bool $rebuild = false): self
     {
-        return new self($class, $ids);
+        return new self($class, $ids, $index, $rebuild);
     }
 }

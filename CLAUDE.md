@@ -41,7 +41,7 @@ Note `APP_ENV`: under the Symfony CLI the value comes from the CLI's own dotenv 
 
 **The port changes whenever the container is recreated, and the plugin bakes the URL into the compiled container** (the extension calls `resolveEnvPlaceholders()` at compile time), so run `symfony console cache:clear` after `docker compose up`, or the app keeps calling the previous port. A stale cache fails loudly with a connection error rather than silently hitting another instance.
 
-Note: repeated fixture loads accumulate stale documents in a long-lived local Meilisearch (indexes are only added to, never purged), which can make index-vs-database comparisons drift. `docker compose down && docker compose up -d` resets the instance (the compose service has no volume) — remember it comes back on a new port and empty, so clear the cache and re-run the index command. CI uses a fresh container per run.
+Note: a full index run is an atomic swap rebuild (temp `<uid>__rebuild` index + `swapIndexes`, see `FinalizeIndexRebuild`), so re-running the index command purges any drift from repeated fixture loads. `docker compose down && docker compose up -d` still gives a fully clean instance (the compose service has no volume) — remember it comes back on a new port and empty, so clear the cache and re-run the index command. CI uses a fresh container per run.
 
 ### E2E tests (Playwright)
 

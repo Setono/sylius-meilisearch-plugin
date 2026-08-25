@@ -9,6 +9,7 @@ use Meilisearch\Contracts\TasksQuery;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -48,7 +49,7 @@ final class IndexCommand extends Command
             )
             ->addOption('wait', 'w', InputOption::VALUE_NONE, 'Wait for the indexing to finish')
             ->addOption('wait-timeout', 't', InputOption::VALUE_REQUIRED, 'The maximum time to wait for the indexing to finish in seconds. This is only relevant if you have enabled the "wait" option', 300)
-            ->addOption('delete', 'd', InputOption::VALUE_NONE, 'Delete index before creating')
+            ->addOption('delete', 'd', InputOption::VALUE_NONE, 'DEPRECATED: has no effect. A plain run rebuilds each index atomically and purges stale documents')
         ;
     }
 
@@ -84,33 +85,42 @@ final class IndexCommand extends Command
     {
         /** @var list<string> $indexes */
         $indexes = $input->getArgument('indexes');
-        $delete = (bool) $input->getOption('delete');
 
-        if ($delete) {
-            $output->writeln('<comment>WARNING: --delete is enabled — each index is deleted before it is rebuilt, so search returns no results for that index until reindexing completes. A plain reindex (without --delete) upserts in place and avoids this downtime.</comment>');
+        if ((bool) $input->getOption('delete')) {
+            trigger_deprecation('setono/sylius-meilisearch-plugin', '0.3', 'The --delete option of the setono:sylius-meilisearch:index command is deprecated and has no effect.');
+
+            $output->writeln('<comment>The --delete option is deprecated and has no effect: a plain run now rebuilds each index into a temporary index and atomically swaps it with the live index, which purges stale documents without any search downtime.</comment>');
         }
 
-        $uids = [];
+        $liveUids = [];
 
         foreach ($indexes as $index) {
             $indexUids = $this->indexUidsProvider->get($index);
             foreach ($indexUids as $uid) {
-                $uids[$uid] = $uid;
+                $liveUids[$uid] = $uid;
             }
 
             $output->writeln(sprintf('Indexing <info>%s</info> → %s', $index, implode(', ', $indexUids)));
 
-            $this->commandBus->dispatch(new Index($index, $delete));
+            $this->commandBus->dispatch(new Index($index));
         }
 
-        $uids = array_values($uids);
+        $liveUids = array_values($liveUids);
 
         /** @var bool $wait */
         $wait = $input->getOption('wait');
 
         if ($wait) {
-            $this->wait($uids, (int) $input->getOption('wait-timeout'), $output);
-            $this->printSummary($uids, $output);
+            // The rebuild happens in the rebuild indexes until the atomic swap at the end, so the
+            // tasks worth waiting for live on both the live uid (the swap and its cleanup) and the
+            // rebuild uid (the document additions).
+            $waitUids = $liveUids;
+            foreach ($liveUids as $uid) {
+                $waitUids[] = RebuildUid::from($uid);
+            }
+
+            $this->wait($waitUids, (int) $input->getOption('wait-timeout'), $output);
+            $this->printSummary($liveUids, $output);
         }
 
         return 0;

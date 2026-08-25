@@ -6,8 +6,10 @@ namespace Setono\SyliusMeilisearchPlugin\Message\Handler;
 
 use Doctrine\Persistence\ManagerRegistry;
 use Setono\Doctrine\ORMTrait;
+use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
+use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 use Webmozart\Assert\Assert;
 
 final class IndexEntitiesHandler
@@ -34,12 +36,28 @@ final class IndexEntitiesHandler
         Assert::isArray($entities);
         Assert::allIsInstanceOf($entities, $message->class);
 
-        foreach ($this->indexRegistry->getByEntity($message->class) as $index) {
-            $index->indexer()->indexEntities($entities);
+        foreach ($this->resolveIndexes($message) as $index) {
+            $index->indexer()->indexEntities($entities, $message->rebuild);
         }
 
         // Detach the batch's entities so a synchronous full reindex does not accumulate the whole
         // catalog in memory in one process.
         $this->getManager($message->class)->clear();
+    }
+
+    /**
+     * @return iterable<Index>
+     */
+    private function resolveIndexes(IndexEntities $message): iterable
+    {
+        if (null === $message->index) {
+            return $this->indexRegistry->getByEntity($message->class);
+        }
+
+        try {
+            return [$this->indexRegistry->get($message->index)];
+        } catch (\InvalidArgumentException $e) {
+            throw new UnrecoverableMessageHandlingException(message: $e->getMessage(), previous: $e);
+        }
     }
 }

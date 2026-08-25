@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Command;
 
 use Meilisearch\Client;
+use Meilisearch\Contracts\TasksQuery;
+use Meilisearch\Contracts\TasksResults;
+use Meilisearch\Endpoints\Indexes;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -56,12 +59,17 @@ final class IndexCommandTest extends TestCase
     /**
      * @test
      */
-    public function it_prints_the_resolved_uids_and_an_honest_delete_warning(): void
+    public function it_prints_the_resolved_uids_and_a_delete_deprecation_warning(): void
     {
         $index = new Index('products', ProductDocument::class, [Product::class], new Container());
 
         $commandBus = $this->prophesize(MessageBusInterface::class);
-        $commandBus->dispatch(Argument::type(IndexMessage::class))->willReturn(new Envelope(new \stdClass()));
+        // The deprecated --delete option must not carry over to the message
+        $commandBus
+            ->dispatch(Argument::that(static fn (IndexMessage $message): bool => !$message->delete))
+            ->shouldBeCalledOnce()
+            ->willReturn(new Envelope(new \stdClass()))
+        ;
 
         $indexRegistry = $this->prophesize(IndexRegistryInterface::class);
         $indexRegistry->getNames()->willReturn(['products']);
@@ -85,7 +93,57 @@ final class IndexCommandTest extends TestCase
 
         // Names each resolved index uid
         self::assertStringContainsString('products__fashion_web__en_us__usd', $display);
-        // The --delete warning explains the downtime
-        self::assertStringContainsString('search returns no results', $display);
+        // The --delete warning explains that the option is obsolete
+        self::assertStringContainsString('deprecated and has no effect', $display);
+    }
+
+    /**
+     * @test
+     */
+    public function it_waits_for_tasks_on_both_the_live_and_the_rebuild_uids(): void
+    {
+        $index = new Index('products', ProductDocument::class, [Product::class], new Container());
+
+        $commandBus = $this->prophesize(MessageBusInterface::class);
+        $commandBus->dispatch(Argument::type(IndexMessage::class))->willReturn(new Envelope(new \stdClass()));
+
+        $indexRegistry = $this->prophesize(IndexRegistryInterface::class);
+        $indexRegistry->getNames()->willReturn(['products']);
+        $indexRegistry->has('products')->willReturn(true);
+        $indexRegistry->get('products')->willReturn($index);
+
+        $indexUidsProvider = $this->prophesize(IndexUidsProviderInterface::class);
+        $indexUidsProvider->get('products')->willReturn(['products__fashion_web__en_us__usd']);
+
+        $tasks = $this->prophesize(TasksResults::class);
+        $tasks->getTotal()->willReturn(0);
+
+        $stats = $this->prophesize(Indexes::class);
+        $stats->stats()->willReturn(['numberOfDocuments' => 8]);
+
+        $client = $this->prophesize(Client::class);
+        // The rebuild happens in the rebuild index until the atomic swap at the end, so the wait
+        // must cover the rebuild uid as well or it would return before the rebuild has finished
+        $client
+            ->getTasks(Argument::that(
+                static fn (TasksQuery $query): bool => ['products__fashion_web__en_us__usd', 'products__fashion_web__en_us__usd__rebuild'] === $query->getIndexUids(),
+            ))
+            ->shouldBeCalled()
+            ->willReturn($tasks->reveal())
+        ;
+        // The summary reports the live index, which holds the fresh documents after the swap
+        $client->index('products__fashion_web__en_us__usd')->willReturn($stats->reveal());
+
+        $command = new IndexCommand(
+            $commandBus->reveal(),
+            $indexRegistry->reveal(),
+            $client->reveal(),
+            $indexUidsProvider->reveal(),
+        );
+
+        $tester = new CommandTester($command);
+        $tester->execute(['indexes' => ['products'], '--wait' => true]);
+
+        self::assertStringContainsString('8', $tester->getDisplay());
     }
 }

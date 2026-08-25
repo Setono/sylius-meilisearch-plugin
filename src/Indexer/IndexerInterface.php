@@ -10,8 +10,13 @@ interface IndexerInterface
 {
     /**
      * Will index _all_ entities on the associated index
+     *
+     * When $rebuild is true, the documents are written to the rebuild index of each scope (see
+     * \Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid) instead of the live index.
+     * The caller is responsible for finalizing the rebuild — i.e. atomically swapping the rebuild
+     * indexes with the live indexes — by dispatching the FinalizeIndexRebuild message afterwards.
      */
-    public function index(): void;
+    public function index(bool $rebuild = false): void;
 
     /**
      * Will index a single entity
@@ -21,7 +26,7 @@ interface IndexerInterface
     /**
      * @param array<array-key, IndexableInterface> $entities
      */
-    public function indexEntities(array $entities): void;
+    public function indexEntities(array $entities, bool $rebuild = false): void;
 
     public function removeEntity(IndexableInterface $entity): void;
 

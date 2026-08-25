@@ -16,9 +16,22 @@ final class Index implements CommandInterface
     public function __construct(
         IndexConfig|string $index,
 
-        /** If this is true, the index will be deleted before it is created and populated */
+        /**
+         * @deprecated the flag is ignored: a full index run now rebuilds into a temporary index and
+         *             atomically swaps it with the live index, which purges stale documents without
+         *             any search downtime
+         */
         public readonly bool $delete = false,
     ) {
+        if ($delete) {
+            trigger_deprecation(
+                'setono/sylius-meilisearch-plugin',
+                '0.3',
+                'The $delete flag on the %s message is deprecated and ignored: a full index run now rebuilds into a temporary index and atomically swaps it with the live index, which purges stale documents without any search downtime.',
+                self::class,
+            );
+        }
+
         if ($index instanceof IndexConfig) {
             $index = $index->name;
         }

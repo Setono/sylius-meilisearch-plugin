@@ -16,6 +16,7 @@ use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface as Object
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -45,15 +46,18 @@ class DefaultIndexer extends AbstractIndexer
         $this->managerRegistry = $managerRegistry;
     }
 
-    public function index(): void
+    public function index(bool $rebuild = false): void
     {
         foreach ($this->index->entities as $entity) {
             /** @var IndexBuffer<string|int> $buffer */
             $buffer = new IndexBuffer(
                 100,
                 /** @param list<string|int> $ids */
-                function (array $ids) use ($entity): void {
-                    $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids));
+                function (array $ids) use ($entity, $rebuild): void {
+                    // The batch is constrained to this index: without that, the handler would fan it
+                    // out to every index configured for the entity class, and a rebuild batch would
+                    // write into rebuild indexes that are never swapped
+                    $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids, $this->index->name, $rebuild));
                 },
             );
 
@@ -65,7 +69,7 @@ class DefaultIndexer extends AbstractIndexer
         }
     }
 
-    public function indexEntities(array $entities): void
+    public function indexEntities(array $entities, bool $rebuild = false): void
     {
         if ([] === $entities) {
             return;
@@ -73,6 +77,9 @@ class DefaultIndexer extends AbstractIndexer
 
         foreach ($this->indexScopeProvider->getAll($this->index) as $indexScope) {
             $uid = $this->indexNameResolver->resolveFromIndexScope($indexScope);
+            if ($rebuild) {
+                $uid = RebuildUid::from($uid);
+            }
 
             $documents = [];
             $documentsToRemove = [];
