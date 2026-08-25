@@ -68,7 +68,6 @@ setono_sylius_meilisearch:
                     status: 'Būsena'
                     synonyms: Synonyms
     ui:
-        available: 'Pasiekiamas'
         details: 'Detalės'
         duration: 'Trukmė'
         enqueued_at: 'Įtraukta į eilę'
@@ -104,11 +103,13 @@ setono_sylius_meilisearch:
         missing_on_server: 'Trūksta serveryje'
         no_indexes: No indexes
         number_of_documents: 'Dokumentai'
+        refresh: 'Atnaujinti'
         search: Search
         search_placeholder: Search...
         search_results_for: 'Search results for'
         search_term_and_synonym: 'Search term and synonym'
-        server_status: 'Serverio būsena'
+        server_available: 'Serveris pasiekiamas'
+        server_unavailable: 'Serveris nepasiekiamas'
         server_unreachable: 'Nepavyko pasiekti Meilisearch serverio. Patikrinkite, ar jis veikia ir ar sukonfigūruoti prisijungimo duomenys yra teisingi.'
         started_at: 'Pradėta'
         status_header: 'Meilisearch būsena'
@@ -129,5 +130,4 @@ setono_sylius_meilisearch:
             succeeded: 'Pavyko'
         term: Term
         uid: 'Uid'
-        unavailable: 'Nepasiekiamas'
         version: 'Versija'

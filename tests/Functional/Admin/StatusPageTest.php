@@ -27,8 +27,8 @@ final class StatusPageTest extends FunctionalTestCase
         $content = (string) self::$client->getResponse()->getContent();
 
         // the server panel
-        self::assertStringContainsString('Server status', $content);
-        self::assertStringContainsString('Available', $content);
+        self::assertStringContainsString('Server available', $content);
+        self::assertStringContainsString('Version', $content);
 
         // the grid with its filters
         self::assertStringContainsString('Enqueued at', $content);

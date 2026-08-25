@@ -68,7 +68,6 @@ setono_sylius_meilisearch:
                     status: 'Status'
                     synonyms: Synonyms
     ui:
-        available: 'Tilgjengelig'
         details: 'Detaljer'
         duration: 'Varighet'
         enqueued_at: 'Lagt i kø'
@@ -104,11 +103,13 @@ setono_sylius_meilisearch:
         missing_on_server: 'Mangler på serveren'
         no_indexes: No indexes
         number_of_documents: 'Dokumenter'
+        refresh: 'Oppdater'
         search: Search
         search_placeholder: Search...
         search_results_for: 'Search results for'
         search_term_and_synonym: 'Search term and synonym'
-        server_status: 'Serverstatus'
+        server_available: 'Server tilgjengelig'
+        server_unavailable: 'Server utilgjengelig'
         server_unreachable: 'Meilisearch-serveren kunne ikke nås. Sjekk at den kjører, og at de konfigurerte påloggingsopplysningene er riktige.'
         started_at: 'Startet'
         status_header: 'Meilisearch-status'
@@ -129,5 +130,4 @@ setono_sylius_meilisearch:
             succeeded: 'Fullført'
         term: Term
         uid: 'Uid'
-        unavailable: 'Utilgjengelig'
         version: 'Versjon'

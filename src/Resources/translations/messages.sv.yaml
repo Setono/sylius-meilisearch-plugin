@@ -68,7 +68,6 @@ setono_sylius_meilisearch:
                     status: 'Status'
                     synonyms: Synonyms
     ui:
-        available: 'Tillgänglig'
         details: 'Detaljer'
         duration: 'Varaktighet'
         enqueued_at: 'Köad'
@@ -104,11 +103,13 @@ setono_sylius_meilisearch:
         missing_on_server: 'Saknas på servern'
         no_indexes: No indexes
         number_of_documents: 'Dokument'
+        refresh: 'Uppdatera'
         search: Search
         search_placeholder: Search...
         search_results_for: 'Search results for'
         search_term_and_synonym: 'Search term and synonym'
-        server_status: 'Serverstatus'
+        server_available: 'Server tillgänglig'
+        server_unavailable: 'Server otillgänglig'
         server_unreachable: 'Meilisearch-servern kunde inte nås. Kontrollera att den körs och att de konfigurerade uppgifterna är korrekta.'
         started_at: 'Startad'
         status_header: 'Meilisearch-status'
@@ -129,5 +130,4 @@ setono_sylius_meilisearch:
             succeeded: 'Lyckades'
         term: Term
         uid: 'Uid'
-        unavailable: 'Otillgänglig'
         version: 'Version'

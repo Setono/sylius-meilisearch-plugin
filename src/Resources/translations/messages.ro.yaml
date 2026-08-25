@@ -68,7 +68,6 @@ setono_sylius_meilisearch:
                     status: 'Stare'
                     synonyms: Synonyms
     ui:
-        available: 'Disponibil'
         details: 'Detalii'
         duration: 'Durată'
         enqueued_at: 'Adăugată în coadă'
@@ -104,11 +103,13 @@ setono_sylius_meilisearch:
         missing_on_server: 'Lipsește de pe server'
         no_indexes: No indexes
         number_of_documents: 'Documente'
+        refresh: 'Reîmprospătează'
         search: Search
         search_placeholder: Search...
         search_results_for: 'Search results for'
         search_term_and_synonym: 'Search term and synonym'
-        server_status: 'Starea serverului'
+        server_available: 'Server disponibil'
+        server_unavailable: 'Server indisponibil'
         server_unreachable: 'Serverul Meilisearch nu a putut fi contactat. Verificați dacă rulează și dacă datele de acces configurate sunt corecte.'
         started_at: 'Pornită'
         status_header: 'Starea Meilisearch'
@@ -129,5 +130,4 @@ setono_sylius_meilisearch:
             succeeded: 'Reușită'
         term: Term
         uid: 'Uid'
-        unavailable: 'Indisponibil'
         version: 'Versiune'

@@ -68,7 +68,6 @@ setono_sylius_meilisearch:
                     status: 'Status'
                     synonyms: Synonyms
     ui:
-        available: Available
         details: Details
         duration: Duration
         enqueued_at: 'Enqueued at'
@@ -104,11 +103,13 @@ setono_sylius_meilisearch:
         missing_on_server: 'Missing on server'
         no_indexes: No indexes
         number_of_documents: Documents
+        refresh: 'Refresh'
         search: Search
         search_placeholder: Search...
         search_results_for: 'Search results for'
         search_term_and_synonym: 'Search term and synonym'
-        server_status: 'Server status'
+        server_available: 'Server available'
+        server_unavailable: 'Server unavailable'
         server_unreachable: 'The Meilisearch server could not be reached. Check that it is running and that the configured credentials are correct.'
         started_at: 'Started at'
         status_header: 'Meilisearch status'
@@ -129,5 +130,4 @@ setono_sylius_meilisearch:
             succeeded: Succeeded
         term: Term
         uid: Uid
-        unavailable: Unavailable
         version: Version
