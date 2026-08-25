@@ -65,8 +65,8 @@ setono_sylius_meilisearch:
                     header: Meilisearch
                     indexable_attributes: 'Atribute indexate'
                     indexable_options: 'Opțiuni indexate'
+                    status: 'Stare'
                     synonyms: Synonyms
-                    tasks: 'Sarcini'
     ui:
         available: 'Disponibil'
         details: 'Detalii'
@@ -111,6 +111,8 @@ setono_sylius_meilisearch:
         server_status: 'Starea serverului'
         server_unreachable: 'Serverul Meilisearch nu a putut fi contactat. Verificați dacă rulează și dacă datele de acces configurate sunt corecte.'
         started_at: 'Pornită'
+        status_header: 'Starea Meilisearch'
+        status_subheader: 'Informații despre server și sarcini de la serverul Meilisearch'
         synonym: Synonym
         synonym_header: Synonyms
         synonym_help: |
@@ -125,8 +127,6 @@ setono_sylius_meilisearch:
             failed: 'Eșuată'
             processing: 'În procesare'
             succeeded: 'Reușită'
-        tasks_header: 'Sarcini'
-        tasks_subheader: 'Sarcini procesate de serverul Meilisearch'
         term: Term
         uid: 'Uid'
         unavailable: 'Indisponibil'

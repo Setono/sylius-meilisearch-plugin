@@ -50,11 +50,11 @@ final class AddMenuSubscriber implements EventSubscriberInterface
         ;
 
         $header
-            ->addChild('tasks', [
-                'route' => 'setono_sylius_meilisearch_admin_task_index',
+            ->addChild('status', [
+                'route' => 'setono_sylius_meilisearch_admin_status_index',
             ])
-            ->setLabel('setono_sylius_meilisearch.menu.admin.main.meilisearch.tasks')
-            ->setLabelAttribute('icon', 'tasks')
+            ->setLabel('setono_sylius_meilisearch.menu.admin.main.meilisearch.status')
+            ->setLabelAttribute('icon', 'heartbeat')
         ;
 
         $order = ['catalog', 'sales', 'customers', 'marketing', self::MENU_ITEM_KEY];

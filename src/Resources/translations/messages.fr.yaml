@@ -65,8 +65,8 @@ setono_sylius_meilisearch:
                     header: Meilisearch
                     indexable_attributes: 'Attributs indexés'
                     indexable_options: 'Options indexées'
+                    status: 'Statut'
                     synonyms: Synonyms
-                    tasks: 'Tâches'
     ui:
         available: 'Disponible'
         details: 'Détails'
@@ -111,6 +111,8 @@ setono_sylius_meilisearch:
         server_status: 'État du serveur'
         server_unreachable: 'Le serveur Meilisearch est injoignable. Vérifiez qu''il est démarré et que les identifiants configurés sont corrects.'
         started_at: 'Démarrée le'
+        status_header: 'Statut de Meilisearch'
+        status_subheader: 'Informations sur le serveur et tâches du serveur Meilisearch'
         synonym: Synonym
         synonym_header: Synonyms
         synonym_help: |
@@ -125,8 +127,6 @@ setono_sylius_meilisearch:
             failed: 'Échouée'
             processing: 'En cours'
             succeeded: 'Réussie'
-        tasks_header: 'Tâches'
-        tasks_subheader: 'Tâches traitées par le serveur Meilisearch'
         term: Term
         uid: 'Uid'
         unavailable: 'Indisponible'

@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
-final class TasksAction
+final class StatusAction
 {
     public function __construct(
         private readonly Environment $twig,
@@ -27,7 +27,7 @@ final class TasksAction
         $grid = $this->gridProvider->get('setono_sylius_meilisearch_admin_task');
         $gridView = $this->gridViewFactory->create($grid, new Parameters($request->query->all()));
 
-        return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/admin/task/index.html.twig', [
+        return new Response($this->twig->render('@SetonoSyliusMeilisearchPlugin/admin/status/index.html.twig', [
             'grid_view' => $gridView,
             'server_information' => $this->serverInformationProvider->get(),
         ]));

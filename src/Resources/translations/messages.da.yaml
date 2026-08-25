@@ -65,8 +65,8 @@ setono_sylius_meilisearch:
                     header: Meilisearch
                     indexable_attributes: 'Indekserede attributter'
                     indexable_options: 'Indekserede muligheder'
+                    status: 'Status'
                     synonyms: Synonyms
-                    tasks: 'Opgaver'
     ui:
         available: 'Tilgængelig'
         details: 'Detaljer'
@@ -111,6 +111,8 @@ setono_sylius_meilisearch:
         server_status: 'Serverstatus'
         server_unreachable: 'Meilisearch-serveren kunne ikke kontaktes. Kontrollér at den kører, og at de konfigurerede adgangsoplysninger er korrekte.'
         started_at: 'Startet'
+        status_header: 'Meilisearch-status'
+        status_subheader: 'Serverinformation og opgaver fra Meilisearch-serveren'
         synonym: Synonym
         synonym_header: Synonyms
         synonym_help: |
@@ -125,8 +127,6 @@ setono_sylius_meilisearch:
             failed: 'Fejlet'
             processing: 'Behandles'
             succeeded: 'Gennemført'
-        tasks_header: 'Opgaver'
-        tasks_subheader: 'Opgaver behandlet af Meilisearch-serveren'
         term: Term
         uid: 'Uid'
         unavailable: 'Utilgængelig'

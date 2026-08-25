@@ -10,18 +10,18 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * @covers \Setono\SyliusMeilisearchPlugin\Controller\Action\Admin\TasksAction
+ * @covers \Setono\SyliusMeilisearchPlugin\Controller\Action\Admin\StatusAction
  */
-final class TasksPageTest extends FunctionalTestCase
+final class StatusPageTest extends FunctionalTestCase
 {
     /**
      * @test
      */
-    public function it_renders_the_tasks_page(): void
+    public function it_renders_the_status_page(): void
     {
         $this->logInAdminUser();
 
-        self::$client->request('GET', '/admin/meilisearch/tasks');
+        self::$client->request('GET', '/admin/meilisearch/status');
         self::assertResponseIsSuccessful();
 
         $content = (string) self::$client->getResponse()->getContent();
@@ -46,7 +46,7 @@ final class TasksPageTest extends FunctionalTestCase
     {
         $this->logInAdminUser();
 
-        self::$client->request('GET', '/admin/meilisearch/tasks', [
+        self::$client->request('GET', '/admin/meilisearch/status', [
             'criteria' => [
                 'status' => 'succeeded',
                 'indexUid' => '',

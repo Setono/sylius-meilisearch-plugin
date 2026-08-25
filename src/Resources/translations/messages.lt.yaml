@@ -65,8 +65,8 @@ setono_sylius_meilisearch:
                     header: Meilisearch
                     indexable_attributes: 'Indeksuoti atributai'
                     indexable_options: 'Indeksuotos parinktys'
+                    status: 'Būsena'
                     synonyms: Synonyms
-                    tasks: 'Užduotys'
     ui:
         available: 'Pasiekiamas'
         details: 'Detalės'
@@ -111,6 +111,8 @@ setono_sylius_meilisearch:
         server_status: 'Serverio būsena'
         server_unreachable: 'Nepavyko pasiekti Meilisearch serverio. Patikrinkite, ar jis veikia ir ar sukonfigūruoti prisijungimo duomenys yra teisingi.'
         started_at: 'Pradėta'
+        status_header: 'Meilisearch būsena'
+        status_subheader: 'Serverio informacija ir Meilisearch serverio užduotys'
         synonym: Synonym
         synonym_header: Synonyms
         synonym_help: |
@@ -125,8 +127,6 @@ setono_sylius_meilisearch:
             failed: 'Nepavyko'
             processing: 'Vykdoma'
             succeeded: 'Pavyko'
-        tasks_header: 'Užduotys'
-        tasks_subheader: 'Meilisearch serverio apdorotos užduotys'
         term: Term
         uid: 'Uid'
         unavailable: 'Nepasiekiamas'

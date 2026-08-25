@@ -30,10 +30,10 @@ setono_sylius_meilisearch_admin_indexable_option:
                     form: "@SetonoSyliusMeilisearchPlugin/admin/indexable_option/_form.html.twig"
     type: sylius.resource
 
-setono_sylius_meilisearch_admin_task_index:
-    path: /meilisearch/tasks
+setono_sylius_meilisearch_admin_status_index:
+    path: /meilisearch/status
     methods: [GET]
-    controller: Setono\SyliusMeilisearchPlugin\Controller\Action\Admin\TasksAction
+    controller: Setono\SyliusMeilisearchPlugin\Controller\Action\Admin\StatusAction
 
 setono_sylius_meilisearch_admin_synonym:
     resource: |
