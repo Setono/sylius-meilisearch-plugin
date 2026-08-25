@@ -16,6 +16,7 @@ use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface as Object
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -45,15 +46,22 @@ class DefaultIndexer extends AbstractIndexer
         $this->managerRegistry = $managerRegistry;
     }
 
-    public function index(): void
+    public function index(string $rebuildId): int
     {
+        $batches = 0;
+
         foreach ($this->index->entities as $entity) {
             /** @var IndexBuffer<string|int> $buffer */
             $buffer = new IndexBuffer(
                 100,
                 /** @param list<string|int> $ids */
-                function (array $ids) use ($entity): void {
-                    $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids));
+                function (array $ids) use ($entity, $rebuildId, &$batches): void {
+                    ++$batches;
+
+                    // The batch is constrained to this index: without that, the handler would fan it
+                    // out to every index configured for the entity class, and a rebuild batch would
+                    // write into rebuild indexes that are never swapped
+                    $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids, $this->index->name, $rebuildId));
                 },
             );
 
@@ -63,9 +71,11 @@ class DefaultIndexer extends AbstractIndexer
 
             $buffer->flush();
         }
+
+        return $batches;
     }
 
-    public function indexEntities(array $entities): void
+    public function indexEntities(array $entities, ?string $rebuildId = null): void
     {
         if ([] === $entities) {
             return;
@@ -73,6 +83,9 @@ class DefaultIndexer extends AbstractIndexer
 
         foreach ($this->indexScopeProvider->getAll($this->index) as $indexScope) {
             $uid = $this->indexNameResolver->resolveFromIndexScope($indexScope);
+            if (null !== $rebuildId) {
+                $uid = RebuildUid::from($uid, $rebuildId);
+            }
 
             $documents = [];
             $documentsToRemove = [];
@@ -129,9 +142,11 @@ class DefaultIndexer extends AbstractIndexer
 
             $meilisearchIndex = $this->client->index($uid);
 
-            // Skip the addDocuments call for an empty batch (e.g. everything was filtered out)
-            // so we don't create pointless empty Meilisearch tasks.
-            if ([] !== $documents) {
+            // When rebuilding, every batch must create exactly one document-addition task per scope
+            // — even an empty one — because the finalization counts these tasks to decide when the
+            // rebuild is complete (see FinalizeIndexRebuild). Outside a rebuild we skip the call
+            // for an empty batch so we don't create pointless empty Meilisearch tasks.
+            if (null !== $rebuildId || [] !== $documents) {
                 $meilisearchIndex->addDocuments($documents, 'id');
             }
 

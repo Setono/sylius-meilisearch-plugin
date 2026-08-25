@@ -13,15 +13,18 @@ use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
+use Setono\SyliusMeilisearchPlugin\DataProvider\IndexableDataProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface;
 use Setono\SyliusMeilisearchPlugin\Indexer\DefaultIndexer;
+use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
 use Setono\SyliusMeilisearchPlugin\Model\IndexableInterface;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -198,6 +201,141 @@ final class DefaultIndexerTest extends TestCase
         );
 
         $indexer->indexEntities([$this->createEntity()]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_targets_the_rebuild_index_when_rebuilding(): void
+    {
+        $index = new Index('products', ProductDocument::class, [Product::class], new Container());
+        $indexScope = new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD');
+
+        $indexScopeProvider = $this->prophesize(IndexScopeProviderInterface::class);
+        $indexScopeProvider->getAll($index)->willReturn([$indexScope]);
+
+        $uidResolver = $this->prophesize(IndexUidResolverInterface::class);
+        $uidResolver->resolveFromIndexScope($indexScope)->willReturn('products__test');
+
+        $objectFilter = $this->prophesize(EntityFilterInterface::class);
+        $objectFilter->filter(Argument::cetera())->willReturn(true);
+
+        $validator = $this->prophesize(ValidatorInterface::class);
+        $validator->validate(Argument::cetera())->willReturn(new ConstraintViolationList());
+
+        $normalizer = $this->prophesize(\Symfony\Component\Serializer\Normalizer\NormalizerInterface::class);
+        $normalizer->normalize(Argument::cetera())->willReturn(['id' => '42']);
+
+        $indexes = $this->prophesize(Indexes::class);
+        $indexes->addDocuments([['id' => '42']], 'id')->shouldBeCalledOnce()->willReturn([]);
+
+        $client = $this->prophesize(Client::class);
+        // The documents go to the rebuild index, not the live index
+        $client->index('products__test__rebuild_r1')->willReturn($indexes->reveal());
+        $client->index('products__test')->shouldNotBeCalled();
+
+        $indexer = new DefaultIndexer(
+            $index,
+            $this->prophesize(ManagerRegistry::class)->reveal(),
+            $indexScopeProvider->reveal(),
+            $uidResolver->reveal(),
+            $this->prophesize(DataMapperInterface::class)->reveal(),
+            $normalizer->reveal(),
+            $client->reveal(),
+            $objectFilter->reveal(),
+            $this->prophesize(EventDispatcherInterface::class)->reveal(),
+            $this->prophesize(MessageBusInterface::class)->reveal(),
+            $validator->reveal(),
+            new SpyLogger(),
+        );
+
+        $indexer->indexEntities([$this->createEntity()], 'r1');
+    }
+
+    /**
+     * @test
+     */
+    public function it_removes_a_filtered_out_entity_from_the_rebuild_index_too(): void
+    {
+        // On a retried batch the rebuild index may already contain a document for an entity that
+        // has since been filtered out, so the removal must not be skipped in rebuild mode
+        $index = new Index('products', ProductDocument::class, [Product::class], new Container());
+        $indexScope = new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD');
+
+        $indexScopeProvider = $this->prophesize(IndexScopeProviderInterface::class);
+        $indexScopeProvider->getAll($index)->willReturn([$indexScope]);
+
+        $uidResolver = $this->prophesize(IndexUidResolverInterface::class);
+        $uidResolver->resolveFromIndexScope($indexScope)->willReturn('products__test');
+
+        $objectFilter = $this->prophesize(EntityFilterInterface::class);
+        $objectFilter->filter(Argument::cetera())->willReturn(false);
+
+        $indexes = $this->prophesize(Indexes::class);
+        // Even though nothing remains to index, the batch must still create its document-addition
+        // task: the rebuild's finalization counts one such task per scope per batch
+        $indexes->addDocuments([], 'id')->shouldBeCalledOnce()->willReturn([]);
+        $indexes->deleteDocuments(['42'])->shouldBeCalledOnce()->willReturn([]);
+
+        $client = $this->prophesize(Client::class);
+        $client->index('products__test__rebuild_r1')->willReturn($indexes->reveal());
+
+        $indexer = new DefaultIndexer(
+            $index,
+            $this->prophesize(ManagerRegistry::class)->reveal(),
+            $indexScopeProvider->reveal(),
+            $uidResolver->reveal(),
+            $this->prophesize(DataMapperInterface::class)->reveal(),
+            $this->prophesize(\Symfony\Component\Serializer\Normalizer\NormalizerInterface::class)->reveal(),
+            $client->reveal(),
+            $objectFilter->reveal(),
+            $this->prophesize(EventDispatcherInterface::class)->reveal(),
+            $this->prophesize(MessageBusInterface::class)->reveal(),
+            $this->prophesize(ValidatorInterface::class)->reveal(),
+            new SpyLogger(),
+        );
+
+        $indexer->indexEntities([$this->createEntity()], 'r1');
+    }
+
+    /**
+     * @test
+     */
+    public function it_dispatches_batches_scoped_to_its_own_index(): void
+    {
+        $dataProvider = $this->prophesize(IndexableDataProviderInterface::class);
+
+        $locator = new Container();
+        $locator->set(IndexableDataProviderInterface::class, $dataProvider->reveal());
+        $index = new Index('products', ProductDocument::class, [Product::class], $locator);
+
+        $dataProvider->getIds(Product::class, $index)->willReturn([1, 2]);
+
+        $commandBus = $this->prophesize(MessageBusInterface::class);
+        $commandBus
+            ->dispatch(Argument::that(
+                static fn (IndexEntities $message): bool => [1, 2] === $message->ids && 'products' === $message->index && 'r1' === $message->rebuildId,
+            ))
+            ->shouldBeCalledOnce()
+            ->willReturn(new Envelope(new \stdClass()))
+        ;
+
+        $indexer = new DefaultIndexer(
+            $index,
+            $this->prophesize(ManagerRegistry::class)->reveal(),
+            $this->prophesize(IndexScopeProviderInterface::class)->reveal(),
+            $this->prophesize(IndexUidResolverInterface::class)->reveal(),
+            $this->prophesize(DataMapperInterface::class)->reveal(),
+            $this->prophesize(\Symfony\Component\Serializer\Normalizer\NormalizerInterface::class)->reveal(),
+            $this->prophesize(Client::class)->reveal(),
+            $this->prophesize(EntityFilterInterface::class)->reveal(),
+            $this->prophesize(EventDispatcherInterface::class)->reveal(),
+            $commandBus->reveal(),
+            $this->prophesize(ValidatorInterface::class)->reveal(),
+            new SpyLogger(),
+        );
+
+        self::assertSame(1, $indexer->index('r1'));
     }
 
     /**

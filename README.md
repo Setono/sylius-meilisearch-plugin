@@ -174,6 +174,13 @@ php bin/console setono:sylius-meilisearch:index          # index everything
 php bin/console setono:sylius-meilisearch:index --wait   # ...and wait for Meilisearch to finish processing
 ```
 
+Every run is an **atomic, zero-downtime rebuild**: documents and settings are built up in a temporary
+`<uid>__rebuild_<id>` index per scope — the id is unique per run — which is then [swapped](https://www.meilisearch.com/docs/reference/api/indexes#swap-indexes)
+with the live index in one atomic operation and deleted. Search keeps serving the previous documents
+until the swap, and because the live index is replaced wholesale, documents whose entities no longer
+exist (or no longer qualify) are purged as a side effect. Overlapping runs are safe: each run builds
+its own generation and can never write into, swap, or delete another run's indexes.
+
 After the initial population, the plugin keeps the index up to date as entities change — including related changes such as channel prices and variant stock (via tagged `IndexableEntityResolver` services).
 
 ## Operational model
@@ -202,6 +209,15 @@ Then run a worker (supervised, e.g. with Supervisor or systemd) and configure a 
 php bin/console messenger:consume setono_sylius_meilisearch --time-limit=3600
 ```
 
+> **Parallel consumers are fully supported — message ordering does not matter.** A full rebuild
+> knows exactly how many document batches it dispatched, and its finalizing message counts the
+> matching tasks on the rebuild indexes before swapping: if batches are still in flight (parallel
+> consumers, or a transiently failed batch waiting for its retry), the finalization reschedules
+> itself — with a delay derived from the observed indexing throughput — until every batch has
+> arrived. A batch that is lost for good (it exhausted its retries into the failure transport)
+> means the rebuild is **never swapped live**: search keeps serving the previous documents, an
+> error is logged, and the abandoned rebuild indexes are deleted by a later rebuild once stale.
+
 ### How settings sync works
 
 Meilisearch index settings — `filterableAttributes` (from `#[Facetable]`), `sortableAttributes` (from `#[Sortable]`), `searchableAttributes` (from `#[Searchable]`), synonyms, etc. — are pushed **only** by the full `setono:sylius-meilisearch:index` command. Incremental Doctrine-event indexing updates documents, never settings.
@@ -213,12 +229,15 @@ The admin-managed configuration is the exception: saving a synonym pushes the sy
 ### Production checklist
 
 - **Run the index command on deploy** so document/settings changes take effect: `php bin/console setono:sylius-meilisearch:index --wait`.
-- **Reindex on a schedule.** Incremental indexing keeps documents fresh under normal operation, but a nightly reindex guarantees the index converges with the database (e.g. after bulk SQL / fixtures that bypass Doctrine events). One line in cron:
+- **Reindex on a schedule.** Incremental indexing keeps documents fresh under normal operation, but a nightly reindex guarantees the index converges with the database: the atomic rebuild replaces the live index wholesale, purging documents that drifted (e.g. after bulk SQL / fixtures that bypass Doctrine events). One line in cron:
   ```
   0 3 * * *  php /path/to/app/bin/console setono:sylius-meilisearch:index --wait
   ```
-  (`--wait` makes the command block until Meilisearch has finished processing this run's tasks.)
-- **Supervise the worker(s)** running `messenger:consume` (see above) and monitor the failure transport.
+  (`--wait` makes the command block until Meilisearch has finished processing this run's tasks, including the atomic swap.)
+- **Supervise the worker(s)** running `messenger:consume` (see above) and monitor the failure transport — a rebuild batch that lands there means the rebuild was abandoned rather than swapped live incomplete (see the note above).
+- **Plan for the rebuild's disk usage.** During a rebuild each index briefly exists twice (live + `__rebuild_<id>`), so Meilisearch needs transient headroom of roughly one extra copy of your largest index. A rebuild index left behind by a crashed run is deleted by a later rebuild once it is older than 24 hours (the age is embedded in its uid, so an in-progress rebuild is never mistaken for a stray).
+- Entity changes saved **while** a rebuild is running are indexed into the live index and are therefore reverted by the swap moments later; the next save (or the next rebuild) restores them. With a nightly cron this window is practically irrelevant.
+- **Drain the plugin's transport before deploying plugin upgrades.** Queued messages are serialized PHP objects; a deploy that changes the plugin's message classes can make payloads queued by the old code fail on the new workers. Let the worker empty the transport before switching code.
 - **Environment variables:** `MEILISEARCH_URL` and `MEILISEARCH_MASTER_KEY` are required; `MEILISEARCH_SEARCH_KEY` is required for search/autocomplete; `MEILISEARCH_PUBLIC_URL` and `MEILISEARCH_PREFIX` are optional.
 
 ### Reference configuration
@@ -526,8 +545,8 @@ channel/locale/currency scope has its own index.
 
 Saving a row automatically updates the affected indexes' settings and reindexes their documents (via the
 `Index` messenger command on the `setono_sylius_meilisearch.command_bus` — route that bus to an async
-transport to move this work to your workers). Until Meilisearch has processed the settings update task, a
-newly added facet is not usable yet; searches degrade gracefully to a facet-less result in that window
+transport to move this work to your workers). Until the rebuild's atomic swap has completed, a newly
+added facet is not usable yet; searches degrade gracefully to a facet-less result in that window
 instead of failing.
 
 Notes and limitations:

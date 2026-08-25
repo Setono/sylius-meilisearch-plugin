@@ -7,6 +7,7 @@ namespace Setono\SyliusMeilisearchPlugin\Command;
 use Meilisearch\Client;
 use Meilisearch\Contracts\TasksQuery;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
+use Setono\SyliusMeilisearchPlugin\Meilisearch\IndexSwapTasks;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -48,7 +49,6 @@ final class IndexCommand extends Command
             )
             ->addOption('wait', 'w', InputOption::VALUE_NONE, 'Wait for the indexing to finish')
             ->addOption('wait-timeout', 't', InputOption::VALUE_REQUIRED, 'The maximum time to wait for the indexing to finish in seconds. This is only relevant if you have enabled the "wait" option', 300)
-            ->addOption('delete', 'd', InputOption::VALUE_NONE, 'Delete index before creating')
         ;
     }
 
@@ -84,33 +84,28 @@ final class IndexCommand extends Command
     {
         /** @var list<string> $indexes */
         $indexes = $input->getArgument('indexes');
-        $delete = (bool) $input->getOption('delete');
 
-        if ($delete) {
-            $output->writeln('<comment>WARNING: --delete is enabled — each index is deleted before it is rebuilt, so search returns no results for that index until reindexing completes. A plain reindex (without --delete) upserts in place and avoids this downtime.</comment>');
-        }
-
-        $uids = [];
+        $liveUids = [];
 
         foreach ($indexes as $index) {
             $indexUids = $this->indexUidsProvider->get($index);
             foreach ($indexUids as $uid) {
-                $uids[$uid] = $uid;
+                $liveUids[$uid] = $uid;
             }
 
             $output->writeln(sprintf('Indexing <info>%s</info> → %s', $index, implode(', ', $indexUids)));
 
-            $this->commandBus->dispatch(new Index($index, $delete));
+            $this->commandBus->dispatch(new Index($index));
         }
 
-        $uids = array_values($uids);
+        $liveUids = array_values($liveUids);
 
         /** @var bool $wait */
         $wait = $input->getOption('wait');
 
         if ($wait) {
-            $this->wait($uids, (int) $input->getOption('wait-timeout'), $output);
-            $this->printSummary($uids, $output);
+            $this->wait($liveUids, (int) $input->getOption('wait-timeout'), $output);
+            $this->printSummary($liveUids, $output);
         }
 
         return 0;
@@ -154,13 +149,22 @@ final class IndexCommand extends Command
         $query = self::createTasksQuery($indexUids);
 
         do {
-            $results = $this->client->getTasks($query);
+            // Count the returned tasks instead of trusting getTotal(): the total field also counts
+            // tasks without an indexUid (e.g. index swaps anywhere on the instance) even when the
+            // query is scoped to specific uids
+            $pending = count($this->client->getTasks($query)->getResults());
 
-            if ($results->getTotal() === 0) {
+            // A rebuild's document tasks target per-run rebuild uids this command cannot know, but
+            // its swap task is enqueued behind them and Meilisearch processes tasks in order — so a
+            // pending swap involving our uids means the rebuild has not finished yet, and no pending
+            // swap plus no pending scoped tasks means it has
+            $pending += IndexSwapTasks::pending($this->client, $indexUids);
+
+            if (0 === $pending) {
                 return;
             }
 
-            $output->writeln(sprintf('Waiting for %d tasks to finish...', $results->getTotal()));
+            $output->writeln(sprintf('Waiting for %d tasks to finish...', $pending));
 
             sleep(10);
         } while ((time() - $start) < $waitTimeout);

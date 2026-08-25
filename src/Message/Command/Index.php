@@ -13,12 +13,8 @@ final class Index implements CommandInterface
      */
     public readonly string $index;
 
-    public function __construct(
-        IndexConfig|string $index,
-
-        /** If this is true, the index will be deleted before it is created and populated */
-        public readonly bool $delete = false,
-    ) {
+    public function __construct(IndexConfig|string $index)
+    {
         if ($index instanceof IndexConfig) {
             $index = $index->name;
         }
