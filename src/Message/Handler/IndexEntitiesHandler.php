@@ -11,7 +11,6 @@ use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
-use Webmozart\Assert\Assert;
 
 final class IndexEntitiesHandler
 {
@@ -27,18 +26,7 @@ final class IndexEntitiesHandler
 
     public function __invoke(IndexEntities $message): void
     {
-        $repository = $this->getRepository($message->class);
-
-        /** @var mixed $entities */
-        $entities = $repository->createQueryBuilder('o')
-            ->andWhere('o.id IN (:ids)')
-            ->setParameter('ids', $message->ids)
-            ->getQuery()
-            ->getResult()
-        ;
-
-        Assert::isArray($entities);
-        Assert::allIsInstanceOf($entities, $message->class);
+        $entities = $this->getRepository($message->class)->findBy(['id' => $message->ids]);
 
         foreach ($this->resolveIndexes($message) as $index) {
             $index->indexer()->indexEntities($entities, $message->rebuild);

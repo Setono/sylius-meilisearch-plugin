@@ -6,8 +6,6 @@ namespace Setono\SyliusMeilisearchPlugin\Tests\Unit\Message\Handler;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Query;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Meilisearch\Client;
 use Meilisearch\Endpoints\Indexes;
@@ -112,16 +110,8 @@ final class IndexEntitiesHandlerTest extends TestCase
      */
     private function createHandler(array $entities, ObjectProphecy $indexer, ObjectProphecy $client): IndexEntitiesHandler
     {
-        $query = $this->prophesize(Query::class);
-        $query->getResult()->willReturn($entities);
-
-        $queryBuilder = $this->prophesize(QueryBuilder::class);
-        $queryBuilder->andWhere(Argument::any())->willReturn($queryBuilder->reveal());
-        $queryBuilder->setParameter(Argument::cetera())->willReturn($queryBuilder->reveal());
-        $queryBuilder->getQuery()->willReturn($query->reveal());
-
         $repository = $this->prophesize(EntityRepository::class);
-        $repository->createQueryBuilder('o')->willReturn($queryBuilder->reveal());
+        $repository->findBy(['id' => [1]])->willReturn($entities);
 
         $manager = $this->prophesize(EntityManagerInterface::class);
         $manager->getRepository(Product::class)->willReturn($repository->reveal());

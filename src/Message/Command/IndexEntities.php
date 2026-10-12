@@ -49,9 +49,7 @@ final class IndexEntities implements CommandInterface
         $type = null;
         $ids = [];
         foreach ($entities as $entity) {
-            if (null === $type) {
-                $type = $entity::class;
-            }
+            $type ??= $entity::class;
 
             Assert::same($type, $entity::class, 'All entities must be of the same type');
 
