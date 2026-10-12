@@ -7,8 +7,12 @@ namespace Setono\SyliusMeilisearchPlugin\Tests\Functional;
 use Meilisearch\Client;
 use Meilisearch\Contracts\TasksQuery;
 use Meilisearch\Exceptions\ApiException;
+use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
+use Setono\SyliusMeilisearchPlugin\Indexer\Rebuild;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
+use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -78,6 +82,29 @@ final class RebuildIndexTest extends FunctionalTestCase
         }
     }
 
+    public function testABatchWhoseEntitiesNoLongerExistIsStillRecordedInTheLedger(): void
+    {
+        // e.g. the batch's only product was deleted before the batch was handled: no documents remain
+        // to index, but the batch must still count, or the rebuild could never complete
+        $client = $this->getMeilisearchClient();
+        $rebuild = new Rebuild(RebuildUid::generateId(RebuildUid::generateRequestId()), $this->getLiveUids());
+
+        /** @var IndexRegistryInterface $indexRegistry */
+        $indexRegistry = self::getContainer()->get('setono_sylius_meilisearch.config.index_registry');
+        $entity = $indexRegistry->get('products')->entities[0];
+
+        $this->getCommandBus()->dispatch(IndexEntities::fromIds($entity, [\PHP_INT_MAX], 'products', $rebuild, 1));
+
+        try {
+            $this->drainTasks();
+
+            $stats = $client->index($rebuild->ledgerUid())->stats();
+            self::assertSame(1, $stats['numberOfDocuments']);
+        } finally {
+            $this->waitForTask($client->deleteIndex($rebuild->ledgerUid()));
+        }
+    }
+
     private function waitForTask(mixed $task): void
     {
         self::assertIsArray($task);
@@ -108,14 +135,19 @@ final class RebuildIndexTest extends FunctionalTestCase
         return $liveUids;
     }
 
-    private function dispatchIndexMessage(): void
+    private function getCommandBus(): MessageBusInterface
     {
         /** @var MessageBusInterface $commandBus */
         $commandBus = self::getContainer()->get('setono_sylius_meilisearch.command_bus');
 
+        return $commandBus;
+    }
+
+    private function dispatchIndexMessage(): void
+    {
         // The test application's command bus is synchronous, so when this returns, all rebuild
-        // batches and the finalizing swap have been enqueued as Meilisearch tasks in order
-        $commandBus->dispatch(new Index('products'));
+        // batches have been processed by Meilisearch and the finalizing swap has been enqueued
+        $this->getCommandBus()->dispatch(new Index('products'));
     }
 
     /**
