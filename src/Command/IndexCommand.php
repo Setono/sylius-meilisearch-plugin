@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Command;
 
 use Meilisearch\Client;
-use Meilisearch\Contracts\TasksQuery;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
+use Setono\SyliusMeilisearchPlugin\Meilisearch\IndexSwapTasks;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -48,7 +49,6 @@ final class IndexCommand extends Command
             )
             ->addOption('wait', 'w', InputOption::VALUE_NONE, 'Wait for the indexing to finish')
             ->addOption('wait-timeout', 't', InputOption::VALUE_REQUIRED, 'The maximum time to wait for the indexing to finish in seconds. This is only relevant if you have enabled the "wait" option', 300)
-            ->addOption('delete', 'd', InputOption::VALUE_NONE, 'Delete index before creating')
         ;
     }
 
@@ -84,33 +84,37 @@ final class IndexCommand extends Command
     {
         /** @var list<string> $indexes */
         $indexes = $input->getArgument('indexes');
-        $delete = (bool) $input->getOption('delete');
 
-        if ($delete) {
-            $output->writeln('<comment>WARNING: --delete is enabled — each index is deleted before it is rebuilt, so search returns no results for that index until reindexing completes. A plain reindex (without --delete) upserts in place and avoids this downtime.</comment>');
-        }
+        $since = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
-        $uids = [];
+        $liveUids = [];
+        $requests = [];
 
         foreach ($indexes as $index) {
             $indexUids = $this->indexUidsProvider->get($index);
             foreach ($indexUids as $uid) {
-                $uids[$uid] = $uid;
+                $liveUids[$uid] = $uid;
             }
 
             $output->writeln(sprintf('Indexing <info>%s</info> → %s', $index, implode(', ', $indexUids)));
 
-            $this->commandBus->dispatch(new Index($index, $delete));
+            $message = new Index($index);
+            $this->commandBus->dispatch($message);
+
+            // An index without scopes has nothing to rebuild, so no swap will ever come
+            if ([] !== $indexUids) {
+                $requests[$message->requestId] = $index;
+            }
         }
 
-        $uids = array_values($uids);
+        $liveUids = array_values($liveUids);
 
         /** @var bool $wait */
         $wait = $input->getOption('wait');
 
         if ($wait) {
-            $this->wait($uids, (int) $input->getOption('wait-timeout'), $output);
-            $this->printSummary($uids, $output);
+            $this->wait($requests, $since, (int) $input->getOption('wait-timeout'), $output);
+            $this->printSummary($liveUids, $output);
         }
 
         return 0;
@@ -145,44 +149,50 @@ final class IndexCommand extends Command
     }
 
     /**
-     * @param list<string> $indexUids
+     * Waits until the rebuild requested by each dispatched Index message has been swapped live. The
+     * rebuilds build into per-run uids the command cannot resolve up front, but every rebuild id
+     * embeds the id of the request it serves (see RebuildUid), so its swap is recognizable in the
+     * task history — whether the rebuild runs on a worker or synchronously.
+     *
+     * @param array<string, string> $requests index names indexed by request id
      */
-    private function wait(array $indexUids, int $waitTimeout, OutputInterface $output): void
+    private function wait(array $requests, \DateTimeImmutable $since, int $waitTimeout, OutputInterface $output): void
     {
         $start = time();
 
-        $query = self::createTasksQuery($indexUids);
-
         do {
-            $results = $this->client->getTasks($query);
+            // Look back an hour to tolerate a clock skew between the application and Meilisearch
+            foreach (IndexSwapTasks::find($this->client, ['succeeded', 'failed'], $since->modify('-1 hour')) as $task) {
+                foreach (IndexSwapTasks::uids($task) as $uid) {
+                    $requestId = RebuildUid::requestIdOf($uid);
+                    if (null === $requestId || !isset($requests[$requestId])) {
+                        continue;
+                    }
 
-            if ($results->getTotal() === 0) {
+                    if ('failed' === $task->status) {
+                        throw new RuntimeException(sprintf(
+                            'Swapping the rebuilt "%s" index live failed: %s',
+                            $requests[$requestId],
+                            $task->error['message'] ?? 'unknown error',
+                        ));
+                    }
+
+                    unset($requests[$requestId]);
+                }
+            }
+
+            if ([] === $requests) {
                 return;
             }
 
-            $output->writeln(sprintf('Waiting for %d tasks to finish...', $results->getTotal()));
+            $output->writeln(sprintf('Waiting for the rebuild of %s to finish...', implode(', ', $requests)));
 
             sleep(10);
         } while ((time() - $start) < $waitTimeout);
 
-        throw new RuntimeException(sprintf('The indexing did not finish within the specified time (%d seconds)', $waitTimeout));
-    }
-
-    /**
-     * @param list<string> $indexUids
-     */
-    public static function createTasksQuery(array $indexUids): TasksQuery
-    {
-        $query = new TasksQuery();
-        $query->setStatuses(['enqueued', 'processing']);
-
-        // Scope the query to this run's index uids so we don't wait on unrelated tasks from
-        // other developers/environments sharing the same Meilisearch instance (the exact
-        // scenario MEILISEARCH_PREFIX exists for).
-        if ([] !== $indexUids) {
-            $query->setIndexUids($indexUids);
-        }
-
-        return $query;
+        throw new RuntimeException(sprintf(
+            'The indexing did not finish within the specified time (%d seconds). If it does not finish at all, check the logs: a rebuild that is superseded by a later one or abandoned is never swapped live',
+            $waitTimeout,
+        ));
     }
 }

@@ -13,7 +13,9 @@ use Setono\Doctrine\ORMTrait;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\DataMapper\DataMapperInterface;
 use Setono\SyliusMeilisearchPlugin\Filter\Entity\EntityFilterInterface as ObjectFilterInterface;
+use Setono\SyliusMeilisearchPlugin\Meilisearch\RebuildIndexes;
 use Setono\SyliusMeilisearchPlugin\Message\Command\IndexEntities;
+use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScope;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexScope\IndexScopeProviderInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -45,15 +47,22 @@ class DefaultIndexer extends AbstractIndexer
         $this->managerRegistry = $managerRegistry;
     }
 
-    public function index(): void
+    public function index(Rebuild $rebuild): int
     {
+        $batches = 0;
+
         foreach ($this->index->entities as $entity) {
             /** @var IndexBuffer<string|int> $buffer */
             $buffer = new IndexBuffer(
                 100,
                 /** @param list<string|int> $ids */
-                function (array $ids) use ($entity): void {
-                    $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids));
+                function (array $ids) use ($entity, $rebuild, &$batches): void {
+                    ++$batches;
+
+                    // The batch is constrained to this index: without that, the handler would fan it
+                    // out to every index configured for the entity class, and a rebuild batch would
+                    // write into rebuild indexes that are never swapped
+                    $this->commandBus->dispatch(IndexEntities::fromIds($entity, $ids, $this->index->name, $rebuild, $batches));
                 },
             );
 
@@ -63,16 +72,34 @@ class DefaultIndexer extends AbstractIndexer
 
             $buffer->flush();
         }
+
+        return $batches;
     }
 
-    public function indexEntities(array $entities): void
+    public function indexEntities(array $entities, ?Rebuild $rebuild = null): void
     {
         if ([] === $entities) {
             return;
         }
 
+        /** @var list<array{IndexScope, string}> $scopes */
+        $scopes = [];
         foreach ($this->indexScopeProvider->getAll($this->index) as $indexScope) {
-            $uid = $this->indexNameResolver->resolveFromIndexScope($indexScope);
+            $liveUid = $this->indexNameResolver->resolveFromIndexScope($indexScope);
+
+            // A scope that appeared after the rebuild started has no rebuild index (and is not part of
+            // the swap) — its live index is created by the next rebuild
+            if (null !== $rebuild && !$rebuild->covers($liveUid)) {
+                continue;
+            }
+
+            $scopes[] = [$indexScope, $liveUid];
+        }
+
+        $inFlight = null === $rebuild ? RebuildIndexes::inFlight($this->client, array_column($scopes, 1)) : [];
+
+        foreach ($scopes as [$indexScope, $liveUid]) {
+            $uids = null === $rebuild ? [$liveUid, ...$inFlight[$liveUid] ?? []] : [$rebuild->uidOf($liveUid)];
 
             $documents = [];
             $documentsToRemove = [];
@@ -88,13 +115,15 @@ class DefaultIndexer extends AbstractIndexer
 
                     // Actively remove a filtered-out entity from the index (e.g. a product that was
                     // just disabled or went out of stock) instead of silently leaving a stale document.
+                    // This also applies when rebuilding: a retried batch may already have written the
+                    // entity's document before it was filtered out.
                     $documentIdentifier = $entity->getDocumentIdentifier();
                     if (null !== $documentIdentifier) {
                         $documentsToRemove[] = $documentIdentifier;
                     }
 
                     $this->logger->debug('Entity was filtered out during indexing and removed from the index if present', [
-                        'index' => $uid,
+                        'index' => $liveUid,
                         'entity' => $entity::class,
                         'id' => $entity->getDocumentIdentifier(),
                     ]);
@@ -112,7 +141,7 @@ class DefaultIndexer extends AbstractIndexer
                     }
 
                     $this->logger->warning('Document failed validation during indexing and was skipped', [
-                        'index' => $uid,
+                        'index' => $liveUid,
                         'entity' => $entity::class,
                         'id' => $entity->getDocumentIdentifier(),
                         'violations' => $messages,
@@ -127,26 +156,27 @@ class DefaultIndexer extends AbstractIndexer
                 $documents[] = $data;
             }
 
-            $meilisearchIndex = $this->client->index($uid);
+            foreach ($uids as $uid) {
+                $meilisearchIndex = $this->client->index($uid);
 
-            // Skip the addDocuments call for an empty batch (e.g. everything was filtered out)
-            // so we don't create pointless empty Meilisearch tasks.
-            if ([] !== $documents) {
-                $meilisearchIndex->addDocuments($documents, 'id');
+                // Skip the call for an empty batch so we don't create pointless empty Meilisearch tasks
+                if ([] !== $documents) {
+                    $meilisearchIndex->addDocuments($documents, 'id');
+                }
+
+                if ([] !== $documentsToRemove) {
+                    $meilisearchIndex->deleteDocuments($documentsToRemove);
+                }
+
+                $this->logger->info('Indexed a batch of entities', [
+                    'index' => $uid,
+                    'mapped' => count($entities),
+                    'filtered' => $filtered,
+                    'invalid' => $invalid,
+                    'indexed' => count($documents),
+                    'removed' => count($documentsToRemove),
+                ]);
             }
-
-            if ([] !== $documentsToRemove) {
-                $meilisearchIndex->deleteDocuments($documentsToRemove);
-            }
-
-            $this->logger->info('Indexed a batch of entities', [
-                'index' => $uid,
-                'mapped' => count($entities),
-                'filtered' => $filtered,
-                'invalid' => $invalid,
-                'indexed' => count($documents),
-                'removed' => count($documentsToRemove),
-            ]);
         }
     }
 
@@ -173,16 +203,25 @@ class DefaultIndexer extends AbstractIndexer
             return;
         }
 
+        $liveUids = [];
         foreach ($this->indexScopeProvider->getAll($this->index) as $indexScope) {
-            $uid = $this->indexNameResolver->resolveFromIndexScope($indexScope);
+            $liveUids[] = $this->indexNameResolver->resolveFromIndexScope($indexScope);
+        }
 
-            // One batch deleteDocuments task per scope instead of one deleteDocument task per id
-            $this->client->index($uid)->deleteDocuments($documentIds);
+        // A rebuild in flight may have indexed the documents before their removal, and its swap would
+        // bring them back — so they are removed from its rebuild indexes too
+        $inFlight = RebuildIndexes::inFlight($this->client, $liveUids);
 
-            $this->logger->info('Removed documents from index', [
-                'index' => $uid,
-                'ids' => $documentIds,
-            ]);
+        foreach ($liveUids as $liveUid) {
+            foreach ([$liveUid, ...$inFlight[$liveUid] ?? []] as $uid) {
+                // One batch deleteDocuments task per scope instead of one deleteDocument task per id
+                $this->client->index($uid)->deleteDocuments($documentIds);
+
+                $this->logger->info('Removed documents from index', [
+                    'index' => $uid,
+                    'ids' => $documentIds,
+                ]);
+            }
         }
     }
 }

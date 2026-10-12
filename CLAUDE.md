@@ -41,7 +41,7 @@ Note `APP_ENV`: under the Symfony CLI the value comes from the CLI's own dotenv 
 
 **The port changes whenever the container is recreated, and the plugin bakes the URL into the compiled container** (the extension calls `resolveEnvPlaceholders()` at compile time), so run `symfony console cache:clear` after `docker compose up`, or the app keeps calling the previous port. A stale cache fails loudly with a connection error rather than silently hitting another instance.
 
-Note: repeated fixture loads accumulate stale documents in a long-lived local Meilisearch (indexes are only added to, never purged), which can make index-vs-database comparisons drift. `docker compose down && docker compose up -d` resets the instance (the compose service has no volume) — remember it comes back on a new port and empty, so clear the cache and re-run the index command. CI uses a fresh container per run.
+Note: a full index run is an atomic swap rebuild (per-run temp `<uid>__rebuild_<id>` index + `swapIndexes`, see `FinalizeIndexRebuild`), so re-running the index command purges any drift from repeated fixture loads. `docker compose down && docker compose up -d` still gives a fully clean instance (the compose service has no volume) — remember it comes back on a new port and empty, so clear the cache and re-run the index command. CI uses a fresh container per run.
 
 ### E2E tests (Playwright)
 
@@ -70,6 +70,15 @@ CI tests both `lowest` and `highest` deps (PHP 8.1/8.2/8.3 × Symfony ~6.4.0). B
 ### Indexing pipeline
 
 `setono_sylius_meilisearch.indexes` config becomes `Config\Index` value objects (name, Document class, entity classes, per-index service locator, `dynamic_fields` flag) collected in `Config\IndexRegistry`. Indexing is triggered by the `setono:sylius-meilisearch:index` command or by Doctrine lifecycle events (`EventListener\Doctrine\EntityListener`), both dispatching messenger commands (`Message\Command\*`). `Indexer\DefaultIndexer` batches entity ids through `IndexBuffer`, loads entities, and runs each through the composite `DataMapper` chain, which populates `Document\Document` subclasses (attribute mapping is driven by PHP attributes like `#[Facetable]` on document properties, read via `Document\Metadata\MetadataFactory`). Documents are serialized and pushed to Meilisearch; the index uid is resolved per scope (channel/locale/currency + `%env(MEILISEARCH_PREFIX)%` and kernel environment) via `Resolver\IndexUid` and `Provider\IndexScope`.
+
+A full index run is an atomic rebuild (`IndexHandler` → `IndexEntities` batches → `FinalizeIndexRebuild`), with invariants that are easy to break:
+
+- Every handling attempt of an `Index` message builds into its own `<live uid>__rebuild_<YmdHis>_<request id>_<attempt>` indexes (`Resolver\IndexUid\RebuildUid`, `Indexer\Rebuild`). The request id is how `--wait` recognizes the swap of the rebuild it requested; ids compare chronologically with `strcmp()`.
+- Completeness is a **ledger**, not a task count: after indexing, each batch upserts `{id: <batch number>}` into the run's `__ledger` index (`IndexEntitiesHandler`), so retries and redeliveries count once and a batch whose entities were all deleted still counts. The finalization swaps only when every batch is recorded *and* no task on the rebuild uids is pending or failed.
+- The finalization must stay safe to repeat: it first scans swap tasks (`Meilisearch\IndexSwapTasks`) for its own rebuild uid (already swapped → only clean up) or a later run's (superseded → clean up, never swap). A processed swap renames the swapped indexes throughout the task history, including inside earlier swap tasks' details, which is why matching is by rebuild uid, not by live uid.
+- On a synchronous bus the rescheduled check re-enters the handler; the nested call hands it back and the outer call sleeps on the injected clock and loops (no recursion).
+- Incremental writes (`DefaultIndexer::indexEntities()`/`removeDocuments()`, `UpdateSynonymsHandler`) are mirrored into in-flight rebuild indexes (`Meilisearch\RebuildIndexes::inFlight()`); otherwise the swap reverts them.
+- The rebuild index starts from the live index's settings (minus `embedders`, whose API keys Meilisearch redacts on read) with the plugin's settings on top, matching the old partial-update semantics.
 
 Metadata is a function of **(document class, index)**: `MetadataFactoryInterface::getMetadataFor($document, $index)` requires the index, memoizes per `class|index`, and dispatches `Event\MetadataCreated` **before** memoizing — so a listener must never call `getMetadataFor()` (infinite recursion); it mutates `$event->metadata` and reads repositories instead. `MetadataFactory` implements `ResetInterface` with an explicit `kernel.reset` tag (the plugin's XML has no autoconfiguration, so the tag must be explicit) — messenger's per-message reset is how workers see admin configuration changes.
 

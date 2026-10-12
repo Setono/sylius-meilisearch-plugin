@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Message\Command;
 
 use Setono\SyliusMeilisearchPlugin\Config\Index as IndexConfig;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid;
 
 final class Index implements CommandInterface
 {
@@ -13,16 +14,19 @@ final class Index implements CommandInterface
      */
     public readonly string $index;
 
-    public function __construct(
-        IndexConfig|string $index,
+    /**
+     * Identifies this request. The rebuild id of every attempt to handle it embeds this id, which is
+     * how the index command recognizes the swap of the rebuild it requested (see RebuildUid).
+     */
+    public readonly string $requestId;
 
-        /** If this is true, the index will be deleted before it is created and populated */
-        public readonly bool $delete = false,
-    ) {
+    public function __construct(IndexConfig|string $index)
+    {
         if ($index instanceof IndexConfig) {
             $index = $index->name;
         }
 
         $this->index = $index;
+        $this->requestId = RebuildUid::generateRequestId();
     }
 }
