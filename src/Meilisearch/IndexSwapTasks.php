@@ -9,69 +9,75 @@ use Meilisearch\Contracts\TasksQuery;
 
 final class IndexSwapTasks
 {
+    private const PAGE_SIZE = 100;
+
     private function __construct()
     {
     }
 
     /**
-     * Returns the number of enqueued or processing indexSwap tasks involving any of the given index
-     * uids. A swap task has a null indexUid, so the tasks API cannot filter it by index (and its
-     * "total" even counts such tasks as if an indexUids filter matched) — the matching has to happen
-     * client side, on the swaps listed in the task details.
+     * Returns the indexSwap tasks with the given statuses that were enqueued after the given time. A
+     * swap task has a null indexUid, so the tasks API cannot filter it by index (and its "total" even
+     * counts such tasks as if an indexUids filter matched) — callers match on the uids the swap
+     * involves instead (see IndexSwapTasks::uids()).
      *
-     * @param list<string> $uids
+     * @param list<string> $statuses
+     *
+     * @return list<Task>
      */
-    public static function pending(Client $client, array $uids): int
+    public static function find(Client $client, array $statuses, \DateTimeImmutable $enqueuedAfter): array
     {
         $query = new TasksQuery();
         $query->setTypes(['indexSwap']);
-        $query->setStatuses(['enqueued', 'processing']);
-        $query->setLimit(100);
+        $query->setStatuses($statuses);
+        $query->setAfterEnqueuedAt($enqueuedAfter);
+        $query->setLimit(self::PAGE_SIZE);
 
-        $pending = 0;
+        $tasks = [];
 
-        foreach ($client->getTasks($query)->getResults() as $task) {
-            if (self::touches($task, $uids)) {
-                ++$pending;
+        do {
+            $results = $client->getTasks($query);
+
+            foreach ($results->getResults() as $task) {
+                $tasks[] = Task::fromArray($task);
             }
-        }
 
-        return $pending;
+            // The SDK maps the API's null "next" (no more pages) to 0
+            $next = $results->getNext();
+            $query->setFrom($next);
+        } while ($next > 0);
+
+        return $tasks;
     }
 
     /**
-     * @param array<array-key, mixed> $task
-     * @param list<string> $uids
+     * Returns every index uid the swap task involves. Note that processing a swap renames the swapped
+     * indexes throughout the task history, including in the details of earlier swap tasks.
+     *
+     * @return list<string>
      */
-    private static function touches(array $task, array $uids): bool
+    public static function uids(Task $task): array
     {
-        $details = $task['details'] ?? null;
-        if (!is_array($details)) {
-            return false;
+        $swaps = $task->details['swaps'] ?? null;
+        if (!is_array($swaps)) {
+            return [];
         }
 
-        $swaps = $details['swaps'] ?? null;
-        if (!is_array($swaps)) {
-            return false;
-        }
+        $uids = [];
 
         foreach ($swaps as $swap) {
-            if (!is_array($swap)) {
-                continue;
-            }
-
-            $indexes = $swap['indexes'] ?? null;
+            $indexes = is_array($swap) ? ($swap['indexes'] ?? null) : null;
             if (!is_array($indexes)) {
                 continue;
             }
 
-            foreach ($indexes as $indexUid) {
-                if (in_array($indexUid, $uids, true)) {
-                    return true;
+            foreach ($indexes as $uid) {
+                if (is_string($uid)) {
+                    $uids[] = $uid;
                 }
             }
         }
 
-        return false;
+        return $uids;
     }
 }

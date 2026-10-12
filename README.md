@@ -178,8 +178,20 @@ Every run is an **atomic, zero-downtime rebuild**: documents and settings are bu
 `<uid>__rebuild_<id>` index per scope — the id is unique per run — which is then [swapped](https://www.meilisearch.com/docs/reference/api/indexes#swap-indexes)
 with the live index in one atomic operation and deleted. Search keeps serving the previous documents
 until the swap, and because the live index is replaced wholesale, documents whose entities no longer
-exist (or no longer qualify) are purged as a side effect. Overlapping runs are safe: each run builds
-its own generation and can never write into, swap, or delete another run's indexes.
+exist (or no longer qualify) are purged as a side effect.
+
+- **Overlapping runs are safe.** Each run builds its own generation and can never write into, swap, or
+  delete another run's indexes. Whichever run finishes first is swapped live, but a run never swaps
+  after a run that started later — it is superseded and discarded instead.
+- **Changes made during a rebuild are kept.** Incremental indexing (entity saves and removals, synonym
+  updates) writes to the live index *and* to the indexes of any rebuild in flight, so the swap does not
+  revert them — except in the first moments of a rebuild, before Meilisearch has created its indexes.
+- **Settings the plugin does not manage are carried over** from the live index (e.g. `localizedAttributes`
+  or `facetSearch` configured in the Meilisearch dashboard). The exception is `embedders`: Meilisearch
+  redacts their API keys when settings are read, so they cannot be copied. Provide them through the
+  plugin instead — extend `Setono\SyliusMeilisearchPlugin\Settings\Settings` with an `embedders`
+  property and return it from your own settings provider. The plugin logs a warning when it finds
+  embedders on a live index that its settings do not provide.
 
 After the initial population, the plugin keeps the index up to date as entities change — including related changes such as channel prices and variant stock (via tagged `IndexableEntityResolver` services).
 
@@ -189,7 +201,7 @@ Read this before going to production — it covers how indexing actually runs, w
 
 ### Asynchronous indexing (strongly recommended)
 
-Out of the box every save of an indexable entity indexes **synchronously inside the request**: the plugin dispatches its messages on a dedicated `setono_sylius_meilisearch.command_bus`, which — with no transport routing — runs the handlers inline, issuing one blocking Meilisearch HTTP call per index scope. That makes admin product saves slower the more channels/locales/currencies you have. (A failed index update never breaks the save — the plugin catches and logs it — but it does add latency.)
+Out of the box every save of an indexable entity indexes **synchronously inside the request**: the plugin dispatches its messages on a dedicated `setono_sylius_meilisearch.command_bus`, which — with no transport routing — runs the handlers inline, issuing one blocking Meilisearch HTTP call per index scope. That makes admin product saves slower the more channels/locales/currencies you have. (A failed index update never breaks the save — the plugin catches and logs it — but it does add latency.) A full rebuild also runs inline, including waiting for Meilisearch to process the rebuilt documents before the swap — which includes the rebuild that saving an indexed attribute or option triggers.
 
 Route the plugin's messages to an async transport instead. All plugin messages implement `Setono\SyliusMeilisearchPlugin\Message\Command\CommandInterface`, so a single routing entry covers everything:
 
@@ -210,13 +222,17 @@ php bin/console messenger:consume setono_sylius_meilisearch --time-limit=3600
 ```
 
 > **Parallel consumers are fully supported — message ordering does not matter.** A full rebuild
-> knows exactly how many document batches it dispatched, and its finalizing message counts the
-> matching tasks on the rebuild indexes before swapping: if batches are still in flight (parallel
-> consumers, or a transiently failed batch waiting for its retry), the finalization reschedules
-> itself — with a delay derived from the observed indexing throughput — until every batch has
-> arrived. A batch that is lost for good (it exhausted its retries into the failure transport)
-> means the rebuild is **never swapped live**: search keeps serving the previous documents, an
-> error is logged, and the abandoned rebuild indexes are deleted by a later rebuild once stale.
+> knows exactly how many document batches it dispatched, and every batch records itself in the
+> run's ledger index once it has handed its documents to Meilisearch (retries and redeliveries
+> record the same batch only once). The finalizing message swaps only when every batch is recorded
+> *and* Meilisearch has processed all of the run's tasks without a failure. Until then it reschedules
+> itself — with a delay derived from the observed indexing throughput — so batches still in flight
+> (parallel consumers, or a transiently failed batch waiting for its retry) are simply waited for.
+> An incomplete rebuild is **never swapped live**: if no batch has been recorded for two hours (a
+> batch exhausted its retries into the failure transport), or a document task failed in
+> Meilisearch, search keeps serving the previous documents, an error is logged, and the rebuild
+> indexes are deleted. Every step of the finalization is safe to retry, so its errors are left to
+> the transport's retry strategy.
 
 ### How settings sync works
 
@@ -233,10 +249,9 @@ The admin-managed configuration is the exception: saving a synonym pushes the sy
   ```
   0 3 * * *  php /path/to/app/bin/console setono:sylius-meilisearch:index --wait
   ```
-  (`--wait` makes the command block until Meilisearch has finished processing this run's tasks, including the atomic swap.)
-- **Supervise the worker(s)** running `messenger:consume` (see above) and monitor the failure transport — a rebuild batch that lands there means the rebuild was abandoned rather than swapped live incomplete (see the note above).
+  (`--wait` makes the command block until the rebuild it requested has been swapped live — also when the rebuild runs on a worker — and fail if the swap fails or does not happen within `--wait-timeout` seconds, 300 by default. A rebuild that is superseded by a later one or abandoned is never swapped, so the command then times out; the logs say why.)
+- **Supervise the worker(s)** running `messenger:consume` (see above) and monitor the failure transport — a rebuild batch that lands there means the rebuild is abandoned rather than swapped live incomplete (see the note above).
 - **Plan for the rebuild's disk usage.** During a rebuild each index briefly exists twice (live + `__rebuild_<id>`), so Meilisearch needs transient headroom of roughly one extra copy of your largest index. A rebuild index left behind by a crashed run is deleted by a later rebuild once it is older than 24 hours (the age is embedded in its uid, so an in-progress rebuild is never mistaken for a stray).
-- Entity changes saved **while** a rebuild is running are indexed into the live index and are therefore reverted by the swap moments later; the next save (or the next rebuild) restores them. With a nightly cron this window is practically irrelevant.
 - **Drain the plugin's transport before deploying plugin upgrades.** Queued messages are serialized PHP objects; a deploy that changes the plugin's message classes can make payloads queued by the old code fail on the new workers. Let the worker empty the transport before switching code.
 - **Environment variables:** `MEILISEARCH_URL` and `MEILISEARCH_MASTER_KEY` are required; `MEILISEARCH_SEARCH_KEY` is required for search/autocomplete; `MEILISEARCH_PUBLIC_URL` and `MEILISEARCH_PREFIX` are optional.
 

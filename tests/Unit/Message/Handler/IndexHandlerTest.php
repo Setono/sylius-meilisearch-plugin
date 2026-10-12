@@ -8,14 +8,16 @@ use Meilisearch\Client;
 use Meilisearch\Contracts\IndexesQuery;
 use Meilisearch\Contracts\IndexesResults;
 use Meilisearch\Endpoints\Indexes;
+use Meilisearch\Exceptions\ApiException;
+use Nyholm\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
-use Prophecy\Prophecy\ObjectProphecy;
 use Setono\SyliusMeilisearchPlugin\Config\Index;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Document\Product as ProductDocument;
 use Setono\SyliusMeilisearchPlugin\Indexer\IndexerInterface;
+use Setono\SyliusMeilisearchPlugin\Indexer\Rebuild;
 use Setono\SyliusMeilisearchPlugin\Message\Command\FinalizeIndexRebuild;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index as IndexMessage;
 use Setono\SyliusMeilisearchPlugin\Message\Handler\IndexHandler;
@@ -26,6 +28,7 @@ use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\IndexUidResolverInterface;
 use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid;
 use Setono\SyliusMeilisearchPlugin\Settings\Settings;
 use Setono\SyliusMeilisearchPlugin\Tests\Application\Entity\Product;
+use Setono\SyliusMeilisearchPlugin\Tests\Unit\Indexer\SpyLogger;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
@@ -38,17 +41,6 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 final class IndexHandlerTest extends TestCase
 {
     use ProphecyTrait;
-
-    /**
-     * @return ObjectProphecy<Indexes>
-     */
-    private function prophesizeIndexes(): ObjectProphecy
-    {
-        $indexes = $this->prophesize(Indexes::class);
-        $indexes->updateSettings(['normalized' => 'settings'])->shouldBeCalledOnce()->willReturn([]);
-
-        return $indexes;
-    }
 
     /**
      * @param list<string> $uids
@@ -71,10 +63,9 @@ final class IndexHandlerTest extends TestCase
     public function it_rebuilds_into_per_run_rebuild_indexes_and_finalizes_after_indexing(): void
     {
         $calls = [];
-        $settingsUids = [];
 
         $indexer = $this->prophesize(IndexerInterface::class);
-        $indexer->index(Argument::type('string'))->shouldBeCalledOnce()->will(function () use (&$calls): int {
+        $indexer->index(Argument::type(Rebuild::class))->shouldBeCalledOnce()->will(function () use (&$calls): int {
             $calls[] = 'index';
 
             return 5;
@@ -87,8 +78,8 @@ final class IndexHandlerTest extends TestCase
         $indexRegistry = $this->prophesize(IndexRegistryInterface::class);
         $indexRegistry->get('products')->willReturn($index);
 
-        // Two scopes resolving to the same uid plus a third scope: the rebuild must deduplicate
-        $scopeA1 = new IndexScope($index, 'FASHION_WEB', 'en_US', null);
+        // Two scopes resolving to the same uid plus a third scope
+        $scopeA1 = new IndexScope($index, 'FASHION_WEB', 'en_US', 'EUR');
         $scopeA2 = new IndexScope($index, 'FASHION_WEB', 'en_US', 'USD');
         $scopeB = new IndexScope($index, 'FASHION_WEB', 'da_DK', null);
 
@@ -101,59 +92,97 @@ final class IndexHandlerTest extends TestCase
         $uidResolver->resolveFromIndexScope($scopeB)->willReturn('products__b');
 
         $settingsProvider = $this->prophesize(SettingsProviderInterface::class);
-        $settingsProvider->getSettings(Argument::type(IndexScope::class))->willReturn(new Settings());
+        $settingsProvider->getSettings(Argument::type(IndexScope::class))->will(fn (array $args): Settings => self::settingsFor($args[0]));
 
         $normalizer = $this->prophesize(NormalizerInterface::class);
-        $normalizer->normalize(Argument::type(Settings::class))->willReturn(['normalized' => 'settings']);
+        $normalizer->normalize(Argument::type(Settings::class))->will(function (array $args): array {
+            \assert($args[0] instanceof Settings);
 
-        $settingsIndexes = [$this->prophesizeIndexes()->reveal(), $this->prophesizeIndexes()->reveal()];
+            return ['filterableAttributes' => [$args[0]->distinctAttribute]];
+        });
 
         $client = $this->prophesize(Client::class);
         // No stray rebuild indexes exist, and the live indexes are never deleted (this is the
         // zero-downtime guarantee: the only mutation of a live index is the atomic swap)
         $client->getIndexes(Argument::type(IndexesQuery::class))->willReturn($this->createIndexesResults([]));
         $client->deleteIndex(Argument::any())->shouldNotBeCalled();
-        // The settings go to the per-run rebuild indexes, once per unique uid
-        $client
-            ->index(Argument::that(function (string $uid) use (&$settingsUids): bool {
-                if (1 !== preg_match('/^products__(a|b)__rebuild_\d{14}_[0-9a-f]{6}$/', $uid)) {
-                    return false;
-                }
-                $settingsUids[] = $uid;
 
-                return true;
-            }))
-            ->shouldBeCalledTimes(2)
-            ->will(function () use (&$settingsIndexes): Indexes {
-                $indexes = array_shift($settingsIndexes);
-                \assert($indexes instanceof Indexes);
+        // The live index's settings are carried over, except the ones the plugin manages and the
+        // embedders, whose API keys Meilisearch redacts
+        $liveA = $this->prophesize(Indexes::class);
+        $liveA->getSettings()->shouldBeCalledOnce()->willReturn([
+            'filterableAttributes' => ['stale'],
+            'localizedAttributes' => [['attributePatterns' => ['*_da'], 'locales' => ['dan']]],
+            'embedders' => ['default' => ['source' => 'openAi', 'apiKey' => 'sk-XXXXXX...']],
+        ]);
+        $liveA->updateSettings(Argument::any())->shouldNotBeCalled();
+        $client->index('products__a')->willReturn($liveA->reveal());
+        // On the first rebuild the live index does not exist yet
+        $liveB = $this->prophesize(Indexes::class);
+        $liveB->getSettings()->willThrow(new ApiException(new Response(404), null));
+        $client->index('products__b')->willReturn($liveB->reveal());
 
-                return $indexes;
-            })
-        ;
+        // Settings are only ever applied to this run's rebuild indexes. Every scope's settings are
+        // applied, in scope order, so the last scope sharing a uid wins.
+        $localizedAttributes = [['attributePatterns' => ['*_da'], 'locales' => ['dan']]];
+        $recorder = new class() {
+            /** @var list<string> */
+            public array $settings = [];
+
+            /** @var list<string> */
+            public array $rebuildUids = [];
+
+            public ?FinalizeIndexRebuild $finalize = null;
+        };
+
+        $rebuildA = $this->prophesize(Indexes::class);
+        foreach (['EUR', 'USD'] as $currency) {
+            $rebuildA
+                ->updateSettings(['filterableAttributes' => [$currency], 'localizedAttributes' => $localizedAttributes])
+                ->shouldBeCalledOnce()
+                ->will(function () use ($recorder, $currency): array {
+                    $recorder->settings[] = $currency;
+
+                    return [];
+                })
+            ;
+        }
+        $rebuildB = $this->prophesize(Indexes::class);
+        $rebuildB->updateSettings(['filterableAttributes' => ['default']])->shouldBeCalledOnce()->willReturn([]);
+
+        foreach (['a' => $rebuildA, 'b' => $rebuildB] as $scope => $rebuildIndex) {
+            $client
+                ->index(Argument::that(static fn (string $uid): bool => 1 === preg_match('/^products__' . $scope . '__rebuild_\d{14}_[0-9a-f]{6}_[0-9a-f]{4}$/', $uid)))
+                ->will(function (array $args) use ($recorder, $rebuildIndex): Indexes {
+                    \assert(is_string($args[0]));
+                    $recorder->rebuildUids[] = $args[0];
+
+                    return $rebuildIndex->reveal();
+                })
+            ;
+        }
+
+        $message = new IndexMessage('products');
 
         $commandBus = $this->prophesize(MessageBusInterface::class);
         $commandBus
             ->dispatch(Argument::that(
-                function (FinalizeIndexRebuild $message) use (&$settingsUids): bool {
-                    // The finalize message must carry the same rebuild id the settings were applied under
-                    $sameGeneration = [] !== $settingsUids && RebuildUid::from('products__a', $message->rebuildId) === $settingsUids[0];
-
-                    // 5 batches × 3 scopes (scope iterations, not unique uids — the indexer creates
-                    // one document-addition task per scope iteration)
-                    return 'products' === $message->index &&
-                        ['products__a', 'products__b'] === $message->liveUids &&
-                        15 === $message->expectedTasks &&
-                        $sameGeneration;
-                },
+                static fn (FinalizeIndexRebuild $finalize): bool => 'products' === $finalize->index &&
+                    ['products__a', 'products__b'] === $finalize->rebuild->liveUids &&
+                    5 === $finalize->batches &&
+                    $message->requestId === RebuildUid::requestIdOf($finalize->rebuild->uidOf('products__a')),
             ))
             ->shouldBeCalledOnce()
-            ->will(function () use (&$calls): Envelope {
+            ->will(function (array $args) use (&$calls, $recorder): Envelope {
+                \assert($args[0] instanceof FinalizeIndexRebuild);
+                $recorder->finalize = $args[0];
                 $calls[] = 'finalize';
 
                 return new Envelope(new \stdClass());
             })
         ;
+
+        $logger = new SpyLogger();
 
         $handler = new IndexHandler(
             $indexRegistry->reveal(),
@@ -163,12 +192,33 @@ final class IndexHandlerTest extends TestCase
             $uidResolver->reveal(),
             $normalizer->reveal(),
             $commandBus->reveal(),
+            $logger,
         );
 
-        $handler(new IndexMessage('products'));
+        $handler($message);
 
         // The finalize message must be dispatched only after all batches have been dispatched
         self::assertSame(['index', 'finalize'], $calls);
+
+        self::assertSame(['EUR', 'USD'], $recorder->settings);
+        // The finalization targets the generation of rebuild indexes the settings were applied to
+        self::assertNotNull($recorder->finalize);
+        self::assertSame($recorder->finalize->rebuild->uids(), array_values(array_unique($recorder->rebuildUids)));
+
+        $warning = $logger->firstOfLevel('warning');
+        self::assertNotNull($warning);
+        self::assertSame('products__a', $warning['context']['index']);
+    }
+
+    private static function settingsFor(mixed $indexScope): Settings
+    {
+        \assert($indexScope instanceof IndexScope);
+
+        // Tells the scopes' settings apart
+        $settings = new Settings();
+        $settings->distinctAttribute = $indexScope->currencyCode ?? 'default';
+
+        return $settings;
     }
 
     /**
@@ -177,7 +227,7 @@ final class IndexHandlerTest extends TestCase
     public function it_deletes_stale_rebuild_indexes_but_never_a_running_generation(): void
     {
         $indexer = $this->prophesize(IndexerInterface::class);
-        $indexer->index(Argument::type('string'))->shouldBeCalledOnce()->willReturn(1);
+        $indexer->index(Argument::type(Rebuild::class))->shouldBeCalledOnce()->willReturn(1);
 
         $locator = new Container();
         $locator->set(IndexerInterface::class, $indexer->reveal());
@@ -200,18 +250,27 @@ final class IndexHandlerTest extends TestCase
         $normalizer = $this->prophesize(NormalizerInterface::class);
         $normalizer->normalize(Argument::type(Settings::class))->willReturn(['normalized' => 'settings']);
 
-        $staleUid = 'products__a__rebuild_20200101120000_ab12cd';
+        $staleUid = 'products__a__rebuild_20200101120000_ab12cd_ef01';
+        $staleLedgerUid = $staleUid . '__ledger';
         // A concurrent rebuild started moments ago must not have its generation deleted
-        $runningUid = RebuildUid::from('products__a', RebuildUid::generateId());
+        $runningUid = RebuildUid::from('products__a', RebuildUid::generateId('123456'));
 
         $client = $this->prophesize(Client::class);
         $client->getIndexes(Argument::type(IndexesQuery::class))->willReturn(
-            $this->createIndexesResults(['products__a', $staleUid, $runningUid]),
+            $this->createIndexesResults(['products__a', $staleUid, $staleLedgerUid, $runningUid]),
         );
         $client->deleteIndex($staleUid)->shouldBeCalledOnce()->willReturn([]);
+        $client->deleteIndex($staleLedgerUid)->shouldBeCalledOnce()->willReturn([]);
+
+        $live = $this->prophesize(Indexes::class);
+        $live->getSettings()->willReturn([]);
+        $client->index('products__a')->willReturn($live->reveal());
+
+        $rebuildIndex = $this->prophesize(Indexes::class);
+        $rebuildIndex->updateSettings(['normalized' => 'settings'])->shouldBeCalledOnce()->willReturn([]);
         $client
-            ->index(Argument::that(static fn (string $uid): bool => 1 === preg_match('/^products__a__rebuild_\d{14}_[0-9a-f]{6}$/', $uid)))
-            ->willReturn($this->prophesizeIndexes()->reveal())
+            ->index(Argument::that(static fn (string $uid): bool => str_starts_with($uid, 'products__a__rebuild_')))
+            ->willReturn($rebuildIndex->reveal())
         ;
 
         $commandBus = $this->prophesize(MessageBusInterface::class);

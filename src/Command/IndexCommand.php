@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Setono\SyliusMeilisearchPlugin\Command;
 
 use Meilisearch\Client;
-use Meilisearch\Contracts\TasksQuery;
 use Setono\SyliusMeilisearchPlugin\Config\IndexRegistryInterface;
 use Setono\SyliusMeilisearchPlugin\Meilisearch\IndexSwapTasks;
 use Setono\SyliusMeilisearchPlugin\Message\Command\Index;
 use Setono\SyliusMeilisearchPlugin\Provider\IndexUids\IndexUidsProviderInterface;
+use Setono\SyliusMeilisearchPlugin\Resolver\IndexUid\RebuildUid;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -85,7 +85,10 @@ final class IndexCommand extends Command
         /** @var list<string> $indexes */
         $indexes = $input->getArgument('indexes');
 
+        $since = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
         $liveUids = [];
+        $requests = [];
 
         foreach ($indexes as $index) {
             $indexUids = $this->indexUidsProvider->get($index);
@@ -95,7 +98,13 @@ final class IndexCommand extends Command
 
             $output->writeln(sprintf('Indexing <info>%s</info> → %s', $index, implode(', ', $indexUids)));
 
-            $this->commandBus->dispatch(new Index($index));
+            $message = new Index($index);
+            $this->commandBus->dispatch($message);
+
+            // An index without scopes has nothing to rebuild, so no swap will ever come
+            if ([] !== $indexUids) {
+                $requests[$message->requestId] = $index;
+            }
         }
 
         $liveUids = array_values($liveUids);
@@ -104,7 +113,7 @@ final class IndexCommand extends Command
         $wait = $input->getOption('wait');
 
         if ($wait) {
-            $this->wait($liveUids, (int) $input->getOption('wait-timeout'), $output);
+            $this->wait($requests, $since, (int) $input->getOption('wait-timeout'), $output);
             $this->printSummary($liveUids, $output);
         }
 
@@ -140,53 +149,50 @@ final class IndexCommand extends Command
     }
 
     /**
-     * @param list<string> $indexUids
+     * Waits until the rebuild requested by each dispatched Index message has been swapped live. The
+     * rebuilds build into per-run uids the command cannot resolve up front, but every rebuild id
+     * embeds the id of the request it serves (see RebuildUid), so its swap is recognizable in the
+     * task history — whether the rebuild runs on a worker or synchronously.
+     *
+     * @param array<string, string> $requests index names indexed by request id
      */
-    private function wait(array $indexUids, int $waitTimeout, OutputInterface $output): void
+    private function wait(array $requests, \DateTimeImmutable $since, int $waitTimeout, OutputInterface $output): void
     {
         $start = time();
 
-        $query = self::createTasksQuery($indexUids);
-
         do {
-            // Count the returned tasks instead of trusting getTotal(): the total field also counts
-            // tasks without an indexUid (e.g. index swaps anywhere on the instance) even when the
-            // query is scoped to specific uids
-            $pending = count($this->client->getTasks($query)->getResults());
+            // Look back an hour to tolerate a clock skew between the application and Meilisearch
+            foreach (IndexSwapTasks::find($this->client, ['succeeded', 'failed'], $since->modify('-1 hour')) as $task) {
+                foreach (IndexSwapTasks::uids($task) as $uid) {
+                    $requestId = RebuildUid::requestIdOf($uid);
+                    if (null === $requestId || !isset($requests[$requestId])) {
+                        continue;
+                    }
 
-            // A rebuild's document tasks target per-run rebuild uids this command cannot know, but
-            // its swap task is enqueued behind them and Meilisearch processes tasks in order — so a
-            // pending swap involving our uids means the rebuild has not finished yet, and no pending
-            // swap plus no pending scoped tasks means it has
-            $pending += IndexSwapTasks::pending($this->client, $indexUids);
+                    if ('failed' === $task->status) {
+                        throw new RuntimeException(sprintf(
+                            'Swapping the rebuilt "%s" index live failed: %s',
+                            $requests[$requestId],
+                            $task->error['message'] ?? 'unknown error',
+                        ));
+                    }
 
-            if (0 === $pending) {
+                    unset($requests[$requestId]);
+                }
+            }
+
+            if ([] === $requests) {
                 return;
             }
 
-            $output->writeln(sprintf('Waiting for %d tasks to finish...', $pending));
+            $output->writeln(sprintf('Waiting for the rebuild of %s to finish...', implode(', ', $requests)));
 
             sleep(10);
         } while ((time() - $start) < $waitTimeout);
 
-        throw new RuntimeException(sprintf('The indexing did not finish within the specified time (%d seconds)', $waitTimeout));
-    }
-
-    /**
-     * @param list<string> $indexUids
-     */
-    public static function createTasksQuery(array $indexUids): TasksQuery
-    {
-        $query = new TasksQuery();
-        $query->setStatuses(['enqueued', 'processing']);
-
-        // Scope the query to this run's index uids so we don't wait on unrelated tasks from
-        // other developers/environments sharing the same Meilisearch instance (the exact
-        // scenario MEILISEARCH_PREFIX exists for).
-        if ([] !== $indexUids) {
-            $query->setIndexUids($indexUids);
-        }
-
-        return $query;
+        throw new RuntimeException(sprintf(
+            'The indexing did not finish within the specified time (%d seconds). If it does not finish at all, check the logs: a rebuild that is superseded by a later one or abandoned is never swapped live',
+            $waitTimeout,
+        ));
     }
 }
