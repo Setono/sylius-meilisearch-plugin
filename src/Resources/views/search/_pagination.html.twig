@@ -4,9 +4,10 @@
 
 {% if total > 1 %}
     {# Preserve the current route (search or taxon), its params (e.g. _locale, slug) and the
-       current query (q, f, s), only overriding the page. #}
+       current query (q, f, s), only overriding the page. The route's params are merged last, so a
+       query key named like one of them (e.g. ?_locale=… or ?slug=…) can't change the links. #}
     {% set route = app.request.attributes.get('_route') %}
-    {% set routeParams = (app.request.attributes.get('_route_params')|default({}))|merge(app.request.query.all) %}
+    {% set routeParams = app.request.query.all|merge(app.request.attributes.get('_route_params')|default({})) %}
 
     {# Build a windowed list of page numbers: first, last and a window around the current page. #}
     {% set pages = [] %}
