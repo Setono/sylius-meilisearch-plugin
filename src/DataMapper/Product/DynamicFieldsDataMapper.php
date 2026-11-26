@@ -54,17 +54,13 @@ final class DynamicFieldsDataMapper implements DataMapperInterface
                     continue;
                 }
 
-                if (null === $attributeValues) {
-                    $attributeValues = $this->attributesValuesProvider->provide($product, $indexScope);
-                }
+                $attributeValues ??= $this->attributesValuesProvider->provide($product, $indexScope);
 
                 $value = $attributeValues[$field->code] ?? null;
             } else {
-                if (null === $optionValues) {
-                    $optionValues = $source instanceof ProductVariantInterface
-                        ? self::provideVariantOptions($source)
-                        : $this->optionsValuesProvider->provide($source, $indexScope);
-                }
+                $optionValues ??= $source instanceof ProductVariantInterface
+                    ? self::provideVariantOptions($source)
+                    : $this->optionsValuesProvider->provide($source, $indexScope);
 
                 $value = $optionValues[$field->code] ?? null;
             }
