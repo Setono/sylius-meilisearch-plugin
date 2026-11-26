@@ -55,9 +55,7 @@ final class PopularityDataMapper implements DataMapperInterface
             'The given $source and $target is not supported',
         );
 
-        if (!isset($this->popularityCache[$source])) {
-            $this->popularityCache[$source] = $this->calculatePopularity($source);
-        }
+        $this->popularityCache[$source] ??= $this->calculatePopularity($source);
 
         $target->popularity = $this->popularityCache[$source];
     }

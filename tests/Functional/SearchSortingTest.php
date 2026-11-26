@@ -62,9 +62,7 @@ final class SearchSortingTest extends FunctionalTestCase
         $previousDiscount = null;
         /** @var array{discount: float} $hit */
         foreach ($result->hits as $hit) {
-            if (null === $previousDiscount) {
-                $previousDiscount = $hit['discount'];
-            }
+            $previousDiscount ??= $hit['discount'];
 
             self::assertLessThanOrEqual($previousDiscount, $hit['discount']);
         }
